@@ -1,12 +1,14 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { ScrollColumn, ScrollLine, ScrollPiece } from "@/lib/torah/scroll-pages";
 import { WithMaamid } from "@/components/reader/Maamid";
 
 const letterCount = (pieces: ScrollPiece[]) => pieces.reduce((n, p) => n + p.s.replace(/[{}[\]]/g, "").length, 0);
 /** Lines with many letters are drawn a little smaller so every line fits, as a sofer stretches or squeezes. */
-const FIT = 36;
+const FIT = 40;
+/** Both sides use the same line height, so a line of the scroll sits level with the same line with vowels. */
+const LINE = "6.3cqw";
 
 function Big({ text }: { text: string }) {
   const parts = text.split(/(\{[^}]*\}|\[[^\]]*\])/).filter(Boolean);
@@ -43,7 +45,23 @@ function Line({ line, vowels }: { line: ScrollLine; vowels: boolean }) {
   const segs = line.segs.filter((s) => s.length);
   const n = letterCount(segs.flat());
   const style = n > FIT ? { fontSize: `${(100 * FIT) / n}%` } : undefined;
-  const words = (s: ScrollPiece[]) => s.map((p, i) => <Piece key={i} p={p} vowels={vowels} />);
+  const words = (s: ScrollPiece[]) => {
+    if (!vowels) return s.map((p, i) => <Piece key={i} p={p} vowels={false} />);
+    // With vowels, words joined by a maqaf stay together (in the scroll they're written apart).
+    const groups: ScrollPiece[][] = [];
+    for (const p of s) {
+      const last = groups[groups.length - 1];
+      if (last && last[last.length - 1].v.endsWith("\u05BE")) last.push(p);
+      else groups.push([p]);
+    }
+    return groups.map((g, i) => (
+      <span key={i}>
+        {g.map((p, j) => (
+          <Piece key={j} p={p} vowels />
+        ))}
+      </span>
+    ));
+  };
 
   let body: React.ReactNode;
   if (!segs.length) body = <span>&nbsp;</span>;
@@ -88,9 +106,10 @@ function Column({ col, vowels }: { col: ScrollColumn; vowels: boolean }) {
         lang="he"
         className={
           vowels
-            ? "hebrew-text rounded-lg border border-stone-200 bg-white px-[5%] py-4 font-hebrew text-[3.3cqw] leading-[1.95] text-stone-900"
-            : "rounded-lg bg-[#f6eedd] px-[5%] py-4 font-scroll text-[3.75cqw] leading-[1.62] text-stone-900 shadow-[inset_0_0_40px_rgba(120,90,40,0.15)]"
+            ? "hebrew-text rounded-lg border border-stone-200 bg-white px-[5%] py-4 font-hebrew text-[3.3cqw] text-stone-900"
+            : "rounded-lg bg-[#f6eedd] px-[5%] py-4 font-scroll text-[3.6cqw] text-stone-900 shadow-[inset_0_0_40px_rgba(120,90,40,0.15)]"
         }
+        style={{ lineHeight: LINE }}
       >
         {col.lines.map((l, i) => (
           <Line key={i} line={l} vowels={vowels} />
@@ -106,7 +125,11 @@ function Column({ col, vowels }: { col: ScrollColumn; vowels: boolean }) {
  * be shown with vowels and te'amim beside it. Words outside the parasha are pale.
  */
 export function ScrollPages({ columns }: { columns: ScrollColumn[] }) {
+  // Side by side on wide screens; on a phone, the scroll alone (the vowels can be turned on).
   const [tikkun, setTikkun] = useState(true);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 767px)").matches) setTikkun(false);
+  }, []);
   if (!columns.length) return null;
   return (
     <div className="space-y-6">
