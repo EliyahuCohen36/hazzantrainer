@@ -1,9 +1,15 @@
 # Kriah Trainer (hazzantrainer)
 
 Torah reading trainer in the Syrian (Aleppo) tradition, live at
-https://hazzantrainer.netlify.app. Netlify builds the site from this
-repository automatically on every push to `main` (`npm run build`, publishes
-`out/`, see netlify.toml). There's no need to upload folders by hand.
+**https://eliyahucohen36.github.io/hazzantrainer/** (GitHub Pages, free).
+GitHub Actions builds and publishes the site on every push to `main`
+(.github/workflows/pages.yml, built with NEXT_PUBLIC_BASE_PATH=/hazzantrainer).
+There's no need to upload folders by hand. Raw URLs to files in public/
+(audio, icons) must go through `asset()` from src/lib/base-path.ts.
+
+Older copies on Netlify (hazzantrainer.netlify.app, majestic-mandazi-9abc7e)
+no longer update: that account's free build credits ran out. netlify.toml is
+kept in case the owner goes back to Netlify.
 
 ## The owner's preferences
 - Always spell it **Hazzan** (never "Chazzan"); this is the Syrian spelling.
@@ -12,7 +18,7 @@ repository automatically on every push to `main` (`npm run build`, publishes
   Azla = Ashkenazi Kadma, Talsha = Telisha Gedola, Tirtsa = Telisha Ketana.
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
-- Everything must stay free to run (Netlify free plan, netlify.app address).
+- Everything must stay free to run (GitHub Pages; never anything paid).
 
 ## Where things are
 - Te'amim names and the 24 books of Tanakh: src/data/teamim-reference.ts
