@@ -35,6 +35,14 @@ kept in case the owner goes back to Netlify.
   (e.g. shofar-holekh_segolta.mp3), in TORAH_TEAMIM_PAIRS with a Torah example;
   the pair shows on both cards ("Before X" / "After Y"). Process uploads with
   ffmpeg: trim silence, loudnorm I=-18, MP3 128k mono.
+- Practising te'amim (for children): every recording on the te'amim trainer has a
+  "Practice" button (src/components/tanakh/TaamPractice.tsx): the child sings, it's
+  scored against the Hazzan's recording by scoreTaamPractice() in
+  src/lib/audio/taam-practice.ts (melody match + tempo-free tune shape + length
+  check), with stars and tips. Listening quiz: /tanakh/torah/teamim/quiz/
+  (TeamimQuiz.tsx, uses solo recordings, offers look-alike te'amim as wrong
+  answers). Progress (best scores, quiz record) is kept in the browser
+  (localStorage), so it's per device.
 - The 54 parashiyot with their 7 aliyot + Maftir (from @hebcal/leyning) and the
   Sephardic haftarah: src/data/parashot.ts. Book pages list them:
   /tanakh/torah/<book>/ (e.g. /tanakh/torah/bereshit/#noah)
@@ -48,7 +56,7 @@ kept in case the owner goes back to Netlify.
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
 - Scoring (melody, note placement, clarity, pauses): src/lib/audio/
-- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/teamim/ (te'amim trainer: names, sounds, examples), /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/ (te'amim by book), /practice/[lessonId]/
+- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/teamim/ (te'amim trainer: names, sounds, examples, Practice), /tanakh/torah/teamim/quiz/, /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/ (te'amim by book), /practice/[lessonId]/
 
 ## Layout the owner asked for
 - Torah page: a short link card to the te'amim trainer first, then the five books

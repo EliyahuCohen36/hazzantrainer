@@ -1,0 +1,139 @@
+import { scoreReading, type ReadingResult, type RecordingAnalysis } from "./reading-score";
+import type { PitchContour } from "./contour";
+import { foldOctave, pointScore } from "./pitch-math";
+
+/**
+ * Child-friendly feedback for practising one ta'am against the Hazzan's
+ * recording: stars, a short message, and what to fix (start / middle / end
+ * too high or too low).
+ */
+
+export interface PracticeFeedback {
+  score: number;
+  stars: 0 | 1 | 2 | 3;
+  headline: string;
+  tips: string[];
+}
+
+const PARTS = ["The start", "The middle", "The end"];
+
+/** The tune resampled to N evenly spaced points (tempo-free shape). */
+function shape(c: PitchContour, N = 40): number[] | null {
+  const v = c.relative.filter((x): x is number => x !== null);
+  if (v.length < 5) return null;
+  return Array.from({ length: N }, (_, k) => {
+    const pos = (k / (N - 1)) * (v.length - 1);
+    const i = Math.floor(pos);
+    const f = pos - i;
+    return v[i] + (v[Math.min(v.length - 1, i + 1)] - v[i]) * f;
+  });
+}
+
+/**
+ * Score for one ta'am (0–100). A single ta'am is short, so besides the
+ * flexible melody match used for whole pesukim, it also compares the overall
+ * shape of the tune start to end, and checks it's about the right length
+ * (anything from half to twice the Hazzan's length is fine). Tested: the
+ * Hazzan's own recordings score 100 for themselves and 30 on average for the
+ * other te'amim; a child's voice (an octave up, faster or slower) scores 80–100.
+ */
+export function scoreTaamPractice(master: RecordingAnalysis, student: RecordingAnalysis) {
+  const result = scoreReading(master, student, [], []);
+  const a = shape(master.contour);
+  const b = shape(student.contour);
+  const shapeScore = a && b ? (100 * a.reduce((sum, x, k) => sum + pointScore(foldOctave(b[k] - x)), 0)) / a.length : 0;
+  const ratio = student.contour.voicedSec / Math.max(0.05, master.contour.voicedSec);
+  const off = Math.abs(Math.log(ratio));
+  const lengthFactor = off <= Math.log(2) ? 1 : Math.max(0, 1 - (off - Math.log(2)) / Math.log(2));
+  const tune = (0.5 * result.melody.score + 0.5 * shapeScore) * lengthFactor;
+  const score = Math.round(0.9 * tune + 0.1 * result.clarity.score);
+  return { score, result, tooLong: ratio > 2, tooShort: ratio < 0.5 };
+}
+
+export function practiceFeedback(
+  master: PitchContour,
+  { score, result, tooLong, tooShort }: ReturnType<typeof scoreTaamPractice>,
+  taamName: string,
+): PracticeFeedback {
+  const stars = score >= 88 ? 3 : score >= 70 ? 2 : score >= 45 ? 1 : 0;
+  const headline =
+    stars === 3
+      ? `Beautiful! That's the ${taamName}.`
+      : stars === 2
+        ? "Very good! Almost there."
+        : stars === 1
+          ? "Good try! Listen again and copy the tune."
+          : "Let's try again. Listen first, then sing along.";
+
+  const tips: string[] = [];
+  if (tooShort) tips.push(`Sing the whole ${taamName}: yours was much shorter than the Hazzan's.`);
+  if (tooLong) tips.push(`Yours was much longer than the Hazzan's. Is it the right ta'am? Listen again.`);
+
+  // Where was the tune off? Average distance from the Hazzan's tune in each third.
+  const rel = master.relative;
+  const aligned = result.melody.aligned;
+  const voicedIdx = rel.map((v, i) => (v !== null ? i : -1)).filter((i) => i >= 0);
+  if (voicedIdx.length > 6) {
+    const third = Math.ceil(voicedIdx.length / 3);
+    for (let p = 0; p < 3; p++) {
+      const idx = voicedIdx.slice(p * third, (p + 1) * third);
+      const diffs = idx
+        .map((i) => (aligned[i] !== null && rel[i] !== null ? (aligned[i] as number) - (rel[i] as number) : null))
+        .filter((d): d is number => d !== null);
+      if (diffs.length < 3) continue;
+      const mean = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+      if (mean > 1) tips.push(`${PARTS[p]} was too high. Bring it down a little.`);
+      else if (mean < -1) tips.push(`${PARTS[p]} was too low. Bring it up a little.`);
+    }
+  }
+  for (const t of result.tips) {
+    // Reading tips that make sense for a single ta'am (loudness, voice, clarity).
+    if (!/pasuk|Pause|stressed syllable|stop after/i.test(t)) tips.push(t);
+  }
+  if (!tips.length && stars < 3) tips.push("Listen to the Hazzan once more and match each note.");
+  return { score, stars, headline, tips: tips.slice(0, 3) };
+}
+
+/* Progress, kept in this browser only. */
+
+const KEY = "kriah-teamim-progress-v1";
+
+interface Progress {
+  /** Best practice score per recording file. */
+  practice: Record<string, number>;
+  /** Quiz answers per ta'am id. */
+  quiz: Record<string, { right: number; total: number }>;
+}
+
+export function loadProgress(): Progress {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return { practice: {}, quiz: {}, ...JSON.parse(raw) };
+  } catch {
+    // Storage may be unavailable (private mode); progress is just not kept.
+  }
+  return { practice: {}, quiz: {} };
+}
+
+function save(p: Progress) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(p));
+  } catch {
+    // ignore
+  }
+}
+
+export function recordPractice(src: string, score: number): number {
+  const p = loadProgress();
+  const best = Math.max(score, p.practice[src] ?? 0);
+  p.practice[src] = best;
+  save(p);
+  return best;
+}
+
+export function recordQuiz(taamId: string, right: boolean) {
+  const p = loadProgress();
+  const q = p.quiz[taamId] ?? { right: 0, total: 0 };
+  p.quiz[taamId] = { right: q.right + (right ? 1 : 0), total: q.total + 1 };
+  save(p);
+}

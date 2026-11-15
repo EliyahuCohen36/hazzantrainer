@@ -2,6 +2,7 @@ import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
 import { asset } from "@/lib/base-path";
+import { TaamPractice } from "./TaamPractice";
 
 const LEVELS: Record<number, string> = {
   1: "Strongest pause",
@@ -41,6 +42,12 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
         </span>
       </div>
       <audio src={asset(pair.src)} controls preload="none" className="h-9 w-full max-w-sm" />
+      <div className="mt-2">
+        <TaamPractice
+          src={pair.src}
+          label={`${NAME_OF.get(pair.first)?.syrian} ${NAME_OF.get(pair.second)?.syrian}`}
+        />
+      </div>
       {pair.example && (
         <div className="mt-2">
           <Example ex={pair.example} sofPasuk={false} span={2} />
@@ -73,7 +80,10 @@ function TaamCard({ t }: { t: TaamReference }) {
       </div>
       <div className="space-y-2">
         {audio ? (
-          <audio src={asset(audio)} controls preload="none" className="h-9 w-full max-w-sm" />
+          <div className="space-y-2">
+            <audio src={asset(audio)} controls preload="none" className="h-9 w-full max-w-sm" />
+            <TaamPractice src={audio} label={t.syrian} />
+          </div>
         ) : !(mesharet && before.length) ? (
           <p className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
             <span aria-hidden>♪</span> {mesharet ? "Recordings coming soon" : "Recording coming soon"}

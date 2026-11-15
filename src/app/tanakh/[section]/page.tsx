@@ -63,7 +63,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
             <span>
               <span className="block text-lg font-semibold text-stone-900">Te&apos;amim trainer →</span>
               <span className="block text-sm text-stone-600">
-                Learn the names and sounds of every ta&apos;am, with examples from the Torah.
+                Learn the names and sounds of every ta&apos;am, practise singing them, and take the listening quiz.
               </span>
             </span>
             <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
