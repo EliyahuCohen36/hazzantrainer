@@ -39,11 +39,6 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
         </span>
       </div>
       <BeginnerLock need={nekudaLevel(n.id)}>
-      {n.id === "sheva" && (
-        <p className="mb-3 text-stone-600">
-          At the start of a word the Sheva says a short &ldquo;e&rdquo;. In the middle of a word it is often silent.
-        </p>
-      )}
       <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl compact />
       </div>

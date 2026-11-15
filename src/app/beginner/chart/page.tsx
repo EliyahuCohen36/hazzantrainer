@@ -19,7 +19,7 @@ export default function ChartPage() {
       </div>
       <p className="mb-5 text-stone-600">
         Read each row from right to left. An empty box means that letter doesn&apos;t take that nekuda. Final letters
-        never take a nekuda, except Khaf Sofit with a Sheva (ךְ) or a Qamats (ךָ).
+        never take a nekuda, except Khaf Sofit with a Qamats (ךָ).
       </p>
       <BeginnerLock need={BEGINNER_MAX}>
       <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">

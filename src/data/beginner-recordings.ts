@@ -4,12 +4,12 @@
  *
  * He records one file per letter: the letter's name, its sound alone, then the
  * letter with each nekuda sound, with a short pause between them, e.g. for Bet:
- * "Bet – b – ba – be – bi – bo – bu – b'". (Alef and He have no sound alone, so
+ * "Bet – b – ba – be – bi – bo – bu". (Alef and He have no sound alone, so
  * just the name.) The file is cut at the pauses into files named:
  *   letter-<letterId>.mp3              the name  ("Bet")        key letter:<letterId>
  *   <letterId>-alone.mp3               the sound alone ("b"); the plain letter's
  *                                      tile plays the name, then this
- *   <letterId>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3       key sound:<letterId>:<nekudaId>
+ *   <letterId>-<qamats|sere|hireq|holem|qibbus>.mp3       key sound:<letterId>:<nekudaId>
  *   nekuda-<nekudaId>.mp3              the nekuda's name        key nekuda:<nekudaId>
  * Nekudot that sound the same in the Syrian reading share one recording (below),
  * so each letter needs only 5 or 6 sounds.
