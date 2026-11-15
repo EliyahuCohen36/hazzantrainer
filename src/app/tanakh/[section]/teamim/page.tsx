@@ -45,7 +45,7 @@ export default function TorahTeamimPage() {
           </span>
         </div>
       </div>
-      <div className="sticky top-0 z-10 mb-4 rounded-xl border border-stone-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur">
+      <div className="sticky top-0 z-10 mb-4 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur">
         <SpeedControl />
       </div>
       <TeamimLevels />

@@ -55,7 +55,7 @@ kept in case the owner goes back to Netlify.
 ## Accounts and paying schools (Supabase, free plan)
 - The site is pay-to-use: every page needs a signed-in account whose school
   licence is current, except / (welcome page for visitors), /demo/ (3 te'amim:
-  src/data/demo.ts), /login/ and /join/. Gate: src/components/auth/AuthGate.tsx.
+  src/data/demo.ts), /login/, /join/, /about/ and /subscribe/. Gate: src/components/auth/AuthGate.tsx.
 - Supabase project "kriah-trainer" (https://mjjdyfnfadjvdabmgzxf.supabase.co);
   URL + publishable key are in .github/workflows/pages.yml (public by design).
   Tables, codes and security rules: supabase/schema.sql (run in the SQL editor;
@@ -73,8 +73,15 @@ kept in case the owner goes back to Netlify.
   levels their teacher opened (classes.unlocked_level, per-child override in
   class_members.unlocked_level; my_level() in supabase/levels.sql). Teachers set
   them in /teacher/. The quiz uses only open te'amim. Teachers/admins see all.
-- Payment: schools by invoice (owner sets seats/paid-until by hand). Card
-  checkout for families (Stripe) is planned, not built.
+- Payment: schools by invoice (owner sets seats/paid-until by hand).
+  Individuals: $10/month (src/data/pricing.ts). /subscribe/ creates an account
+  (email, no code) and opens the Stripe Payment Link with client_reference_id =
+  user id. The webhook supabase/functions/stripe-webhook sets role 'family' and
+  paid_until (supabase/payments.sql adds profiles.stripe_customer_id). Until
+  STRIPE_PAYMENT_LINK is set, /subscribe/ says payments open soon.
+- Site header on every page (Home, About, demo, account): SiteHeader in AuthGate.tsx.
+  Visitors' home page: src/components/auth/Landing.tsx (pictures in public/images/,
+  screenshots of the trainer). About page: src/app/about/page.tsx (open to all).
 
 ## Where things are
 - Te'amim names and the 24 books of Tanakh: src/data/teamim-reference.ts

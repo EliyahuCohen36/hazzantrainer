@@ -11,7 +11,7 @@ export const DEMO_TEAMIM = ["sof-pasuk", "atnah", "tarha"];
 export const DEMO_FILES = new Set(DEMO_TEAMIM.map((id) => TORAH_TEAMIM_RECORDINGS[id]).filter(Boolean));
 
 /** Pages anyone can open without signing in (paths without the base path, with trailing slash). */
-export const OPEN_PAGES = ["/", "/login/", "/join/", "/demo/"];
+export const OPEN_PAGES = ["/", "/login/", "/join/", "/demo/", "/about/", "/subscribe/"];
 
 /** Where "Bring it to your school" sends schools. Empty = the button is hidden. */
 export const CONTACT_EMAIL = "";

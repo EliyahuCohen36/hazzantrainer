@@ -161,7 +161,7 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="sticky top-0 z-10 -mx-1 rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+      <div className="sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
         <DisplayModeToggle value={settings} onChange={setSettings} />
         {settings.showTaamNames && !scroll && (
           <p className="mt-2 text-xs text-stone-500">
@@ -175,7 +175,7 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
       {scroll && scrollColumns?.length ? <ScrollPages columns={scrollColumns} /> : null}
 
       {!(scroll && scrollColumns?.length) && sections.map((s) => (
-        <section key={s.id} id={s.id} className="scroll-mt-20 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <section key={s.id} id={s.id} className="scroll-mt-20 sm:scroll-mt-36 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-100 pb-2">
             <h3 className="text-base font-semibold text-stone-900">
               {s.en} <span className="ms-2 text-sm font-normal tabular-nums text-stone-500">{s.range}</span>
