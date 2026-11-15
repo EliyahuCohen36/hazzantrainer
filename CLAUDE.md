@@ -122,7 +122,18 @@ kept in case the owner goes back to Netlify.
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
 - Scoring (melody, note placement, clarity, pauses): src/lib/audio/
-- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/teamim/ (te'amim trainer: names, sounds, examples, Practice), /tanakh/torah/teamim/quiz/, /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/ (te'amim by book), /practice/[lessonId]/
+- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/teamim/ (te'amim trainer: names, sounds, examples, Practice), /tanakh/torah/teamim/quiz/, /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/ (te'amim by book), /practice/[lessonId]/, /beginner/ (Beginner Keriah)
+
+## Beginner Keriah (kindergarten / first-time readers)
+- /beginner/ (card on the home page): /beginner/letters/ (22 letters with the
+  dagesh/dot pairs Bet/Vet, Kaf/Khaf, Pe/Fe, Shin/Sin as their own tiles, plus the
+  5 sofiyot beside their letters), /beginner/nekudot/ and /beginner/nekudot/<id>/
+  (every letter with that nekuda), /beginner/chart/ (all letters × all nekudot).
+- Data: src/data/beginner.ts (Syrian/Sephardic pronunciation: qamats = "a",
+  tav = "t"). Sofiyot take no nekuda except Khaf Sofit with sheva (ךְ) or qamats (ךָ).
+  Throat letters (א ה ח ע) take hataf instead of sheva; hataf only on them.
+- Recordings (his voice only) go in BEGINNER_RECORDINGS (src/data/beginner-recordings.ts):
+  letter:<id>, sound:<letterId>:<nekudaId>, nekuda:<id>. Tiles without one show no 🔊.
 
 ## Layout the owner asked for
 - Torah page: a short link card to the te'amim trainer first, then the five books

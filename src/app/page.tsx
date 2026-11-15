@@ -13,6 +13,26 @@ export default function Home() {
       <h1 className="text-3xl font-semibold text-stone-900">Kriah Trainer</h1>
       <p className="mt-1 text-stone-600">Reading practice in the Syrian tradition.</p>
 
+      <Link
+        href="/beginner/"
+        className="mt-8 flex items-center gap-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 p-5 shadow-sm transition-colors hover:border-amber-400"
+      >
+        <span dir="rtl" lang="he" className="font-hebrew text-4xl text-amber-800">
+          אבּג
+        </span>
+        <span className="flex-1">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="text-lg font-semibold text-stone-900">Beginner Keriah</span>
+            <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+              קְרִיאָה לְמַתְחִילִים
+            </span>
+          </span>
+          <span className="mt-1 block text-sm text-stone-600">
+            For first-time readers: the alef-bet with the final letters, then every letter with every nekuda.
+          </span>
+        </span>
+      </Link>
+
       <section id="tanakh" className="mt-8">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xl font-semibold text-stone-900">Tanakh</h2>
