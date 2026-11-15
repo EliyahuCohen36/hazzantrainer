@@ -108,7 +108,7 @@ export const TORAH_EXAMPLES: Record<string, TaamExample[]> = {
     { ref: "Bereshit 1:5", phrase: ["וַיִּקְרָ֨א", "אֱלֹהִ֤ים ׀"], at: 0 },
     { ref: "Bereshit 1:9", phrase: ["וַיֹּ֣אמֶר", "אֱלֹהִ֗ים", "יִקָּו֨וּ", "הַמַּ֜יִם"], at: 2 },
   ],
-  "tirtsa": [
+  "tilsa": [
     { ref: "Bereshit 1:21", phrase: ["הַֽחַיָּ֣ה ׀", "הָֽרֹמֶ֡שֶׂת", "אֲשֶׁר֩", "שָׁרְצ֨וּ"], at: 2 },
     { ref: "Bereshit 1:25", phrase: ["וַיַּ֣עַשׂ", "אֱלֹהִים֩", "אֶת־חַיַּ֨ת"], at: 1 },
   ],

@@ -15,7 +15,9 @@ kept in case the owner goes back to Netlify.
 - Always spell it **Hazzan** (never "Chazzan"); this is the Syrian spelling.
 - Te'amim names follow the Syrian tradition as given by the Sephardic
   Pizmonim Project (pizmonim.org/taamim.php), e.g. Kadma = Ashkenazi Pashta,
-  Azla = Ashkenazi Kadma, Talsha = Telisha Gedola, Tirtsa = Telisha Ketana.
+  Azla = Ashkenazi Kadma, Talsha (תלשׁא, ֠) = Telisha Gedola,
+  Tilsa (תילשׂא, ֩) = Telisha Ketana. Talsha and Tilsa are two separate
+  te'amim with different sounds: never merge them.
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
 - Everything must stay free to run (GitHub Pages; never anything paid).

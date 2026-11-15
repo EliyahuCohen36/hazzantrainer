@@ -44,7 +44,7 @@ export const TEAMIM: Record<TaamId, TaamInfo> = {
   kadma: { id: "kadma", mark: "֨", hebrew: "קדמא", standard: "Kadma", syrian: "Azla", role: "conjunctive", pauseMs: 0 },
   geresh: { id: "geresh", mark: "֜", hebrew: "גרש", standard: "Geresh", syrian: "Gerish", role: "disjunctive", pauseMs: 80 },
   gershayim: { id: "gershayim", mark: "֞", hebrew: "גרשיים", standard: "Gershayim", syrian: "Shene Gerishin", role: "disjunctive", pauseMs: 80 },
-  "telisha-ketana": { id: "telisha-ketana", mark: "֩", hebrew: "תלישא קטנה", standard: "Telisha Ketana", syrian: "Tirtsa", role: "conjunctive", pauseMs: 0 },
+  "telisha-ketana": { id: "telisha-ketana", mark: "֩", hebrew: "תלישא קטנה", standard: "Telisha Ketana", syrian: "Tilsa", role: "conjunctive", pauseMs: 0 },
   "telisha-gedola": { id: "telisha-gedola", mark: "֠", hebrew: "תלישא גדולה", standard: "Telisha Gedola", syrian: "Talsha", role: "disjunctive", pauseMs: 80 },
   segol: { id: "segol", mark: "֒", hebrew: "סגולתא", standard: "Segol", syrian: "Segolta", role: "disjunctive", pauseMs: 150 },
   zarka: { id: "zarka", mark: "֮", hebrew: "זרקא", standard: "Zarka", syrian: "Zarka", role: "disjunctive", pauseMs: 100 },
