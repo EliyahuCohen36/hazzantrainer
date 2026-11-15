@@ -31,17 +31,48 @@ export default function AboutPage() {
       </section>
 
       <section className="mx-auto max-w-3xl space-y-12 px-4 py-12">
+        <div className="grid items-start gap-8 sm:grid-cols-[14rem_1fr]">
+          <figure className="mx-auto w-48 sm:w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={asset("/images/eliyahu-cohen.webp")}
+              alt="Eliyahu Cohen"
+              className="aspect-[3/4] w-full rounded-2xl object-cover shadow-lg shadow-stone-300/50"
+            />
+            <figcaption className="mt-2 text-center text-sm font-medium text-stone-700">Eliyahu Cohen</figcaption>
+          </figure>
+          <div>
+            <h2 className="text-2xl font-semibold text-stone-900">Meet Eliyahu Cohen</h2>
+            <div className="mt-3 space-y-4 text-stone-700">
+              <p>
+                Eliyahu Cohen is an experienced Hazzan and teacher in the community. He learned Qeriah and Hazzanut from a
+                young age under the guidance of his great-uncles, <b>Meyer &ldquo;Mickey&rdquo; Kairey a&quot;h</b> and{" "}
+                <b>Isaac &ldquo;Cabby&rdquo; Cabasso a&quot;h</b>.
+              </p>
+              <p>
+                Whether it&apos;s a Bar Mitzvah part, a pizmon or a section of the Tefillah, he puts his full effort into
+                making sure every learner can learn it confidently and show off their newly acquired skills. Just as his
+                teachers taught him the importance of keeping the traditions, Eliyahu is passing these teachings down to the
+                next generation of Hazzanim in the community.
+              </p>
+              <p>
+                He has taught Qeriah and Pizmonim at <b>Barkai Yeshiva Elementary School</b> for five years, and is an
+                active Hazzan and Qoreh across the SY community.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div>
           <h2 className="text-2xl font-semibold text-stone-900">How it started</h2>
           <div className="mt-3 space-y-4 text-stone-700">
             <p>
-              Kriah Trainer was started by <b>Eliyahu Cohen</b>, from the Syrian Jewish community. Children learning to read
-              the Torah in our tradition, the tradition of Aram Tsoba (Aleppo), had very little to practise with at home.
+              Children learning to read the Torah in our tradition, the tradition of Aram Tsoba (Aleppo), had very little to practise with at home.
               Most of the apps and recordings out there teach the Ashkenazi tunes, and even call the te&apos;amim by other
               names: what we call Kadma, they call Pashta.
             </p>
             <p>
-              So he recorded every ta&apos;am himself, in the Syrian melody, and built a trainer around those recordings.
+              So Eliyahu recorded every ta&apos;am himself, in the Syrian melody, and built a trainer around those recordings.
               Children hear each ta&apos;am exactly the way it&apos;s sung in shul, practise it into the microphone, and get
               stars and a tip every time. Then they read real pesukim, then whole aliyot, and finally a page of the Sefer
               Torah itself.
