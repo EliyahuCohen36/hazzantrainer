@@ -7,6 +7,7 @@ import { versesBetween } from "@/data/torah";
 import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import { curriculum } from "@/lib/curriculum/repository";
 import { TorahText, type AliyahSection } from "@/components/tanakh/TorahText";
+import { scrollColumnsFor } from "@/lib/torah/scroll-pages";
 
 export function generateStaticParams() {
   return PARASHOT.map((p) => ({ section: "torah", book: p.book, parasha: p.id }));
@@ -41,6 +42,12 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
       maftirFrom: maftir && keys.includes(maftir.from) ? maftir.from : undefined,
     };
   });
+
+  // The parasha as it stands in the Sefer Torah (Torah Scroll Mode).
+  const marks: Record<string, string> = {};
+  for (const a of main) if (a.n !== 1) marks[a.from] = ALIYAH_NAMES[String(a.n)].en;
+  if (maftir) marks[maftir.from] = "Maftir";
+  const scrollColumns = scrollColumnsFor(p.book, main[0].from, main[main.length - 1].to, marks);
 
   // Pesukim that have a trainer lesson.
   const practice: Record<string, string> = {};
@@ -92,7 +99,7 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
       </nav>
 
       <div className="mt-4">
-        <TorahText sections={sections} practice={practice} />
+        <TorahText sections={sections} practice={practice} scrollColumns={scrollColumns} />
       </div>
 
       <div className="mt-6 flex justify-between gap-4 text-sm">

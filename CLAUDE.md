@@ -30,6 +30,11 @@ kept in case the owner goes back to Netlify.
 - Torah Scroll Mode uses Stam Sefarad CLM (Sephardic Sefer Torah letters with
   tagin/crowns; src/fonts/stam-sefarad/, GPL + font exception, loaded with
   next/font/local in layout.tsx as --font-stam).
+- Torah Scroll Mode on parasha pages shows the parasha as whole Sefer Torah
+  columns (standard 245 columns × 42 lines, line for line), with an optional
+  vowelled column beside it like a tikkun: src/components/tanakh/ScrollPages.tsx,
+  src/lib/torah/scroll-pages.ts, data src/data/scroll-layout.json (line breaks
+  from tikkun.io, MIT, mapped onto our text by scripts/scroll-layout/).
 - Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).

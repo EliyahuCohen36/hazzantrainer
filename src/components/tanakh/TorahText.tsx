@@ -9,6 +9,8 @@ import { WithMaamid } from "@/components/reader/Maamid";
 const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, o)} />;
 import { taamOfWord } from "@/lib/hebrew/taam-of-word";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
+import { ScrollPages } from "./ScrollPages";
+import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
 export interface AliyahSection {
   id: string;
@@ -24,6 +26,8 @@ interface Props {
   sections: AliyahSection[];
   /** "c:v" → practice lesson path, for pesukim that have a trainer. */
   practice: Record<string, string>;
+  /** The parasha's columns in the Sefer Torah, shown in Torah Scroll Mode. */
+  scrollColumns?: ScrollColumn[];
 }
 
 /** Draw {large} and [small] letters, then strip marks per the settings. */
@@ -146,7 +150,7 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
 }
 
 /** The text of a parasha, aliyah by aliyah, with the reader switches. */
-export function TorahText({ sections, practice }: Props) {
+export function TorahText({ sections, practice, scrollColumns }: Props) {
   const [settings, setSettings] = useState<ReaderSettings>({
     scrollMode: false,
     showNikkud: true,
@@ -168,7 +172,9 @@ export function TorahText({ sections, practice }: Props) {
         )}
       </div>
 
-      {sections.map((s) => (
+      {scroll && scrollColumns?.length ? <ScrollPages columns={scrollColumns} /> : null}
+
+      {!(scroll && scrollColumns?.length) && sections.map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-20 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-100 pb-2">
             <h3 className="text-base font-semibold text-stone-900">
