@@ -19,6 +19,10 @@ export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {
   zarka: "/audio/teamim/torah/zarka.mp3",
   "pazer-gadol": "/audio/teamim/torah/pazer-gadol.mp3",
   "shofar-mehuppakh": "/audio/teamim/torah/shofar-mehuppakh.mp3",
+  rebia: "/audio/teamim/torah/rebia.mp3",
+  talsha: "/audio/teamim/torah/talsha.mp3",
+  tilsa: "/audio/teamim/torah/tilsa.mp3",
+  "shofar-holekh-pesik": "/audio/teamim/torah/shofar-holekh-pesik.mp3",
 };
 
 export interface TaamPairRecording {
@@ -46,5 +50,11 @@ export const TORAH_TEAMIM_PAIRS: TaamPairRecording[] = [
     second: "zakef-katon",
     src: "/audio/teamim/torah/shofar-holekh_zakef-katon.mp3",
     example: { ref: "Bereshit 1:4", phrase: ["כִּי־ט֑וֹב", "וַיַּבְדֵּ֣ל", "אֱלֹהִ֔ים", "בֵּ֥ין"], at: 1 },
+  },
+  {
+    first: "azla",
+    second: "gerish",
+    src: "/audio/teamim/torah/azla_gerish.mp3",
+    example: { ref: "Bereshit 1:9", phrase: ["אֱלֹהִ֗ים", "יִקָּו֨וּ", "הַמַּ֜יִם", "מִתַּ֤חַת"], at: 1 },
   },
 ];
