@@ -75,6 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!supabaseConfigured) {
+      // Local preview without accounts: everything open.
+      setLevel(99);
+      setBeginnerLevel(99);
       setLoading(false);
       return;
     }

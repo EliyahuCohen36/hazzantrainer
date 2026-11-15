@@ -58,6 +58,22 @@ export function beginnerRecording(key: string): string | undefined {
 }
 
 /**
+ * The recordings that sound out a practice word, one per syllable
+ * ("bet:qamats" -> bet-qamats.mp3, "resh" -> resh-alone.mp3), or null if any
+ * syllable hasn't been recorded yet.
+ */
+export function syllableRecordings(syllables: string[]): string[] | null {
+  const out: string[] = [];
+  for (const s of syllables) {
+    const [id, sound] = s.split(":");
+    const f = sound ? `${id}-${sound}` : `${id}-alone`;
+    if (!RECORDED.has(f)) return null;
+    out.push(path(f));
+  }
+  return out;
+}
+
+/**
  * What a tile plays, in order: for a plain letter its name and then its sound
  * alone (if recorded); otherwise the one recording.
  */

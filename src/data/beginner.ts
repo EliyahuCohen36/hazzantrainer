@@ -134,6 +134,7 @@ export const BEGINNER_STEPS = [
   { href: "/beginner/letters/#sofiyot", title: "Final letters", he: "סוֹפִיּוֹת", text: "The five letters that look different at the end of a word.", emoji: "🔚" },
   { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u.", emoji: "•" },
   { href: "/beginner/chart/", title: "Letters with Nekudot", he: "לוּחַ", text: "Every letter with every nekuda, to read one by one.", emoji: "📋" },
+  { href: "/beginner/words/", title: "Practice words", he: "מִלִּים", text: "Read real Torah words with the nekudot you know, and get stars.", emoji: "⭐" },
   { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Na and Sheva Nach, once all the letters and nekudot are learned.", emoji: "⁚" },
 ];
 
