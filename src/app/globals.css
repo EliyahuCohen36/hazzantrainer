@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/*
+ * Fonts:
+ *  - Noto Serif Hebrew: full coverage of nikkud AND all te'amim (checked), with
+ *    proper mark positioning, so marks don't collide. Used for learning mode.
+ *  - Frank Ruhl Libre: classic book face with NO te'amim glyphs, used only for
+ *    Torah Scroll Mode, where marks are hidden anyway.
+ *  To use SBL Hebrew or Taamey Frank CLM, self-host the font and put it first in --font-hebrew.
+ */
+@theme {
+  --font-hebrew: "Noto Serif Hebrew", "SBL Hebrew", "Taamey Frank CLM", serif;
+  --font-scroll: "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #faf8f5;
+  color: #1c1917;
+}
+
+/* Let the font's mark-positioning tables place vowels and te'amim. */
+.hebrew-text {
+  font-feature-settings: "kern" 1, "mark" 1, "mkmk" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}

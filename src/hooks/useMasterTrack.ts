@@ -1,0 +1,108 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { MasterRecording, SegmentTiming, TextSegment } from "@/types/curriculum";
+import { analyzeRecording, type PitchContour } from "@/lib/audio/contour";
+import type { AudioFeatures } from "@/lib/audio/features";
+import { createTestTone } from "@/lib/audio/test-tone";
+
+export type MasterStatus = "loading" | "analyzing" | "ready" | "missing" | "error";
+
+export interface MasterTrack {
+  status: MasterStatus;
+  /** Playable URL (public path or blob: URL). */
+  src: string | null;
+  label: string;
+  timings: SegmentTiming[];
+  contour: PitchContour | null;
+  /** Frame features for pauses, clarity and note placement. */
+  features: AudioFeatures | null;
+  progress: number;
+  error?: string;
+}
+
+/**
+ * Loads the master recording, then analyses its pitch contour in the browser.
+ * Sources: the lesson's default file, a file the user picks or drops, or the synthetic test melody.
+ */
+export function useMasterTrack(recording: MasterRecording | undefined, segments: TextSegment[]) {
+  const [track, setTrack] = useState<MasterTrack>({
+    status: recording ? "loading" : "missing",
+    src: null,
+    label: recording?.reader ?? "No recording",
+    timings: [],
+    contour: null,
+    features: null,
+    progress: 0,
+  });
+
+  // Each load gets an id, so a slow earlier load can't overwrite a newer one.
+  const requestId = useRef(0);
+  const objectUrl = useRef<string | null>(null);
+
+  const setObjectUrl = (url: string | null) => {
+    if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
+    objectUrl.current = url;
+  };
+
+  const analyze = useCallback(
+    async (data: ArrayBuffer, src: string, label: string, timings: SegmentTiming[]) => {
+      const id = ++requestId.current;
+      setTrack({ status: "analyzing", src, label, timings, contour: null, features: null, progress: 0 });
+      try {
+        const { contour, features } = await analyzeRecording(data, (p) => {
+          if (id === requestId.current) setTrack((t) => ({ ...t, progress: p }));
+        });
+        if (id !== requestId.current) return;
+        if (contour.voicedSec < 0.3) throw new Error("No singing detected in this recording.");
+        setTrack({ status: "ready", src, label, timings, contour, features, progress: 1 });
+      } catch (e) {
+        if (id !== requestId.current) return;
+        setTrack((t) => ({ ...t, status: "error", error: e instanceof Error ? e.message : "Could not decode audio." }));
+      }
+    },
+    [],
+  );
+
+  const loadDefault = useCallback(async () => {
+    if (!recording) return;
+    const id = ++requestId.current;
+    setTrack((t) => ({ ...t, status: "loading", error: undefined }));
+    try {
+      const res = await fetch(recording.src);
+      if (id !== requestId.current) return;
+      if (!res.ok) {
+        setTrack((t) => ({ ...t, status: "missing", src: null, contour: null }));
+        return;
+      }
+      setObjectUrl(null);
+      await analyze(await res.arrayBuffer(), recording.src, recording.reader, recording.segmentTimings ?? []);
+    } catch {
+      if (id === requestId.current) setTrack((t) => ({ ...t, status: "missing", src: null }));
+    }
+  }, [recording, analyze]);
+
+  const loadFile = useCallback(
+    async (file: File) => {
+      const url = URL.createObjectURL(file);
+      setObjectUrl(url);
+      // Timings from the lesson only fit the lesson's own file, so none here.
+      await analyze(await file.arrayBuffer(), url, file.name, []);
+    },
+    [analyze],
+  );
+
+  const loadTestTone = useCallback(async () => {
+    const tone = await createTestTone(segments);
+    setObjectUrl(tone.url);
+    await analyze(tone.data, tone.url, "Synthetic test melody (not a real chant)", tone.timings);
+  }, [segments, analyze]);
+
+  useEffect(() => {
+    void loadDefault();
+  }, [loadDefault]);
+
+  useEffect(() => () => setObjectUrl(null), []);
+
+  return { track, loadFile, loadTestTone, reloadDefault: loadDefault };
+}

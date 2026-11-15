@@ -1,0 +1,7 @@
+# Netlify builds the site from GitHub automatically on every change.
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
