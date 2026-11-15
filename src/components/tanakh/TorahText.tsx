@@ -3,7 +3,10 @@
 import { Fragment, useState } from "react";
 import Link from "next/link";
 import type { TorahToken, TorahVerse } from "@/data/torah";
-import { renderHebrew } from "@/lib/hebrew/marks";
+import { renderHebrew, type DisplayOptions } from "@/lib/hebrew/marks";
+import { WithMaamid } from "@/components/reader/Maamid";
+
+const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, o)} />;
 import { taamOfWord } from "@/lib/hebrew/taam-of-word";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
 
@@ -31,14 +34,14 @@ function Letters({ text, opts }: { text: string; opts: { showNikkud: boolean; sh
       {parts.map((p, i) =>
         p.startsWith("{") ? (
           <span key={i} className="text-[1.45em] leading-none">
-            {renderHebrew(p.slice(1, -1), opts)}
+            {heb(p.slice(1, -1), opts)}
           </span>
         ) : p.startsWith("[") ? (
           <span key={i} className="text-[0.65em]">
-            {renderHebrew(p.slice(1, -1), opts)}
+            {heb(p.slice(1, -1), opts)}
           </span>
         ) : (
-          <Fragment key={i}>{renderHebrew(p, opts)}</Fragment>
+          <Fragment key={i}>{heb(p, opts)}</Fragment>
         ),
       )}
     </>
@@ -49,18 +52,18 @@ function Letters({ text, opts }: { text: string; opts: { showNikkud: boolean; sh
 function PesikLetter({ text, opts }: { text: string; opts: { showNikkud: boolean; showTeamim: boolean } }) {
   const chars = [...text];
   const mark = chars.indexOf("\u05A3");
-  if (mark < 0) return <>{renderHebrew(text, opts)}</>;
+  if (mark < 0) return <>{heb(text, opts)}</>;
   let start = mark;
   while (start > 0 && !(chars[start] >= "\u05D0" && chars[start] <= "\u05EA")) start--;
   let end = mark + 1;
   while (end < chars.length && !(chars[end] >= "\u05D0" && chars[end] <= "\u05EA")) end++;
   return (
     <>
-      {renderHebrew(chars.slice(0, start).join(""), opts)}
+      {heb(chars.slice(0, start).join(""), opts)}
       <span className="rounded bg-amber-200/80" title="The Pesik sound goes on this letter">
-        {renderHebrew(chars.slice(start, end).join(""), opts)}
+        {heb(chars.slice(start, end).join(""), opts)}
       </span>
-      {renderHebrew(chars.slice(end).join(""), opts)}
+      {heb(chars.slice(end).join(""), opts)}
     </>
   );
 }

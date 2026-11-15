@@ -2,6 +2,7 @@
 
 import type { TextSegment } from "@/types/curriculum";
 import { renderHebrew } from "@/lib/hebrew/marks";
+import { WithMaamid } from "./Maamid";
 import { getTaam } from "@/lib/hebrew/teamim";
 import type { ReaderSettings } from "./DisplayModeToggle";
 
@@ -59,7 +60,7 @@ export function HebrewReader({ segments, settings, activeSegmentId, segmentScore
                 active ? "bg-amber-200/70" : ""
               } ${scoreColor(score)}`}
             >
-              {renderHebrew(seg.text, opts)}
+              <WithMaamid text={renderHebrew(seg.text, opts)} />
             </span>
             {showNames && taam && (
               <span className="-mt-3 font-sans text-xs leading-tight text-stone-500" dir="ltr">

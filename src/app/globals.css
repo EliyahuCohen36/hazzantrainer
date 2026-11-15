@@ -28,3 +28,22 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Ma'amid (meteg / silluq): a clear line under the letter that takes the
+   sound. Drawn here because fonts make it a hairline beside the vowel.
+   See src/components/reader/Maamid.tsx. */
+.maamid {
+  position: relative;
+}
+.maamid::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.42em;
+  width: 0.085em;
+  height: 0.34em;
+  margin-left: -0.0425em;
+  border-radius: 0.05em;
+  background: currentColor;
+  pointer-events: none;
+}

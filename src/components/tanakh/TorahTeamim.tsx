@@ -2,6 +2,7 @@ import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
 import { Recording } from "@/components/audio/Recording";
+import { WithMaamid } from "@/components/reader/Maamid";
 import { TaamPractice } from "./TaamPractice";
 
 const LEVELS: Record<number, string> = {
@@ -20,7 +21,9 @@ function Example({ ex, sofPasuk, span = 1 }: { ex: TaamExample; sofPasuk: boolea
         {ex.phrase.map((w, i) => (
           <span key={i}>
             {i > 0 && " "}
-            <span className={i >= ex.at && i < ex.at + span ? "rounded bg-amber-200/80 px-1 text-stone-900" : ""}>{w}</span>
+            <span className={i >= ex.at && i < ex.at + span ? "rounded bg-amber-200/80 px-1 text-stone-900" : ""}>
+              <WithMaamid text={w} />
+            </span>
           </span>
         ))}
         {sofPasuk && "׃"}

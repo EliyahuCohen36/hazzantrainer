@@ -18,7 +18,9 @@
  *                           U+05C4–U+05C5, U+05C7
  */
 
-const TEAMIM_RE = /[֑-ֽ֯׀׃]/g;
+const TEAMIM_RE = /[\u0591-\u05AF\u05C0\u05C3]/g;
+/** Meteg / silluq (the ma'amid): kept while either nikkud or te'amim are shown. */
+const METEG_RE = /\u05BD/g;
 const MAQAF_RE = /־/g;
 const NIKKUD_RE = /[ְ-ׇּֿׁׂׅׄ]/g;
 
@@ -32,6 +34,9 @@ export function renderHebrew(text: string, opts: DisplayOptions): string {
   let out = text;
   if (!opts.showTeamim) {
     out = out.replace(TEAMIM_RE, "").replace(MAQAF_RE, " ");
+  }
+  if (!opts.showTeamim && !opts.showNikkud) {
+    out = out.replace(METEG_RE, "");
   }
   if (!opts.showNikkud) {
     out = out.replace(NIKKUD_RE, "");
