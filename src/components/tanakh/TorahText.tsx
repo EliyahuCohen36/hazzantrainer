@@ -45,6 +45,26 @@ function Letters({ text, opts }: { text: string; opts: { showNikkud: boolean; sh
   );
 }
 
+/** A Shofar Holekh word before a pesik: highlight the letter with the Shofar Holekh, where the Pesik sound goes. */
+function PesikLetter({ text, opts }: { text: string; opts: { showNikkud: boolean; showTeamim: boolean } }) {
+  const chars = [...text];
+  const mark = chars.indexOf("\u05A3");
+  if (mark < 0) return <>{renderHebrew(text, opts)}</>;
+  let start = mark;
+  while (start > 0 && !(chars[start] >= "\u05D0" && chars[start] <= "\u05EA")) start--;
+  let end = mark + 1;
+  while (end < chars.length && !(chars[end] >= "\u05D0" && chars[end] <= "\u05EA")) end++;
+  return (
+    <>
+      {renderHebrew(chars.slice(0, start).join(""), opts)}
+      <span className="rounded bg-amber-200/80" title="The Pesik sound goes on this letter">
+        {renderHebrew(chars.slice(start, end).join(""), opts)}
+      </span>
+      {renderHebrew(chars.slice(end).join(""), opts)}
+    </>
+  );
+}
+
 function Word({
   token,
   pesikAfter,
@@ -60,9 +80,10 @@ function Word({
   const isKq = typeof token !== "string";
   const text = isKq ? (scroll ? token.k : token.q) : token;
   const taam = !scroll && settings.showTaamNames ? taamOfWord(isKq ? token.q : token, pesikAfter) : undefined;
+  const pesikWord = taam?.id === "shofar-holekh-pesik" && !/[{}[\]]/.test(text);
   const body = (
     <>
-      <Letters text={text} opts={opts} />
+      {pesikWord ? <PesikLetter text={text} opts={opts} /> : <Letters text={text} opts={opts} />}
       {isKq && !scroll && (
         <span className="mx-0.5 align-middle font-sans text-[0.4em] text-stone-400" title="Ketiv: as written in the Sefer Torah">
           ({token.k})
@@ -138,7 +159,8 @@ export function TorahText({ sections, practice }: Props) {
         {settings.showTaamNames && !scroll && (
           <p className="mt-2 text-xs text-stone-500">
             <span className="font-semibold text-amber-700">Shofar Holekh with Pesik:</span> when a pesik (׀) follows a word
-            with Shofar Holekh, that word is sung with the Pesik sound.
+            with Shofar Holekh, that word is sung with the Pesik sound, on the letter that has the Shofar Holekh under
+            it (highlighted).
           </p>
         )}
       </div>

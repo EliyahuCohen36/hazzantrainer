@@ -19,7 +19,9 @@ kept in case the owner goes back to Netlify.
   Tilsa (תילשׂא, ֩) = Telisha Ketana. Talsha and Tilsa are two separate
   te'amim with different sounds: never merge them.
 - Shofar Holekh + pesik (׀): the word with the Shofar Holekh is sung with the
-  Pesik sound (card "Shofar Holekh with Pesik", id shofar-holekh-pesik).
+  Pesik sound, on the letter that has the Shofar Holekh under it (card
+  "Shofar Holekh with Pesik", id shofar-holekh-pesik; that letter is
+  highlighted in the text view).
   Students must be told this; it's shown on both cards and in the text view.
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
