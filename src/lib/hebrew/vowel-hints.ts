@@ -10,7 +10,8 @@
  *  2. the second of two shevas in a row in the middle of a word
  *  3. sheva under a letter with a dagesh hazak (a doubled letter)
  *  4. sheva under the first of two identical letters (הַלְלוּ)
- *  5. sheva on a letter with a meteg, or right after a vowel with a meteg
+ *  5. sheva on a letter with a meteg, or right after a long vowel with a meteg
+ *     (a ga'ya on a short vowel, as in וַֽיְהִי, is musical: the sheva stays nach)
  * A sheva on the last letter, or two shevas at the end of a word, is nach.
  */
 
@@ -100,7 +101,10 @@ export function analyzeWord(word: string): { lead: string; clusters: ClusterHint
     let na = false;
     if (k === 0) na = true;
     else if (k === 1 && v[0] === "shuruk") na = true;
-    else if (marks[k].includes(METEG) || marks[k - 1].includes(METEG)) na = true;
+    else if (marks[k].includes(METEG)) na = true;
+    // A ga'ya on a long vowel before the sheva (שָֽׁמְרוּ) makes it na; on a short vowel
+    // (וַֽיְהִי) the ga'ya is only musical and the sheva stays nach.
+    else if (marks[k - 1].includes(METEG) && v[k - 1] === "long") na = true;
     else if (v[k - 1] === "sheva" && k - 1 > 0) na = true;
     else if (marks[k].includes(DAGESH) && full(v[k - 1]) && !(letters[k] === "ה" && k === last)) na = true;
     else if (k + 1 < n && base(letters[k + 1]) === base(letters[k])) na = true;
