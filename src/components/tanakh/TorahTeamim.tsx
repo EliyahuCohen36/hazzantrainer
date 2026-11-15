@@ -1,7 +1,7 @@
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
-import { asset } from "@/lib/base-path";
+import { Recording } from "@/components/audio/Recording";
 import { TaamPractice } from "./TaamPractice";
 
 const LEVELS: Record<number, string> = {
@@ -41,7 +41,7 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
           {other?.hebrew}
         </span>
       </div>
-      <audio src={asset(pair.src)} controls preload="none" className="h-9 w-full max-w-sm" />
+      <Recording src={pair.src} />
       <div className="mt-2">
         <TaamPractice
           src={pair.src}
@@ -57,12 +57,13 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
   );
 }
 
-function TaamCard({ t }: { t: TaamReference }) {
+function TaamCard({ t, demo = false }: { t: TaamReference; demo?: boolean }) {
   const id = t.id ?? "";
   const examples = TORAH_EXAMPLES[id] ?? [];
   const audio = TORAH_TEAMIM_RECORDINGS[id];
-  const before = TORAH_TEAMIM_PAIRS.filter((p) => p.first === id);
-  const after = TORAH_TEAMIM_PAIRS.filter((p) => p.second === id);
+  // The demo only has the solo recordings; pairs need a login.
+  const before = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.first === id);
+  const after = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.second === id);
   const mesharet = t.role === "mesharet";
   return (
     <li id={id} className="grid gap-4 border-b border-stone-100 py-4 last:border-0 sm:grid-cols-[13rem_1fr]">
@@ -81,7 +82,7 @@ function TaamCard({ t }: { t: TaamReference }) {
       <div className="space-y-2">
         {audio ? (
           <div className="space-y-2">
-            <audio src={asset(audio)} controls preload="none" className="h-9 w-full max-w-sm" />
+            <Recording src={audio} />
             <TaamPractice src={audio} label={t.syrian} />
           </div>
         ) : !(mesharet && before.length) ? (
@@ -129,9 +130,11 @@ function TaamCard({ t }: { t: TaamReference }) {
 }
 
 /** "Names of the Te'amim" for the Torah: each ta'am with its recording and examples. */
-export function TorahTeamim() {
-  const mafsikim = PROSE_TEAMIM.filter((t) => t.role === "mafsik");
-  const mesharetim = PROSE_TEAMIM.filter((t) => t.role === "mesharet");
+export function TorahTeamim({ only }: { only?: string[] } = {}) {
+  const demo = Boolean(only);
+  const shown = only ? PROSE_TEAMIM.filter((t) => only.includes(t.id ?? "")) : PROSE_TEAMIM;
+  const mafsikim = shown.filter((t) => t.role === "mafsik");
+  const mesharetim = shown.filter((t) => t.role === "mesharet");
   return (
     <section id="teamim" className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -148,27 +151,31 @@ export function TorahTeamim() {
       <h3 className="mt-6 text-base font-semibold text-stone-900">
         Mafsikim <span className="text-sm font-normal text-stone-500">(pausing te&apos;amim)</span>
       </h3>
-      {[1, 2, 3, 4].map((lvl) => (
+      {[1, 2, 3, 4].filter((lvl) => mafsikim.some((t) => t.level === lvl)).map((lvl) => (
         <div key={lvl}>
           <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-stone-400">{LEVELS[lvl]}</div>
           <ul>
             {mafsikim
               .filter((t) => t.level === lvl)
               .map((t) => (
-                <TaamCard key={t.id} t={t} />
+                <TaamCard key={t.id} t={t} demo={demo} />
               ))}
           </ul>
         </div>
       ))}
 
+      {mesharetim.length > 0 && (
+      <>
       <h3 className="mt-6 text-base font-semibold text-stone-900">
         Mesharetim <span className="text-sm font-normal text-stone-500">(connecting te&apos;amim)</span>
       </h3>
       <ul>
         {mesharetim.map((t) => (
-          <TaamCard key={t.id} t={t} />
+          <TaamCard key={t.id} t={t} demo={demo} />
         ))}
       </ul>
+      </>
+      )}
       <p className="mt-4 text-xs text-stone-400">
         Names follow the Sephardic Pizmonim Project (pizmonim.org). Examples are from the Westminster Leningrad Codex.
       </p>

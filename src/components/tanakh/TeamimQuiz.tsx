@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
-import { asset } from "@/lib/base-path";
+import { useRecordingUrl } from "@/lib/recordings";
 import { recordQuiz } from "@/lib/audio/taam-practice";
 
 const ROUND = 10;
@@ -70,6 +70,7 @@ export function TeamimQuiz() {
 
   const q = round[n];
   const done = round.length > 0 && n >= round.length;
+  const quizUrl = useRecordingUrl(q ? TORAH_TEAMIM_RECORDINGS[q.answer.id ?? ""] : null);
 
   const play = () => {
     const a = audio.current;
@@ -159,7 +160,7 @@ export function TeamimQuiz() {
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-2">
-        <audio ref={audio} src={asset(TORAH_TEAMIM_RECORDINGS[q.answer.id ?? ""])} preload="auto" />
+        <audio ref={audio} src={quizUrl ?? undefined} preload="auto" />
         <button
           type="button"
           onClick={play}

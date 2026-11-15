@@ -4,6 +4,8 @@ import "@fontsource/noto-serif-hebrew/400.css";
 import "@fontsource/noto-serif-hebrew/600.css";
 import "@fontsource/frank-ruhl-libre/500.css";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth";
+import { AuthGate } from "@/components/auth/AuthGate";
 
 export const metadata: Metadata = {
   title: "Kriah Trainer · Syrian Torah Reading",
@@ -24,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // uses logical properties (ms-/me-/ps-/border-s) so it mirrors correctly.
   return (
     <html lang="en">
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        <AuthProvider>
+          <AuthGate>{children}</AuthGate>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

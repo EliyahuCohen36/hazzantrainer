@@ -94,9 +94,15 @@ export function practiceFeedback(
   return { score, stars, headline, tips: tips.slice(0, 3) };
 }
 
-/* Progress, kept in this browser only. */
+/*
+ * Progress. Signed-in students: saved to their account (so the teacher sees it
+ * and it follows them to any device), with a copy in this browser per user so
+ * shared school computers don't mix children up. The open demo: this browser only.
+ */
 
-const KEY = "kriah-teamim-progress-v1";
+const BASE_KEY = "kriah-teamim-progress-v1";
+let currentUser: string | null = null;
+const key = () => (currentUser ? `${BASE_KEY}:${currentUser}` : BASE_KEY);
 
 interface Progress {
   /** Best practice score per recording file. */
@@ -107,7 +113,7 @@ interface Progress {
 
 export function loadProgress(): Progress {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key());
     if (raw) return { practice: {}, quiz: {}, ...JSON.parse(raw) };
   } catch {
     // Storage may be unavailable (private mode); progress is just not kept.
@@ -117,10 +123,37 @@ export function loadProgress(): Progress {
 
 function save(p: Progress) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(p));
+    localStorage.setItem(key(), JSON.stringify(p));
   } catch {
     // ignore
   }
+}
+
+async function db() {
+  if (!currentUser) return null;
+  const { supabase } = await import("@/lib/supabase");
+  return supabase();
+}
+
+/** After sign-in: load this student's saved progress from their account. */
+export async function pullProgress() {
+  const { supabase } = await import("@/lib/supabase");
+  const client = supabase();
+  const { data: u } = await client.auth.getUser();
+  currentUser = u.user?.id ?? null;
+  if (!currentUser) return;
+  const { data } = await client.from("progress").select("kind, key, best, right_n, total_n").eq("user_id", currentUser);
+  const p: Progress = { practice: {}, quiz: {} };
+  for (const r of data ?? []) {
+    if (r.kind === "practice") p.practice[r.key] = r.best;
+    else p.quiz[r.key] = { right: r.right_n, total: r.total_n };
+  }
+  save(p);
+}
+
+/** After sign-out: back to the anonymous (demo) progress. */
+export function forgetUser() {
+  currentUser = null;
 }
 
 export function recordPractice(src: string, score: number): number {
@@ -128,6 +161,7 @@ export function recordPractice(src: string, score: number): number {
   const best = Math.max(score, p.practice[src] ?? 0);
   p.practice[src] = best;
   save(p);
+  db().then((c) => c?.rpc("save_practice", { p_key: src, p_score: Math.round(score) })).catch(() => {});
   return best;
 }
 
@@ -136,4 +170,5 @@ export function recordQuiz(taamId: string, right: boolean) {
   const q = p.quiz[taamId] ?? { right: 0, total: 0 };
   p.quiz[taamId] = { right: q.right + (right ? 1 : 0), total: q.total + 1 };
   save(p);
+  db().then((c) => c?.rpc("save_quiz", { p_key: taamId, p_right: right })).catch(() => {});
 }

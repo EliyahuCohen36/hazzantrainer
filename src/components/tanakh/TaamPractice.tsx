@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePitchRecorder, type LiveFrame } from "@/hooks/usePitchRecorder";
 import { analyzeRecording, type AnalyzedRecording } from "@/lib/audio/contour";
 import { practiceFeedback, recordPractice, loadProgress, scoreTaamPractice, type PracticeFeedback } from "@/lib/audio/taam-practice";
-import { asset } from "@/lib/base-path";
+import { recordingUrl } from "@/lib/recordings";
 import { PitchCanvas } from "@/components/trainer/PitchCanvas";
 import type { MaybeNumber } from "@/lib/audio/pitch-math";
 
@@ -14,11 +14,16 @@ function loadMaster(src: string) {
   if (!masters.has(src)) {
     masters.set(
       src,
-      fetch(asset(src))
-        .then((r) => r.arrayBuffer())
+      recordingUrl(src)
+        .then((u) => fetch(u))
+        .then((r) => {
+          if (!r.ok) throw new Error(String(r.status));
+          return r.arrayBuffer();
+        })
         .then((b) => analyzeRecording(b)),
     );
   }
+  masters.get(src)!.catch(() => masters.delete(src));
   return masters.get(src)!;
 }
 

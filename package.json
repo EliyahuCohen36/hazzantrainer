@@ -13,6 +13,7 @@
   "dependencies": {
     "@fontsource/frank-ruhl-libre": "^5.2.0",
     "@fontsource/noto-serif-hebrew": "^5.2.0",
+    "@supabase/supabase-js": "^2.119.0",
     "next": "^16.4.6",
     "pitchfinder": "^2.3.4",
     "react": "^19.2.0",
