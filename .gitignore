@@ -5,3 +5,4 @@ next-env.d.ts
 certificates
 out
 scripts-tmp
+.env*.local

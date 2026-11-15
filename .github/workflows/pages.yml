@@ -29,6 +29,10 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: /hazzantrainer
+          # Accounts (Supabase). Both values are public by design; access is enforced
+          # by the security rules in supabase/schema.sql.
+          NEXT_PUBLIC_SUPABASE_URL: https://mjjdyfnfadjvdabmgzxf.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_oQnTujjrG97RcUXDOCMJ2g_BmKZe95A
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
