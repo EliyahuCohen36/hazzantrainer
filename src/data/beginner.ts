@@ -91,11 +91,17 @@ export const NEKUDOT: Nekuda[] = [
   { id: "holem-male", name: "Holem with Vav", he: "חוֹלֶם מָלֵא", sound: "o", v: "o", mark: "", after: "וֹ", color: "rose" },
   { id: "qibbus", name: "Qibbus", he: "קִבּוּץ", sound: "u", v: "u", mark: "ֻ", color: "violet" },
   { id: "shureq", name: "Shureq", he: "שׁוּרֶק", sound: "u", v: "u", mark: "", after: "וּ", color: "violet" },
-  // Sheva is left out for now: it comes in a later section with the rules of sheva na and sheva nach.
+  // Sheva is not here: it has its own section (/beginner/sheva/), opened after all the other nekudot.
   { id: "hataf-patah", name: "Hataf Patah", he: "חֲטַף פַּתַח", sound: "a (short)", v: "a", mark: "ֲ", color: "amber" },
   { id: "hataf-segol", name: "Hataf Segol", he: "חֲטַף סֶגּוֹל", sound: "e (short)", v: "e", mark: "ֱ", color: "sky" },
   { id: "hataf-qamats", name: "Hataf Qamats", he: "חֲטַף קָמַץ", sound: "o (short)", v: "o", mark: "ֳ", color: "rose" },
 ];
+
+/** The Sheva, taught in its own section after everything else (see SHEVA_LEVEL). */
+export const SHEVA: Nekuda = { id: "sheva", name: "Sheva", he: "שְׁוָא", sound: "e (short) or silent", v: "'", mark: "ְ", color: "stone" };
+
+/** Khaf Sofit with a sheva (ךְ), shown in the Sheva section. */
+export const KHAF_SOFIT_SHEVA = { sofit: "khaf-sofit", text: "ךְ", sound: "kh" };
 
 const DAGESH = "ּ";
 const SHIN_DOT = /[ׁׂ]/;
@@ -128,6 +134,7 @@ export const BEGINNER_STEPS = [
   { href: "/beginner/letters/#sofiyot", title: "Final letters", he: "סוֹפִיּוֹת", text: "The five letters that look different at the end of a word.", emoji: "🔚" },
   { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u.", emoji: "•" },
   { href: "/beginner/chart/", title: "Letters with Nekudot", he: "לוּחַ", text: "Every letter with every nekuda, to read one by one.", emoji: "📋" },
+  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Na and Sheva Nach, once all the letters and nekudot are learned.", emoji: "⁚" },
 ];
 
 /** How a letter with a nekuda sounds, spelled simply: "ba", "kho", "a". */
@@ -168,9 +175,15 @@ export const BEGINNER_LEVELS: BeginnerLevel[] = [
   { n: 9, title: "Qibbus and Shureq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shureq"], href: "/beginner/nekudot/qibbus/" },
   { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/hataf-patah/" },
   { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/chart/" },
+  { n: 12, title: "The Sheva: Na and Nach", he: "שְׁוָא", href: "/beginner/sheva/" },
 ];
 
+/** The Sheva section opens last, after all the letters and the other nekudot. */
+export const SHEVA_LEVEL = 12;
+
 export const BEGINNER_MAX = BEGINNER_LEVELS.length;
+/** The level of the full chart (letters with all the nekudot except sheva). */
+export const CHART_LEVEL = 11;
 
 /** What's open for someone who has reached `level`. */
 export function openBeginner(level: number) {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LETTERS, NEKUDOT, SOFIT_WITH_NEKUDA, withNekuda } from "@/data/beginner";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { BeginnerLock } from "@/components/beginner/Lock";
-import { BEGINNER_MAX } from "@/data/beginner";
+import { CHART_LEVEL } from "@/data/beginner";
 
 export const metadata: Metadata = { title: "Letters with Nekudot · Beginner Keriah" };
 
@@ -21,7 +21,7 @@ export default function ChartPage() {
         Read each row from right to left. An empty box means that letter doesn&apos;t take that nekuda. Final letters
         never take a nekuda, except Khaf Sofit with a Qamats (ךָ).
       </p>
-      <BeginnerLock need={BEGINNER_MAX}>
+      <BeginnerLock need={CHART_LEVEL}>
       <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
         <table dir="rtl" className="min-w-full border-collapse text-center">
           <thead className="sticky top-0 bg-stone-50 text-xs text-stone-600">

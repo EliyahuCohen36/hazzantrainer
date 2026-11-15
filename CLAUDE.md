@@ -132,17 +132,20 @@ kept in case the owner goes back to Netlify.
 - Data: src/data/beginner.ts (Syrian/Sephardic pronunciation: qamats = "a",
   tav = "t"). Sofiyot take no nekuda except Khaf Sofit with qamats (ךָ) (and ךְ, once sheva is taught).
   Throat letters (א ה ח ע) take hataf instead of sheva; hataf only on them.
-- No sheva in Beginner Keriah for now (owner: it comes later, in a section on the
-  rules of sheva na and sheva nach); so no ךְ either. Hataf nekudot stay.
-- Levels (11, BEGINNER_LEVELS in beginner.ts): 1–3 letters, 4 sofiyot, 5–10 nekudot by
-  sound, 11 full chart. Teachers open them per class (classes.beginner_level) and per
+- The Sheva is NOT in the letters/nekudot pages or chart (owner): it has its own
+  section /beginner/sheva/ (Sheva Na vs Nach rules, examples drawn with WithMaamid,
+  every letter with a sheva, ךְ), opened only after everything else (level 12).
+  Hataf nekudot stay with the other nekudot.
+- Levels (12, BEGINNER_LEVELS in beginner.ts): 1–3 letters, 4 sofiyot, 5–10 nekudot by
+  sound, 11 full chart, 12 the Sheva. Teachers open them per class (classes.beginner_level) and per
   child (class_members.beginner_level); my_beginner_level() in supabase/beginner.sql.
   Locks: src/components/beginner/Lock.tsx (BeginnerLock, LockTile, BeginnerLevelPath).
 - Recordings (his voice only) go in BEGINNER_RECORDINGS (src/data/beginner-recordings.ts):
   letter:<id>, sound:<letterId>:<nekudaId>, nekuda:<id>. Tiles without one show no 🔊.
   Same-sounding nekudot share a recording (patah→qamats, segol→sere, hireq-male→hireq,
   holem-male→holem, shureq→qibbus, hataf-*→qamats/sere/holem), so he records one file
-  per letter: "Bet – b – ba – be – bi – bo – bu" (~28 files), cut at the pauses
+  per letter: "Bet – b – ba – be – bi – bo – bu" (~28 files; sheva sounds b' are
+  recorded later for the Sheva section, key sound:<id>:sheva → <id>-sheva.mp3), cut at the pauses
   (name, sound alone, then the nekuda sounds; Alef and He have no sound alone).
   The plain letter's tile plays the name, then the sound alone (owner's choice).
   Cut files are named letter-<id>.mp3, <id>-alone.mp3, <id>-<qamats|sere|hireq|holem|qibbus>.mp3,
