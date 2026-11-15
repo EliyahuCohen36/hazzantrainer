@@ -1,17 +1,32 @@
 /**
  * The Hazzan's recordings for Beginner Keriah, in the private "recordings"
- * bucket (upload from /admin/ → Recordings).
+ * bucket under beginner/ (upload from /admin/ → Recordings).
  *
  * He records one file per letter: the letter's name, then the letter with each
  * sound, with a short pause between them, e.g. for Bet: "Bet – ba – be – bi – bo –
- * bu – b(e)". The file is cut at the pauses into:
- *   letter:<letterId>                  the name  ("Bet")
- *   sound:<letterId>:<qamats|sere|hireq|holem|qibbus|sheva>
+ * bu – b'". The file is cut at the pauses into files named:
+ *   letter-<letterId>.mp3              the name  ("Bet")        key letter:<letterId>
+ *   <letterId>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3       key sound:<letterId>:<nekudaId>
+ *   nekuda-<nekudaId>.mp3              the nekuda's name        key nekuda:<nekudaId>
  * Nekudot that sound the same in the Syrian reading share one recording (below),
  * so each letter needs only 5 or 6 sounds.
- *   nekuda:<nekudaId>                  the nekuda's name ("Qamats")
  */
-export const BEGINNER_RECORDINGS: Record<string, string> = {};
+
+/** The files that have been recorded and uploaded (names without .mp3). */
+export const BEGINNER_RECORDED: string[] = [
+  "letter-alef",
+  "alef-qamats",
+  "alef-sere",
+  "alef-hireq",
+  "alef-holem",
+  "alef-qibbus",
+];
+
+const RECORDED = new Set(BEGINNER_RECORDED);
+const path = (name: string) => `/audio/beginner/${name}.mp3`;
+
+/** Every beginner recording's site path (for the admin's Recordings panel). */
+export const BEGINNER_RECORDING_PATHS = BEGINNER_RECORDED.map(path);
 
 /** Same sound, same recording (Syrian/Sephardic pronunciation). */
 const SAME_SOUND: Record<string, string> = {
@@ -25,9 +40,16 @@ const SAME_SOUND: Record<string, string> = {
   "hataf-qamats": "holem",
 };
 
-export function beginnerRecording(key: string): string | undefined {
-  if (BEGINNER_RECORDINGS[key]) return BEGINNER_RECORDINGS[key];
-  const m = key.match(/^sound:([^:]+):(.+)$/);
-  if (m && SAME_SOUND[m[2]]) return BEGINNER_RECORDINGS[`sound:${m[1]}:${SAME_SOUND[m[2]]}`];
+function fileFor(key: string): string | undefined {
+  const [kind, a, b] = key.split(":");
+  if (kind === "letter") return `letter-${a}`;
+  if (kind === "nekuda") return `nekuda-${a}`;
+  if (kind === "sound") return `${a}-${SAME_SOUND[b] ?? b}`;
   return undefined;
+}
+
+/** The site path of the recording for a tile, or undefined if not recorded yet. */
+export function beginnerRecording(key: string): string | undefined {
+  const f = fileFor(key);
+  return f && RECORDED.has(f) ? path(f) : undefined;
 }

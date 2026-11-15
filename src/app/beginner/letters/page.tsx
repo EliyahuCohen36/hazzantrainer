@@ -23,6 +23,10 @@ export default function LettersPage() {
         Each letter with its name and the sound it makes. Some letters change their sound with a dot inside (a dagesh), so
         they have two tiles: Bet and Vet, Kaf and Khaf, Pe and Fe, and Shin and Sin.
       </p>
+      <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+        <b>Alef has no sound by itself.</b> Alone, without a nekuda, it is silent. It only makes a sound when it has a
+        nekuda: אָ says &ldquo;a&rdquo;, אֵ says &ldquo;e&rdquo;, אִ says &ldquo;i&rdquo;.
+      </p>
       <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl compact />
       </div>

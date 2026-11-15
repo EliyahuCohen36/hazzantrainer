@@ -56,6 +56,18 @@ export function RecordingsPanel() {
     load();
   };
 
+  /** Upload several files at once, matched to the recordings by file name. */
+  const uploadMany = async (files: FileList) => {
+    setBusy("many");
+    for (const f of Array.from(files)) {
+      const p = wanted.find((w) => w.split("/").pop() === f.name);
+      if (!p) setLog((l) => [...l, `✗ ${f.name}: no recording by that name`]);
+      else await put(p, f);
+    }
+    setBusy(null);
+    load();
+  };
+
   return (
     <section className="mt-8 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
       <h2 className="text-lg font-semibold text-stone-900">Recordings (private)</h2>
@@ -65,6 +77,16 @@ export function RecordingsPanel() {
       </p>
       {missing.length > 0 && (
         <>
+          <label className="mt-3 me-3 inline-block cursor-pointer rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+            {busy === "many" ? "Uploading…" : "Upload several files"}
+            <input
+              type="file"
+              accept="audio/*"
+              multiple
+              className="hidden"
+              onChange={(e) => e.target.files && uploadMany(e.target.files)}
+            />
+          </label>
           <button
             type="button"
             onClick={copyFromSite}

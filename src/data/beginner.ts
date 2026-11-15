@@ -27,7 +27,7 @@ export interface Letter {
 
 /** The 22 letters, with the dagesh/dot pairs that sound different shown as their own tiles. */
 export const LETTERS: Letter[] = [
-  { id: "alef", char: "א", name: "Alef", he: "אָלֶף", sound: "silent", sym: "" },
+  { id: "alef", char: "א", name: "Alef", he: "אָלֶף", sound: "no sound by itself", sym: "" },
   { id: "bet", char: "בּ", name: "Bet", he: "בֵּית", sound: "b", sym: "b" },
   { id: "vet", char: "ב", name: "Vet", he: "בֵית", sound: "v", sym: "v" },
   { id: "gimel", char: "ג", name: "Gimel", he: "גִּימֶל", sound: "g", sym: "g" },
