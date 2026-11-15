@@ -23,6 +23,20 @@ export const BEGINNER_RECORDED: string[] = [
   "alef-hireq",
   "alef-holem",
   "alef-qibbus",
+  "letter-bet",
+  "bet-alone",
+  "bet-qamats",
+  "bet-sere",
+  "bet-hireq",
+  "bet-holem",
+  "bet-qibbus",
+  "letter-vet",
+  "vet-alone",
+  "vet-qamats",
+  "vet-sere",
+  "vet-hireq",
+  "vet-holem",
+  "vet-qibbus",
 ];
 
 const RECORDED = new Set(BEGINNER_RECORDED);
