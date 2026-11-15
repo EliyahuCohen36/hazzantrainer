@@ -37,6 +37,8 @@ export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {
   "shalshelet": "/audio/teamim/torah/shalshelet.mp3",
   "gerish": "/audio/teamim/torah/gerish.mp3",
   "zakef-gadol": "/audio/teamim/torah/zakef-gadol.mp3",
+  segolta: "/audio/teamim/torah/segolta.mp3",
+  "karne-farah": "/audio/teamim/torah/karne-farah.mp3",
 };
 
 export interface TaamPairRecording {

@@ -32,7 +32,6 @@ const MARK_TO_ID: Record<string, string> = {
   "֨": "azla",
   "֩": "tilsa",
   "֦": "tere-taame",
-  "֪": "yareah-ben-yomo",
 };
 
 /** Lower = stronger pause; conjunctives come last. */

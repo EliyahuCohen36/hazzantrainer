@@ -116,7 +116,4 @@ export const TORAH_EXAMPLES: Record<string, TaamExample[]> = {
     { ref: "Bereshit 27:25", phrase: ["וַיֹּאכַ֔ל", "וַיָּ֧בֵא", "ל֦וֹ", "יַ֖יִן"], at: 2 },
     { ref: "Shemot 5:15", phrase: ["לֵאמֹ֑ר", "לָ֧מָּה", "תַעֲשֶׂ֦ה", "כֹ֖ה"], at: 2 },
   ],
-  "yareah-ben-yomo": [
-    { ref: "Bamidbar 35:5", phrase: ["לָעִ֗יר", "אֶת־פְּאַת־קֵ֣דְמָה", "אַלְפַּ֪יִם", "בָּֽאַמָּ֟ה"], at: 2 },
-  ],
 };

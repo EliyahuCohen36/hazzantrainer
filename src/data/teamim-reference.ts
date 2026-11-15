@@ -59,7 +59,7 @@ export const PROSE_TEAMIM: TaamReference[] = [
   { id: "tebir", syrian: "Tebir", hebrew: "תביר", ashkenazi: "Tevir", sample: `${A}֛`, role: "mafsik", level: 3, note: "Comes before Tarha." },
   // Level 4
   { id: "pazer-gadol", syrian: "Pazer Gadol", hebrew: "פזר גדול", ashkenazi: "Pazer", sample: `${A}֡`, role: "mafsik", level: 4 },
-  { id: "karne-farah", syrian: "Karne Farah", hebrew: "קרני פרה", ashkenazi: "Pazer Gadol / Karnei Parah", sample: `${A}֟`, role: "mafsik", level: 4, note: "Rare: once in the Torah." },
+  { id: "karne-farah", syrian: "Karne Farah", hebrew: "קרני פרה", ashkenazi: "Pazer Gadol / Karnei Parah", sample: `${A}֟`, role: "mafsik", level: 4, note: "Rare: once in the Torah (Bamidbar 35:5)." },
   { id: "talsha", syrian: "Talsha", hebrew: "תלשׁא", ashkenazi: "Telisha Gedola", sample: `${A}֠`, role: "mafsik", level: 4, note: "Written at the start of the word. Not the same as Tilsa: it has its own sound." },
   { id: "gerish", syrian: "Gerish", hebrew: "גריש", ashkenazi: "Geresh", sample: `${A}֜`, role: "mafsik", level: 4 },
   { id: "shene-gerishin", syrian: "Shene Gerishin", hebrew: "שני גרישין", ashkenazi: "Gershayim", sample: `${A}֞`, role: "mafsik", level: 4 },
@@ -72,7 +72,6 @@ export const PROSE_TEAMIM: TaamReference[] = [
   { id: "azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Kadma", sample: `${A}֨`, role: "mesharet", note: "Leads into Gerish." },
   { id: "tilsa", syrian: "Tilsa", hebrew: "תילשׂא", ashkenazi: "Telisha Ketana", sample: `${A}֩`, role: "mesharet", note: "Written at the end of the word. Not the same as Talsha: it has its own sound." },
   { id: "tere-taame", syrian: "Tere Ta'ame", hebrew: "תרי טעמי", ashkenazi: "Mercha Kefula", sample: `${A}֦`, role: "mesharet", note: "A double Ma'arikh." },
-  { id: "yareah-ben-yomo", syrian: "Yareah ben Yomo", hebrew: "ירח בן יומו", ashkenazi: "Yerach ben Yomo", sample: `${A}֪`, role: "mesharet", note: "Leads into Karne Farah (once in the Torah)." },
 ];
 
 /**
