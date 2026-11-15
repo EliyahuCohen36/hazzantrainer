@@ -74,16 +74,26 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
         {parashot.length} parashiyot, each divided into its 7 aliyot and Maftir.
       </p>
 
-      <nav aria-label="Parashiyot" dir="rtl" className="mt-4 flex flex-wrap gap-1.5">
-        {parashot.map((p) => (
-          <a
-            key={p.id}
-            href={`#${p.id}`}
-            className="rounded-lg bg-white px-3 py-1.5 font-hebrew text-base text-stone-700 shadow-sm ring-1 ring-stone-200 hover:bg-amber-50"
-          >
-            {p.he}
-          </a>
-        ))}
+      <nav aria-label="Parashiyot">
+        <ol className="mt-4 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+          {parashot.map((p) => (
+            <li key={p.id}>
+              <Link
+                href={`/tanakh/torah/${book.id}/${p.id}/`}
+                className="flex items-baseline justify-between gap-2 rounded-lg bg-white px-3 py-2 shadow-sm ring-1 ring-stone-200 transition-colors hover:bg-amber-50 hover:ring-amber-300"
+              >
+                <span className="text-sm text-stone-800">
+                  <span className="me-2 text-xs tabular-nums text-stone-400">{p.num}.</span>
+                  {p.en}
+                </span>
+                <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                  {p.he}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-2 text-xs text-stone-500">Click a parasha to read its full text. Its aliyot are listed below.</p>
       </nav>
 
       <div className="mt-5 space-y-4">
@@ -99,7 +109,11 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <div className="flex items-baseline gap-3">
                   <span className="text-xs tabular-nums text-stone-400">#{p.num}</span>
-                  <h2 className="text-xl font-semibold text-stone-900">{p.en}</h2>
+                  <h2 className="text-xl font-semibold text-stone-900">
+                    <Link href={`/tanakh/torah/${book.id}/${p.id}/`} className="hover:text-amber-800 hover:underline">
+                      {p.en}
+                    </Link>
+                  </h2>
                   <span className="text-sm tabular-nums text-stone-500">{fmt(whole)}</span>
                 </div>
                 <div className="flex items-baseline gap-3">

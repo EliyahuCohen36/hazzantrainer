@@ -40,7 +40,12 @@ kept in case the owner goes back to Netlify.
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
 - Scoring (melody, note placement, clarity, pauses): src/lib/audio/
-- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/, /practice/[lessonId]/
+- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/teamim/ (te'amim trainer: names, sounds, examples), /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/ (te'amim by book), /practice/[lessonId]/
+
+## Layout the owner asked for
+- Torah page: a short link card to the te'amim trainer first, then the five books
+  straight away, each listing its parashiyot in order; every parasha links to its
+  full text. Don't put long content above the books.
 
 ## Adding a pasuk
 Put the Hazzan's recording in public/audio/torah/<book>/, add the lesson to

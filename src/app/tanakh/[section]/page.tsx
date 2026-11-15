@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { SECTION_TITLES, TANAKH, type TanakhSection } from "@/data/teamim-reference";
 import { curriculum } from "@/lib/curriculum/repository";
 import { PARASHOT } from "@/data/parashot";
-import { TorahTeamim } from "@/components/tanakh/TorahTeamim";
 
 const SECTIONS: TanakhSection[] = ["torah", "neviim", "ketuvim"];
 
@@ -55,48 +54,91 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
       </div>
 
       {s === "torah" && (
-        <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          <a href="#teamim" className="rounded-full bg-amber-100 px-3 py-1 text-amber-900 hover:bg-amber-200">
-            Names of the Te&apos;amim
-          </a>
-          <a href="#books" className="rounded-full bg-stone-100 px-3 py-1 text-stone-700 hover:bg-stone-200">
-            The five books
-          </a>
+        <div className="mt-5 space-y-5">
+          {/* Te'amim trainer: its own page, one click from here. */}
+          <Link
+            href="/tanakh/torah/teamim/"
+            className="flex items-center justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm transition-colors hover:bg-amber-100"
+          >
+            <span>
+              <span className="block text-lg font-semibold text-stone-900">Te&apos;amim trainer →</span>
+              <span className="block text-sm text-stone-600">
+                Learn the names and sounds of every ta&apos;am, with examples from the Torah.
+              </span>
+            </span>
+            <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
+              טעמי המקרא
+            </span>
+          </Link>
+
+          {/* The five books, each with its parashiyot in order. */}
+          {books.map(({ book, lessons }) => {
+            const parashot = PARASHOT.filter((p) => p.book === book.id);
+            return (
+              <section key={book.id} id={book.id} className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <Link href={`/tanakh/torah/${book.id}/`} className="text-xl font-semibold text-stone-900 hover:text-amber-800">
+                    {book.en}
+                  </Link>
+                  <Link href={`/tanakh/torah/${book.id}/`} dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-800 hover:text-amber-800">
+                    {book.he}
+                  </Link>
+                </div>
+                <ol className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                  {parashot.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/tanakh/torah/${book.id}/${p.id}/`}
+                        className="flex items-baseline justify-between gap-2 rounded-lg px-3 py-2 ring-1 ring-stone-200 transition-colors hover:bg-amber-50 hover:ring-amber-300"
+                      >
+                        <span className="text-sm text-stone-800">
+                          <span className="me-2 text-xs tabular-nums text-stone-400">{p.num}.</span>
+                          {p.en}
+                        </span>
+                        <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                          {p.he}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+                  <Link href={`/tanakh/torah/${book.id}/`} className="text-amber-800 hover:underline">
+                    Aliyot of each parasha →
+                  </Link>
+                  {lessons.map((l) => (
+                    <Link
+                      key={l.id}
+                      href={`/practice/${l.id}/`}
+                      className="rounded-lg bg-amber-700 px-3 py-1 text-xs font-medium text-white hover:bg-amber-800"
+                    >
+                      Practice {l.title.en}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       )}
 
+      {s !== "torah" && (
       <div className="mt-5 space-y-5">
-        {s === "torah" && <TorahTeamim />}
-
         <section id="books" className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-semibold text-stone-900">{s === "torah" ? "The five books" : "Books"}</h2>
+          <h2 className="text-xl font-semibold text-stone-900">Books</h2>
           <ul className="mt-3 divide-y divide-stone-100">
             {books.map(({ book, lessons }) => (
               <li key={book.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <div className="flex items-baseline gap-3">
-                    {s === "torah" ? (
-                      <Link href={`/tanakh/torah/${book.id}/`} dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900 hover:text-amber-800">
-                        {book.he}
-                      </Link>
-                    ) : (
-                      <span dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900">
-                        {book.he}
-                      </span>
-                    )}
+                    <span dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900">
+                      {book.he}
+                    </span>
                     <span className="text-sm text-stone-500">{book.en}</span>
                   </div>
                   <div className="text-xs text-stone-400">{book.melody}</div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {s === "torah" && (
-                    <Link
-                      href={`/tanakh/torah/${book.id}/`}
-                      className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-200"
-                    >
-                      {PARASHOT.filter((p) => p.book === book.id).length} parashiyot →
-                    </Link>
-                  )}
                   {lessons.map((l) => (
                     <Link
                       key={l.id}
@@ -106,18 +148,17 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
                       {l.title.en}
                     </Link>
                   ))}
-                  {lessons.length === 0 && s !== "torah" && <span className="text-xs text-stone-400">Lessons coming soon</span>}
-                  {s !== "torah" && (
-                    <Link href={`/teamim/#${book.id}`} className="text-sm text-amber-800 hover:underline">
-                      Te&apos;amim →
-                    </Link>
-                  )}
+                  {lessons.length === 0 && <span className="text-xs text-stone-400">Lessons coming soon</span>}
+                  <Link href={`/teamim/#${book.id}`} className="text-sm text-amber-800 hover:underline">
+                    Te&apos;amim →
+                  </Link>
                 </div>
               </li>
             ))}
           </ul>
         </section>
       </div>
+      )}
     </main>
   );
 }
