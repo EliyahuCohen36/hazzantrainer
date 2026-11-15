@@ -23,6 +23,14 @@ export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {
   talsha: "/audio/teamim/torah/talsha.mp3",
   tilsa: "/audio/teamim/torah/tilsa.mp3",
   "shofar-holekh-pesik": "/audio/teamim/torah/shofar-holekh-pesik.mp3",
+  "atnah": "/audio/teamim/torah/atnah.mp3",
+  "darga": "/audio/teamim/torah/darga.mp3",
+  "kadma": "/audio/teamim/torah/kadma.mp3",
+  "shene-gerishin": "/audio/teamim/torah/shene-gerishin.mp3",
+  "tarha": "/audio/teamim/torah/tarha.mp3",
+  "tebir": "/audio/teamim/torah/tebir.mp3",
+  "tere-kadmin": "/audio/teamim/torah/tere-kadmin.mp3",
+  "zakef-katon": "/audio/teamim/torah/zakef-katon.mp3",
 };
 
 export interface TaamPairRecording {
@@ -56,5 +64,29 @@ export const TORAH_TEAMIM_PAIRS: TaamPairRecording[] = [
     second: "gerish",
     src: "/audio/teamim/torah/azla_gerish.mp3",
     example: { ref: "Bereshit 1:9", phrase: ["אֱלֹהִ֗ים", "יִקָּו֨וּ", "הַמַּ֜יִם", "מִתַּ֤חַת"], at: 1 },
+  },
+  {
+    first: "maarikh",
+    second: "tarha",
+    src: "/audio/teamim/torah/maarikh_tarha.mp3",
+    example: { ref: "Bereshit 1:1", phrase: ["אֱלֹהִ֑ים", "אֵ֥ת", "הַשָּׁמַ֖יִם", "וְאֵ֥ת"], at: 1 },
+  },
+  {
+    first: "maarikh",
+    second: "tebir",
+    src: "/audio/teamim/torah/maarikh_tebir.mp3",
+    example: { ref: "Bereshit 1:17", phrase: ["וַיִּתֵּ֥ן", "אֹתָ֛ם", "אֱלֹהִ֖ים"], at: 0 },
+  },
+  {
+    first: "shofar-mehuppakh",
+    second: "kadma",
+    src: "/audio/teamim/torah/shofar-mehuppakh_kadma.mp3",
+    example: { ref: "Bereshit 1:11", phrase: ["פְּרִ֞י", "עֹ֤שֶׂה", "פְּרִי֙", "לְמִינ֔וֹ"], at: 1 },
+  },
+  {
+    first: "shofar-mehuppakh",
+    second: "tere-kadmin",
+    src: "/audio/teamim/torah/shofar-mehuppakh_tere-kadmin.mp3",
+    example: { ref: "Bereshit 1:7", phrase: ["וַיַּבְדֵּ֗ל", "בֵּ֤ין", "הַמַּ֙יִם֙", "אֲשֶׁר֙"], at: 1 },
   },
 ];
