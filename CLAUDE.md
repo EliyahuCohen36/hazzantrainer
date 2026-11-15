@@ -26,7 +26,27 @@ kept in case the owner goes back to Netlify.
 - Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
-- Everything must stay free to run (GitHub Pages; never anything paid).
+- Everything must stay free to run (GitHub Pages + Supabase free plan; never anything paid).
+  The site itself is pay-to-use for schools (owner's decision, Nov 2026).
+
+## Accounts and paying schools (Supabase, free plan)
+- The site is pay-to-use: every page needs a signed-in account whose school
+  licence is current, except / (welcome page for visitors), /demo/ (3 te'amim:
+  src/data/demo.ts), /login/ and /join/. Gate: src/components/auth/AuthGate.tsx.
+- Supabase project "kriah-trainer" (https://mjjdyfnfadjvdabmgzxf.supabase.co);
+  URL + publishable key are in .github/workflows/pages.yml (public by design).
+  Tables, codes and security rules: supabase/schema.sql (run in the SQL editor;
+  safe to re-run). "Confirm email" is switched off (students have no email).
+- Roles: admin (the owner, abccohen@gmail.com account) adds schools with seats
+  and a paid-until date at /admin/; each school has a teacher code. Teachers make
+  classes at /teacher/ (each has a class code) and see students' progress.
+  Students sign up with a username (stored as <username>@students.kriah.invalid),
+  password and class code. Progress is saved to the account (progress table).
+- Recordings other than the 3 demo ones are in the private "recordings" bucket
+  and played through signed links (src/lib/recordings.ts). Never commit them to
+  public/ (the repo is public). New recordings: upload from /admin/ → Recordings.
+- Payment: schools by invoice (owner sets seats/paid-until by hand). Card
+  checkout for families (Stripe) is planned, not built.
 
 ## Where things are
 - Te'amim names and the 24 books of Tanakh: src/data/teamim-reference.ts
