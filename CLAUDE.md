@@ -144,7 +144,7 @@ kept in case the owner goes back to Netlify.
   Cut files are named letter-<id>.mp3, <id>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3,
   nekuda-<id>.mp3, go to the bucket under beginner/, and are listed in BEGINNER_RECORDED.
   The admin uploads them in one go with "Upload several files" (/admin/ → Recordings).
-  Alef has no sound by itself: the letters page says so (owner's request).
+  Alef and He have no sound by themselves: the letters page says so (owner's request).
 
 ## Layout the owner asked for
 - Torah page: a short link card to the te'amim trainer first, then the five books

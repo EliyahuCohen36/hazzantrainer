@@ -32,7 +32,7 @@ export const LETTERS: Letter[] = [
   { id: "vet", char: "ב", name: "Vet", he: "בֵית", sound: "v", sym: "v" },
   { id: "gimel", char: "ג", name: "Gimel", he: "גִּימֶל", sound: "g", sym: "g" },
   { id: "dalet", char: "ד", name: "Dalet", he: "דָּלֶת", sound: "d", sym: "d" },
-  { id: "he", char: "ה", name: "He", he: "הֵא", sound: "h", sym: "h" },
+  { id: "he", char: "ה", name: "He", he: "הֵא", sound: "no sound by itself", sym: "h" },
   { id: "vav", char: "ו", name: "Vav", he: "וָו", sound: "v", sym: "v" },
   { id: "zayin", char: "ז", name: "Zayin", he: "זַיִן", sound: "z", sym: "z" },
   { id: "het", char: "ח", name: "Het", he: "חֵית", sound: "ḥ (deep h)", sym: "ḥ" },
