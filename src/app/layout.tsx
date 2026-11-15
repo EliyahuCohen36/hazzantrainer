@@ -3,9 +3,17 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource/noto-serif-hebrew/400.css";
 import "@fontsource/noto-serif-hebrew/600.css";
 import "@fontsource/frank-ruhl-libre/500.css";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
+
+// Torah Scroll Mode: Sephardic scroll letters with tagin (crowns), like a real Sefer Torah.
+const stam = localFont({
+  src: "../fonts/stam-sefarad/StamSefaradCLM.ttf",
+  variable: "--font-stam",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Kriah Trainer · Syrian Torah Reading",
@@ -25,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // itself. For a Hebrew interface, set lang="he" dir="rtl" here; the layout
   // uses logical properties (ms-/me-/ps-/border-s) so it mirrors correctly.
   return (
-    <html lang="en">
+    <html lang="en" className={stam.variable}>
       <body className="min-h-dvh antialiased">
         <AuthProvider>
           <AuthGate>{children}</AuthGate>

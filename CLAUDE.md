@@ -27,6 +27,9 @@ kept in case the owner goes back to Netlify.
   (WithMaamid in src/components/reader/Maamid.tsx + .maamid in globals.css) in the
   Torah text, te'amim examples and pasuk practice, so readers see which letter
   takes the sound (e.g. Sof Pasuk). Shown whenever nikkud or te'amim are on.
+- Torah Scroll Mode uses Stam Sefarad CLM (Sephardic Sefer Torah letters with
+  tagin/crowns; src/fonts/stam-sefarad/, GPL + font exception, loaded with
+  next/font/local in layout.tsx as --font-stam).
 - Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).

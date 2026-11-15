@@ -4,13 +4,14 @@
  * Fonts:
  *  - Noto Serif Hebrew: full coverage of nikkud AND all te'amim (checked), with
  *    proper mark positioning, so marks don't collide. Used for learning mode.
- *  - Frank Ruhl Libre: classic book face with NO te'amim glyphs, used only for
- *    Torah Scroll Mode, where marks are hidden anyway.
+ *  - Stam Sefarad CLM (Culmus, GPL + font exception; src/fonts/stam-sefarad/):
+ *    Sephardic Sefer Torah letters with tagin (crowns), used for Torah Scroll
+ *    Mode, where marks are hidden anyway. Frank Ruhl Libre is the fallback.
  *  To use SBL Hebrew or Taamey Frank CLM, self-host the font and put it first in --font-hebrew.
  */
 @theme {
   --font-hebrew: "Noto Serif Hebrew", "SBL Hebrew", "Taamey Frank CLM", serif;
-  --font-scroll: "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
+  --font-scroll: var(--font-stam), "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
 }
 
 :root {
