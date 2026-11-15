@@ -23,6 +23,7 @@ kept in case the owner goes back to Netlify.
   "Shofar Holekh with Pesik", id shofar-holekh-pesik; that letter is
   highlighted in the text view).
   Students must be told this; it's shown on both cards and in the text view.
+- Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
 - Everything must stay free to run (GitHub Pages; never anything paid).
