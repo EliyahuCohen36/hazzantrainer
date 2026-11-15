@@ -151,6 +151,8 @@ kept in case the owner goes back to Netlify.
   Cut files are named letter-<id>.mp3, <id>-alone.mp3, <id>-<qamats|sere|hireq|holem|qibbus>.mp3,
   nekuda-<id>.mp3, go to the bucket under beginner/, and are listed in BEGINNER_RECORDED.
   The admin uploads them in one go with "Upload several files" (/admin/ → Recordings).
+  Cut a letter recording with: python3 scripts/beginner-recordings/cut.py <file> <letterId> <outdir>,
+  then add the names to BEGINNER_RECORDED and put the clips in his Downloads/torah-trainer/beginner-recordings/.
   Alef and He have no sound by themselves: the letters page says so (owner's request).
 - Practice words: /beginner/words/ (WordPractice.tsx), real Torah words that use only
   the nekudot learned so far (no sheva), from src/data/beginner-words.json, built by
