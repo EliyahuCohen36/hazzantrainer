@@ -7,4 +7,6 @@
  *
  * Te'amim without a recording show "Recording coming soon".
  */
-export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {};
+export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {
+  zarka: "/audio/teamim/torah/zarka.mp3",
+};
