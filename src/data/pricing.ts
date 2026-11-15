@@ -10,8 +10,8 @@
  */
 export const INDIVIDUAL_PRICE = "$10";
 export const INDIVIDUAL_PERIOD = "month";
-export const STRIPE_PAYMENT_LINK = "";
-export const STRIPE_PORTAL_LINK = "";
+export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cIfZh1CL6J0d8KczT0VO00";
+export const STRIPE_PORTAL_LINK = "https://billing.stripe.com/p/login/3cIfZh1CL6J0d8KczT0VO00";
 
 export const INDIVIDUAL_FEATURES = [
   "All the te'amim, in 8 levels, with the Hazzan's recordings",

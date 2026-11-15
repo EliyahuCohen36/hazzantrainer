@@ -79,6 +79,12 @@ kept in case the owner goes back to Netlify.
   user id. The webhook supabase/functions/stripe-webhook sets role 'family' and
   paid_until (supabase/payments.sql adds profiles.stripe_customer_id). Until
   STRIPE_PAYMENT_LINK is set, /subscribe/ says payments open soon.
+  Stripe account "Keriah Trainer" (live): product "Kriah Trainer – Individual"
+  $10/month, Managed Payments on (owner's choice), payment link redirects to
+  /subscribe/?paid=1; customer portal on (cancel at period end); webhook
+  destination "Kriah Trainer access" → functions/v1/stripe-webhook (JWT check off),
+  events checkout.session.completed + invoice.paid. Function secrets
+  STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are entered by the owner.
 - Site header on every page (Home, About, demo, account): SiteHeader in AuthGate.tsx.
   Visitors' home page: src/components/auth/Landing.tsx (pictures in public/images/,
   screenshots of the trainer). About page: src/app/about/page.tsx (open to all).
