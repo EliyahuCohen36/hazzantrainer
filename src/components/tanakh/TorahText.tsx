@@ -6,7 +6,7 @@ import type { TorahToken, TorahVerse } from "@/data/torah";
 import { renderHebrew, type DisplayOptions } from "@/lib/hebrew/marks";
 import { WithMaamid } from "@/components/reader/Maamid";
 
-const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, o)} />;
+const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, o)} source={t} />;
 import { taamOfWord } from "@/lib/hebrew/taam-of-word";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
 import { ScrollPages } from "./ScrollPages";

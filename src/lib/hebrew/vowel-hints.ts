@@ -13,6 +13,8 @@
  *    the first letter of the word (וּ): nach
  *  - the second of two shevas in the middle of a word: na
  *  - on the last letter, or two shevas at the end of a word: nach
+ *  - right after the stressed vowel (mil'el words like לָ֑יְלָה, קֵ֣דְמָה, הַשָּׁמַ֗יְמָה): nach
+ *  - never in Hashem's name
  */
 
 export interface ClusterHint {
@@ -31,6 +33,12 @@ const DAGESH = "ּ";
 const HOLAM = /[ֹֺ]/;
 const isLetter = (c: string) => c >= "א" && c <= "ת";
 const isMark = (c: string) => c >= "֑" && c <= "ׇ" && c !== "־" && c !== "׀" && c !== "׃" && c !== "׆";
+/** Accents that sit on the stressed letter. Positional accents (always written on
+ *  the last or first letter) count only when they're written elsewhere, as MAM
+ *  repeats them on the stressed letter. */
+const POSTPOSITIVE = /[\u0592\u0599\u05A9\u05AE]/;
+const PREPOSITIVE = /[\u05A0\u059A]/;
+const ACCENT = /[\u0591-\u05AF]/g;
 const FINAL: Record<string, string> = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const base = (c: string) => FINAL[c] ?? c;
 
@@ -91,6 +99,25 @@ export function analyzeWord(word: string): { lead: string; clusters: ClusterHint
     shevaNa: false,
   }));
 
+  // Hashem's name (also with a prefix): no bold sheva.
+  const consonants = letters.join("");
+  if (consonants.endsWith("יהוה")) return { lead, clusters: hints };
+
+  // Which letter has the stress (from the te'amim). In the last word of a pasuk,
+  // the silluq (written like a meteg) marks it.
+  let stress = -1;
+  if (word.includes("\u05C3")) {
+    for (let k = n - 1; k >= 0; k--) if (marks[k].includes(METEG)) { stress = k; break; }
+  }
+  if (stress < 0) {
+    for (let k = 0; k < n; k++) {
+      const acc = (marks[k].match(ACCENT) ?? []).filter(
+        (c) => !(POSTPOSITIVE.test(c) && k === n - 1) && !(PREPOSITIVE.test(c) && k === 0),
+      );
+      if (acc.length) stress = k;
+    }
+  }
+
   // The last letter that isn't a silent vowel letter.
   let last = n - 1;
   while (last > 0 && v[last] === "mater") last--;
@@ -105,7 +132,9 @@ export function analyzeWord(word: string): { lead: string; clusters: ClusterHint
     else {
       // The vowel before it. A silent vowel letter (וֹ, וּ, ִי, …) belongs to the letter before it.
       const prev = v[k - 1] === "mater" && k >= 2 ? v[k - 2] : v[k - 1];
+      const prevAt = v[k - 1] === "mater" && k >= 2 ? k - 2 : k - 1;
       if (prev === "shuruk") na = false; // וּ as the first letter of the word: nach
+      else if (prevAt === stress) na = false; // stressed syllable closed by the sheva (לָ֑יְלָה, קֵ֣דְמָה): nach
       else na = prev === "long"; // qamats, tsere, hiriq male, holam, shuruk mid-word: na
       // patah, segol, hiriq haser, qamats katan, qubuts: nach
     }

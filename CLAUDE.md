@@ -30,7 +30,9 @@ kept in case the owner goes back to Netlify.
 - Qamats katan (U+05C7, marked in our text) and sheva na are drawn extra big and
   bold; sheva nach stays normal. Sheva rules are the owner's (na after qamats,
   tsere, hiriq male, holam, mid-word shuruk, on the first letter, or with a dagesh;
-  nach after patah, segol, hiriq haser, qamats katan, qubuts, or a word-initial וּ).
+  nach after patah, segol, hiriq haser, qamats katan, qubuts, or a word-initial וּ;
+  nach right after the stressed vowel in mil'el words like לָ֑יְלָה, קֵ֣דְמָה, הַשָּׁמָ֑יְמָה,
+  stress read from the te'amim; never bold in Hashem's name).
   Rules in src/lib/hebrew/vowel-hints.ts, drawn by
   WithMaamid (Maamid.tsx) + .vowel-* in globals.css.
 - Recordings play only the Hazzan's voice (no synthetic melody, no file picker).

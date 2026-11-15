@@ -11,15 +11,25 @@ const HINT_MARKS = /[ְׇֽ]/;
  *  - sheva na: an extra big, bold sheva (a sheva nach stays as it is)
  * The font's own mark is removed and a clear one is drawn by CSS instead.
  */
-export function WithMaamid({ text }: { text: string }) {
+export function WithMaamid({ text, source }: { text: string; source?: string }) {
   if (!HINT_MARKS.test(text)) return <>{text}</>;
   // Words are split at spaces and maqafs (each part of a maqaf pair is its own word for the rules).
-  const parts = text.split(/(\s+|־)/);
+  const SPLIT = /(\s+|־)/;
+  const parts = text.split(SPLIT);
+  // The rules read the full text (with te'amim, which show the stress) even when the te'amim are hidden.
+  const srcParts = source?.split(SPLIT);
+  const aligned = !!srcParts && srcParts.length === parts.length;
   return (
     <>
       {parts.map((part, pi) => {
         if (!part || /^\s+$|^־$/.test(part) || !HINT_MARKS.test(part)) return <Fragment key={pi}>{part}</Fragment>;
-        const { lead, clusters } = analyzeWord(part);
+        const shown = analyzeWord(part);
+        const full = aligned ? analyzeWord(srcParts![pi]) : null;
+        const lead = shown.lead;
+        const clusters =
+          full && full.clusters.length === shown.clusters.length
+            ? shown.clusters.map((c, i) => ({ ...c, shevaNa: full.clusters[i].shevaNa && c.text.includes("ְ") }))
+            : shown.clusters;
         return (
           <Fragment key={pi}>
             {lead}

@@ -60,7 +60,7 @@ export function HebrewReader({ segments, settings, activeSegmentId, segmentScore
                 active ? "bg-amber-200/70" : ""
               } ${scoreColor(score)}`}
             >
-              <WithMaamid text={renderHebrew(seg.text, opts)} />
+              <WithMaamid text={renderHebrew(seg.text, opts)} source={seg.text} />
             </span>
             {showNames && taam && (
               <span className="-mt-3 font-sans text-xs leading-tight text-stone-500" dir="ltr">
