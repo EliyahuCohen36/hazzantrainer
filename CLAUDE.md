@@ -26,7 +26,12 @@ kept in case the owner goes back to Netlify.
 - Te'amim names and the 24 books of Tanakh: src/data/teamim-reference.ts
 - Trainer's ta'am names and pause lengths: src/lib/hebrew/teamim.ts
 - Torah examples for each ta'am (from the Westminster Leningrad Codex): src/data/torah-examples.ts
-- Recordings of each ta'am: files in public/audio/teamim/torah/, listed in src/data/teamim-recordings.ts
+- Recordings of each ta'am: files in public/audio/teamim/torah/, listed in src/data/teamim-recordings.ts.
+  Mafsikim get a solo recording. Mesharetim (e.g. Shofar Holekh) are recorded
+  together with the ta'am they lead into, one pairing per file
+  (e.g. shofar-holekh_segolta.mp3), in TORAH_TEAMIM_PAIRS with a Torah example;
+  the pair shows on both cards ("Before X" / "After Y"). Process uploads with
+  ffmpeg: trim silence, loudnorm I=-18, MP3 128k mono.
 - The 54 parashiyot with their 7 aliyot + Maftir (from @hebcal/leyning) and the
   Sephardic haftarah: src/data/parashot.ts. Book pages list them:
   /tanakh/torah/<book>/ (e.g. /tanakh/torah/bereshit/#noah)

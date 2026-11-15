@@ -1,6 +1,6 @@
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
-import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
+import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
 import { asset } from "@/lib/base-path";
 
 const LEVELS: Record<number, string> = {
@@ -10,14 +10,16 @@ const LEVELS: Record<number, string> = {
   4: "Light pause",
 };
 
-function Example({ ex, sofPasuk }: { ex: TaamExample; sofPasuk: boolean }) {
+const NAME_OF = new Map(PROSE_TEAMIM.map((t) => [t.id, t]));
+
+function Example({ ex, sofPasuk, span = 1 }: { ex: TaamExample; sofPasuk: boolean; span?: number }) {
   return (
     <div className="rounded-lg bg-stone-50 px-3 py-2">
       <p dir="rtl" lang="he" className="hebrew-text font-hebrew text-xl leading-[2.1] text-stone-500">
         {ex.phrase.map((w, i) => (
           <span key={i}>
             {i > 0 && " "}
-            <span className={i === ex.at ? "rounded bg-amber-200/80 px-1 text-stone-900" : ""}>{w}</span>
+            <span className={i >= ex.at && i < ex.at + span ? "rounded bg-amber-200/80 px-1 text-stone-900" : ""}>{w}</span>
           </span>
         ))}
         {sofPasuk && "׃"}
@@ -27,10 +29,34 @@ function Example({ ex, sofPasuk }: { ex: TaamExample; sofPasuk: boolean }) {
   );
 }
 
+/** A mesharet sung with the ta'am after it, shown on both of their cards. */
+function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second" }) {
+  const other = NAME_OF.get(side === "first" ? pair.second : pair.first);
+  return (
+    <div className="rounded-lg border border-amber-100 bg-amber-50/50 p-3">
+      <div className="mb-1.5 text-sm font-medium text-stone-800">
+        {side === "first" ? "Before" : "After"} {other?.syrian}
+        <span dir="rtl" lang="he" className="ml-2 font-hebrew text-stone-500">
+          {other?.hebrew}
+        </span>
+      </div>
+      <audio src={asset(pair.src)} controls preload="none" className="h-9 w-full max-w-sm" />
+      {pair.example && (
+        <div className="mt-2">
+          <Example ex={pair.example} sofPasuk={false} span={2} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TaamCard({ t }: { t: TaamReference }) {
   const id = t.id ?? "";
   const examples = TORAH_EXAMPLES[id] ?? [];
   const audio = TORAH_TEAMIM_RECORDINGS[id];
+  const before = TORAH_TEAMIM_PAIRS.filter((p) => p.first === id);
+  const after = TORAH_TEAMIM_PAIRS.filter((p) => p.second === id);
+  const mesharet = t.role === "mesharet";
   return (
     <li id={id} className="grid gap-4 border-b border-stone-100 py-4 last:border-0 sm:grid-cols-[13rem_1fr]">
       <div className="flex items-start gap-3">
@@ -48,10 +74,25 @@ function TaamCard({ t }: { t: TaamReference }) {
       <div className="space-y-2">
         {audio ? (
           <audio src={asset(audio)} controls preload="none" className="h-9 w-full max-w-sm" />
-        ) : (
+        ) : !(mesharet && before.length) ? (
           <p className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
-            <span aria-hidden>♪</span> Recording coming soon
+            <span aria-hidden>♪</span> {mesharet ? "Recordings coming soon" : "Recording coming soon"}
           </p>
+        ) : null}
+        {mesharet && before.length > 0 && (
+          <p className="text-xs text-stone-500">
+            {t.syrian} connects to the ta&apos;am after it, so it sounds different before each one:
+          </p>
+        )}
+        {(before.length > 0 || after.length > 0) && (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {before.map((p) => (
+              <Pair key={p.src} pair={p} side="first" />
+            ))}
+            {after.map((p) => (
+              <Pair key={p.src} pair={p} side="second" />
+            ))}
+          </div>
         )}
         {t.note && <p className="text-sm text-stone-600">{t.note}</p>}
         {examples.length > 0 && (
