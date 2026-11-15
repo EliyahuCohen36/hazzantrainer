@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SECTION_TITLES, TANAKH, type TanakhSection } from "@/data/teamim-reference";
 import { curriculum } from "@/lib/curriculum/repository";
+import { PARASHOT } from "@/data/parashot";
 import { TorahTeamim } from "@/components/tanakh/TorahTeamim";
 
 const SECTIONS: TanakhSection[] = ["torah", "neviim", "ketuvim"];
@@ -74,14 +75,28 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
               <li key={book.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <div className="flex items-baseline gap-3">
-                    <span dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900">
-                      {book.he}
-                    </span>
+                    {s === "torah" ? (
+                      <Link href={`/tanakh/torah/${book.id}/`} dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900 hover:text-amber-800">
+                        {book.he}
+                      </Link>
+                    ) : (
+                      <span dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900">
+                        {book.he}
+                      </span>
+                    )}
                     <span className="text-sm text-stone-500">{book.en}</span>
                   </div>
                   <div className="text-xs text-stone-400">{book.melody}</div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                  {s === "torah" && (
+                    <Link
+                      href={`/tanakh/torah/${book.id}/`}
+                      className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-200"
+                    >
+                      {PARASHOT.filter((p) => p.book === book.id).length} parashiyot →
+                    </Link>
+                  )}
                   {lessons.map((l) => (
                     <Link
                       key={l.id}
@@ -91,7 +106,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
                       {l.title.en}
                     </Link>
                   ))}
-                  {lessons.length === 0 && <span className="text-xs text-stone-400">Lessons coming soon</span>}
+                  {lessons.length === 0 && s !== "torah" && <span className="text-xs text-stone-400">Lessons coming soon</span>}
                   {s !== "torah" && (
                     <Link href={`/teamim/#${book.id}`} className="text-sm text-amber-800 hover:underline">
                       Te&apos;amim →

@@ -27,9 +27,12 @@ kept in case the owner goes back to Netlify.
 - Trainer's ta'am names and pause lengths: src/lib/hebrew/teamim.ts
 - Torah examples for each ta'am (from the Westminster Leningrad Codex): src/data/torah-examples.ts
 - Recordings of each ta'am: files in public/audio/teamim/torah/, listed in src/data/teamim-recordings.ts
+- The 54 parashiyot with their 7 aliyot + Maftir (from @hebcal/leyning) and the
+  Sephardic haftarah: src/data/parashot.ts. Book pages list them:
+  /tanakh/torah/<book>/ (e.g. /tanakh/torah/bereshit/#noah)
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
 - Scoring (melody, note placement, clarity, pauses): src/lib/audio/
-- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /teamim/, /practice/[lessonId]/
+- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/[book]/, /teamim/, /practice/[lessonId]/
 
 ## Adding a pasuk
 Put the Hazzan's recording in public/audio/torah/<book>/, add the lesson to
