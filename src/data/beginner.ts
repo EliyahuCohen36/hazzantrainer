@@ -90,7 +90,7 @@ export const NEKUDOT: Nekuda[] = [
   { id: "holem", name: "Holem", he: "חוֹלֶם", sound: "o", v: "o", mark: "ֹ", color: "rose" },
   { id: "holem-male", name: "Holem with Vav", he: "חוֹלֶם מָלֵא", sound: "o", v: "o", mark: "", after: "וֹ", color: "rose" },
   { id: "qibbus", name: "Qibbus", he: "קִבּוּץ", sound: "u", v: "u", mark: "ֻ", color: "violet" },
-  { id: "shureq", name: "Shureq", he: "שׁוּרֶק", sound: "u", v: "u", mark: "", after: "וּ", color: "violet" },
+  { id: "shuruq", name: "Shuruq", he: "שׁוּרֶק", sound: "u", v: "u", mark: "", after: "וּ", color: "violet" },
   // Sheva is not here: it has its own section (/beginner/sheva/), opened after all the other nekudot.
   { id: "hataf-patah", name: "Hataf Patah", he: "חֲטַף פַּתַח", sound: "a (short)", v: "a", mark: "ֲ", color: "amber" },
   { id: "hataf-segol", name: "Hataf Segol", he: "חֲטַף סֶגּוֹל", sound: "e (short)", v: "e", mark: "ֱ", color: "sky" },
@@ -173,7 +173,7 @@ export const BEGINNER_LEVELS: BeginnerLevel[] = [
   { n: 6, title: "Sere and Segol: \"e\"", he: "צֵרֵי סֶגּוֹל", nekudot: ["sere", "segol"], href: "/beginner/nekudot/sere/" },
   { n: 7, title: "Hireq: \"i\"", he: "חִירֶק", nekudot: ["hireq", "hireq-male"], href: "/beginner/nekudot/hireq/" },
   { n: 8, title: "Holem: \"o\"", he: "חוֹלֶם", nekudot: ["holem", "holem-male"], href: "/beginner/nekudot/holem/" },
-  { n: 9, title: "Qibbus and Shureq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shureq"], href: "/beginner/nekudot/qibbus/" },
+  { n: 9, title: "Qibbus and Shuruq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shuruq"], href: "/beginner/nekudot/qibbus/" },
   { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/hataf-patah/" },
   { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/chart/" },
   { n: 12, title: "The Sheva: Na and Nach", he: "שְׁוָא", href: "/beginner/sheva/" },

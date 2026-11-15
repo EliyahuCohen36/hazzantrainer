@@ -51,7 +51,7 @@ const SAME_SOUND: Record<string, string> = {
   segol: "sere",
   "hireq-male": "hireq",
   "holem-male": "holem",
-  shureq: "qibbus",
+  shuruq: "qibbus",
   "hataf-patah": "qamats",
   "hataf-segol": "sere",
   "hataf-qamats": "holem",

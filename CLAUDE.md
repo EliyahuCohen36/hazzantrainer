@@ -143,7 +143,7 @@ kept in case the owner goes back to Netlify.
 - Recordings (his voice only) go in BEGINNER_RECORDINGS (src/data/beginner-recordings.ts):
   letter:<id>, sound:<letterId>:<nekudaId>, nekuda:<id>. Tiles without one show no 🔊.
   Same-sounding nekudot share a recording (patah→qamats, segol→sere, hireq-male→hireq,
-  holem-male→holem, shureq→qibbus, hataf-*→qamats/sere/holem), so he records one file
+  holem-male→holem, shuruq→qibbus, hataf-*→qamats/sere/holem), so he records one file
   per letter: "Bet – b – ba – be – bi – bo – bu" (~28 files; sheva sounds b' are
   recorded later for the Sheva section, key sound:<id>:sheva → <id>-sheva.mp3), cut at the pauses
   (name, sound alone, then the nekuda sounds; Alef and He have no sound alone).

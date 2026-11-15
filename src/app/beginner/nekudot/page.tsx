@@ -12,7 +12,7 @@ const GROUPS = [
   { sound: "e", ids: ["sere", "segol"] },
   { sound: "i", ids: ["hireq", "hireq-male"] },
   { sound: "o", ids: ["holem", "holem-male"] },
-  { sound: "u", ids: ["qibbus", "shureq"] },
+  { sound: "u", ids: ["qibbus", "shuruq"] },
   { sound: "Short sounds (hataf)", ids: ["hataf-patah", "hataf-segol", "hataf-qamats"] },
 ];
 

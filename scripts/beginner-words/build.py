@@ -21,9 +21,9 @@ VOWELS = {QAMATS: "qamats", PATAH: "patah", SERE: "sere", SEGOL: "segol", HIREQ:
           HQAMATS: "hataf-qamats", SHEVA: "sheva", QAMATS_QATAN: "qamats-qatan", HOLEM_VAV: "holem"}
 SOUND = {"qamats": "qamats", "patah": "qamats", "hataf-patah": "qamats", "sere": "sere", "segol": "sere",
          "hataf-segol": "sere", "hireq": "hireq", "hireq-male": "hireq", "holem": "holem",
-         "holem-male": "holem", "hataf-qamats": "holem", "qibbus": "qibbus", "shureq": "qibbus"}
+         "holem-male": "holem", "hataf-qamats": "holem", "qibbus": "qibbus", "shuruq": "qibbus"}
 LEVEL = {"qamats": 5, "patah": 5, "sere": 6, "segol": 6, "hireq": 7, "hireq-male": 7, "holem": 8,
-         "holem-male": 8, "qibbus": 9, "shureq": 9, "hataf-patah": 10, "hataf-segol": 10, "hataf-qamats": 10}
+         "holem-male": 8, "qibbus": 9, "shuruq": 9, "hataf-patah": 10, "hataf-segol": 10, "hataf-qamats": 10}
 LETTER = {"א": "alef", "ג": "gimel", "ד": "dalet", "ה": "he", "ו": "vav", "ז": "zayin", "ח": "het",
           "ט": "tet", "י": "yod", "ל": "lamed", "מ": "mem", "ם": "mem", "נ": "nun", "ן": "nun",
           "ס": "samekh", "ע": "ayin", "צ": "tsadi", "ץ": "tsadi", "ק": "qof", "ר": "resh", "ת": "tav"}
@@ -68,7 +68,7 @@ def analyze(word):
         last = i == len(cl) - 1
         nxt = cl[i + 1] if not last else None
         if ch == "ו" and not vs and DAGESH in marks:
-            raise Skip  # shureq not straight after a consonant (e.g. word-initial וּ)
+            raise Skip  # shuruq not straight after a consonant (e.g. word-initial וּ)
         if ch == "ו" and HOLEM in marks and not set(marks) - {HOLEM}:
             raise Skip  # holem male that isn't after a bare consonant
         lid = letter_id(ch, marks)
@@ -82,7 +82,7 @@ def analyze(word):
             syl.append(f"{lid}:{SOUND[v]}")
             used.add(v)
         elif nxt and nxt[0] == "ו" and nxt[1] in (HOLEM, DAGESH):
-            v = "holem-male" if nxt[1] == HOLEM else "shureq"
+            v = "holem-male" if nxt[1] == HOLEM else "shuruq"
             syl.append(f"{lid}:{SOUND[v]}")
             used.add(v)
             i += 1

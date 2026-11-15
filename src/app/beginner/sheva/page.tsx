@@ -71,14 +71,14 @@ export default function ShevaPage() {
           <Examples
             title={"Sheva Na: say a short \u201ce\u201d"}
             he="שְׁוָא נָע"
-            say="A Sheva is Na on the first letter of a word, on a letter with a dagesh, after a Qamats, Sere, Hireq with Yod, Holem, or a Shureq in the middle of a word, and when it is the second of two Shevas in a row."
+            say="A Sheva is Na on the first letter of a word, on a letter with a dagesh, after a Qamats, Sere, Hireq with Yod, Holem, or a Shuruq in the middle of a word, and when it is the second of two Shevas in a row."
             items={NA}
             tone="border-amber-200 bg-amber-50"
           />
           <Examples
             title="Sheva Nach: silent"
             he="שְׁוָא נָח"
-            say="A Sheva is Nach at the end of a word, and after a Patah, Segol, Hireq (without Yod), Qamats Qatan, Qibbus, or a Shureq at the start of a word (וּ)."
+            say="A Sheva is Nach at the end of a word, and after a Patah, Segol, Hireq (without Yod), Qamats Qatan, Qibbus, or a Shuruq at the start of a word (וּ)."
             items={NACH}
             tone="border-sky-200 bg-sky-50"
           />
