@@ -23,6 +23,10 @@ kept in case the owner goes back to Netlify.
   "Shofar Holekh with Pesik", id shofar-holekh-pesik; that letter is
   highlighted in the text view).
   Students must be told this; it's shown on both cards and in the text view.
+- Ma'amid (meteg/silluq, U+05BD): drawn as a clear line under its letter
+  (WithMaamid in src/components/reader/Maamid.tsx + .maamid in globals.css) in the
+  Torah text, te'amim examples and pasuk practice, so readers see which letter
+  takes the sound (e.g. Sof Pasuk). Shown whenever nikkud or te'amim are on.
 - Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
