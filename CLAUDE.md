@@ -30,9 +30,17 @@ kept in case the owner goes back to Netlify.
 - The 54 parashiyot with their 7 aliyot + Maftir (from @hebcal/leyning) and the
   Sephardic haftarah: src/data/parashot.ts. Book pages list them:
   /tanakh/torah/<book>/ (e.g. /tanakh/torah/bereshit/#noah)
+- Full Torah text: src/data/torah/<book>.json (format in src/data/torah/index.ts), from
+  Miqra According to the Masorah (CC BY-SA 4.0, attribute "Hebrew Wikisource"), with
+  the Sephardic scroll spelling in the 10 places MAM notes a difference. Regenerate
+  only from MAM-simple (github.com/bdenckla/MAM-basics). Parasha pages show it:
+  /tanakh/torah/<book>/<parasha>/ (#aliyah-1 … #aliyah-7). Ta'am of each word:
+  src/lib/hebrew/taam-of-word.ts.
+- Aliyot are the common division (Hebcal). The owner wants the Edot HaMizrah
+  division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
 - Scoring (melody, note placement, clarity, pauses): src/lib/audio/
-- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/[book]/, /teamim/, /practice/[lessonId]/
+- Pages: / (home, Tanakh section), /tanakh/[torah|neviim|ketuvim]/, /tanakh/torah/[book]/, /tanakh/torah/[book]/[parasha]/, /teamim/, /practice/[lessonId]/
 
 ## Adding a pasuk
 Put the Hazzan's recording in public/audio/torah/<book>/, add the lesson to

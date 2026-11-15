@@ -755,7 +755,7 @@ export const PARASHOT: Parasha[] = [
     book: "bamidbar",
     num: 41,
     aliyot: [
-      { n: 1, from: "25:10", to: "26:4", pesukim: 14 },
+      { n: 1, from: "25:10", to: "26:4", pesukim: 13 },
       { n: 2, from: "26:5", to: "26:51", pesukim: 47 },
       { n: 3, from: "26:52", to: "27:5", pesukim: 19 },
       { n: 4, from: "27:6", to: "27:23", pesukim: 18 },

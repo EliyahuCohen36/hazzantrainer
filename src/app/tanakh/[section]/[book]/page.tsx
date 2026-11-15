@@ -4,18 +4,10 @@ import { notFound } from "next/navigation";
 import { TANAKH } from "@/data/teamim-reference";
 import { PARASHOT, type Aliyah } from "@/data/parashot";
 import { curriculum } from "@/lib/curriculum/repository";
+import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import type { Lesson } from "@/types/curriculum";
 
-const ALIYAH_NAMES: Record<string, { en: string; he: string }> = {
-  "1": { en: "Kohen", he: "כהן" },
-  "2": { en: "Levi", he: "לוי" },
-  "3": { en: "Shelishi", he: "שלישי" },
-  "4": { en: "Revi'i", he: "רביעי" },
-  "5": { en: "Hamishi", he: "חמישי" },
-  "6": { en: "Shishi", he: "שישי" },
-  "7": { en: "Shevi'i", he: "שביעי" },
-  M: { en: "Maftir", he: "מפטיר" },
-};
+
 
 /** Book pages exist for the Torah, where the parashiyot are. */
 export function generateStaticParams() {
@@ -110,9 +102,17 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
                   <h2 className="text-xl font-semibold text-stone-900">{p.en}</h2>
                   <span className="text-sm tabular-nums text-stone-500">{fmt(whole)}</span>
                 </div>
-                <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
-                  {p.he}
-                </span>
+                <div className="flex items-baseline gap-3">
+                  <Link
+                    href={`/tanakh/torah/${book.id}/${p.id}/`}
+                    className="rounded-lg bg-amber-700 px-3 py-1 text-sm font-medium text-white hover:bg-amber-800"
+                  >
+                    Read the text →
+                  </Link>
+                  <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
+                    {p.he}
+                  </span>
+                </div>
               </div>
 
               <table className="mt-3 w-full table-fixed text-sm">
@@ -130,7 +130,12 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
                     return (
                       <tr key={String(a.n)} className={`border-b border-stone-100 last:border-0 ${a.n === "M" ? "text-stone-500" : ""}`}>
                         <td className="py-2 pe-3">
-                          <span className="font-medium text-stone-800">{name.en}</span>
+                          <Link
+                            href={`/tanakh/torah/${book.id}/${p.id}/#${a.n === "M" ? "aliyah-7" : `aliyah-${a.n}`}`}
+                            className="font-medium text-stone-800 hover:text-amber-800 hover:underline"
+                          >
+                            {name.en}
+                          </Link>
                           <span dir="rtl" lang="he" className="ml-2 font-hebrew text-stone-500">
                             {name.he}
                           </span>
