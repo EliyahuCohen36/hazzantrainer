@@ -31,6 +31,10 @@ export interface TaamReference {
   level?: 1 | 2 | 3 | 4;
   /** Short note on when it's used. */
   note?: string;
+  /** An important rule to point out to students (shown highlighted). */
+  tip?: string;
+  /** Id of a related ta'am to link to from this card. */
+  seeAlso?: string;
 }
 
 const A = "א";
@@ -59,10 +63,10 @@ export const PROSE_TEAMIM: TaamReference[] = [
   { id: "talsha", syrian: "Talsha", hebrew: "תלשׁא", ashkenazi: "Telisha Gedola", sample: `${A}֠`, role: "mafsik", level: 4, note: "Written at the start of the word. Not the same as Tilsa: it has its own sound." },
   { id: "gerish", syrian: "Gerish", hebrew: "גריש", ashkenazi: "Geresh", sample: `${A}֜`, role: "mafsik", level: 4 },
   { id: "shene-gerishin", syrian: "Shene Gerishin", hebrew: "שני גרישין", ashkenazi: "Gershayim", sample: `${A}֞`, role: "mafsik", level: 4 },
-  { id: "shofar-holekh-pesik", syrian: "Shofar Holekh with Pesik", hebrew: "שופר הולך ופסיק", ashkenazi: "Munach Legarmeh", sample: `${A}֣ ׀`, role: "mafsik", level: 4, note: "Comes before Rebia." },
+  { id: "shofar-holekh-pesik", syrian: "Shofar Holekh with Pesik", hebrew: "שופר הולך ופסיק", ashkenazi: "Munach Legarmeh", sample: `${A}֣ ׀`, role: "mafsik", level: 4, note: "Comes before Rebia.", tip: "When a pesik (׀) comes right after a word with Shofar Holekh, that word is sung with the Pesik sound, not the usual Shofar Holekh.", seeAlso: "shofar-holekh" },
   // Conjunctives
   { id: "maarikh", syrian: "Ma'arikh", hebrew: "מאריך", ashkenazi: "Mercha", sample: `${A}֥`, role: "mesharet", note: "Leads into Sof Pasuk, Tarha and others." },
-  { id: "shofar-holekh", syrian: "Shofar Holekh", hebrew: "שופר הולך", ashkenazi: "Munach", sample: `${A}֣`, role: "mesharet", note: "Leads into most mafsikim." },
+  { id: "shofar-holekh", syrian: "Shofar Holekh", hebrew: "שופר הולך", ashkenazi: "Munach", sample: `${A}֣`, role: "mesharet", note: "Leads into most mafsikim.", tip: "If a pesik (׀) follows the word, sing that word with the Pesik sound instead.", seeAlso: "shofar-holekh-pesik" },
   { id: "shofar-mehuppakh", syrian: "Shofar Mehuppakh", hebrew: "שופר מהופך", ashkenazi: "Mahpach", sample: `${A}֤`, role: "mesharet", note: "Leads into Kadma." },
   { id: "darga", syrian: "Darga", hebrew: "דרגא", ashkenazi: "Darga", sample: `${A}֧`, role: "mesharet", note: "Leads into Tebir." },
   { id: "azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Kadma", sample: `${A}֨`, role: "mesharet", note: "Leads into Gerish." },

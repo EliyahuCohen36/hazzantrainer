@@ -74,7 +74,10 @@ function Word({
   return (
     <span className="inline-flex flex-col items-center align-top">
       <span>{body}</span>
-      <span className="-mt-2 font-sans text-[0.32em] leading-tight text-stone-500" dir="ltr">
+      <span
+        className={`-mt-2 font-sans text-[0.32em] leading-tight ${taam.id === "shofar-holekh-pesik" ? "font-semibold text-amber-700" : "text-stone-500"}`}
+        dir="ltr"
+      >
         {taam.syrian}
       </span>
     </span>
@@ -132,6 +135,12 @@ export function TorahText({ sections, practice }: Props) {
     <div className="space-y-4">
       <div className="sticky top-0 z-10 -mx-1 rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
         <DisplayModeToggle value={settings} onChange={setSettings} />
+        {settings.showTaamNames && !scroll && (
+          <p className="mt-2 text-xs text-stone-500">
+            <span className="font-semibold text-amber-700">Shofar Holekh with Pesik:</span> when a pesik (׀) follows a word
+            with Shofar Holekh, that word is sung with the Pesik sound.
+          </p>
+        )}
       </div>
 
       {sections.map((s) => (

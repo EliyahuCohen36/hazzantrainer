@@ -18,6 +18,9 @@ kept in case the owner goes back to Netlify.
   Azla = Ashkenazi Kadma, Talsha (תלשׁא, ֠) = Telisha Gedola,
   Tilsa (תילשׂא, ֩) = Telisha Ketana. Talsha and Tilsa are two separate
   te'amim with different sounds: never merge them.
+- Shofar Holekh + pesik (׀): the word with the Shofar Holekh is sung with the
+  Pesik sound (card "Shofar Holekh with Pesik", id shofar-holekh-pesik).
+  Students must be told this; it's shown on both cards and in the text view.
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
 - Everything must stay free to run (GitHub Pages; never anything paid).

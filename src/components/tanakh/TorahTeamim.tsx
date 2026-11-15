@@ -95,6 +95,17 @@ function TaamCard({ t }: { t: TaamReference }) {
           </div>
         )}
         {t.note && <p className="text-sm text-stone-600">{t.note}</p>}
+        {t.tip && (
+          <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+            <span className="font-semibold">Remember: </span>
+            {t.tip}
+            {t.seeAlso && NAME_OF.get(t.seeAlso) && (
+              <a href={`#${t.seeAlso}`} className="ms-1 whitespace-nowrap font-medium text-amber-800 underline">
+                Hear {NAME_OF.get(t.seeAlso)?.syrian} →
+              </a>
+            )}
+          </p>
+        )}
         {examples.length > 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {examples.map((ex) => (
