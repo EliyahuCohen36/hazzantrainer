@@ -3,7 +3,9 @@
 // Deploy: Supabase dashboard → Edge Functions → Deploy a new function → "stripe-webhook",
 // paste this file, and turn OFF "Verify JWT" (Stripe can't send a Supabase token;
 // the Stripe signature is checked instead).
-// Secrets (Edge Functions → Secrets): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
+// Secret (Edge Functions → Secrets): STRIPE_WEBHOOK_SECRET (the destination's signing
+// secret). No Stripe API key is needed: the function only checks the signature and
+// reads the event.
 // In Stripe: Developers → Webhooks → add endpoint
 //   https://<project>.supabase.co/functions/v1/stripe-webhook
 // with events: checkout.session.completed, invoice.paid.
@@ -15,7 +17,8 @@
 import Stripe from "https://esm.sh/stripe@17?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { httpClient: Stripe.createFetchHttpClient() });
+// Only used to check signatures, so no real API key is needed.
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_unused", { httpClient: Stripe.createFetchHttpClient() });
 // The project's secret key (new-style keys), or the legacy service_role key.
 function secretKey(): string {
   try {
@@ -29,6 +32,13 @@ function secretKey(): string {
 const db = createClient(Deno.env.get("SUPABASE_URL")!, secretKey(), { auth: { persistSession: false } });
 
 const day = (unix: number) => new Date(unix * 1000).toISOString().slice(0, 10);
+/** A month from now plus a few days' grace (the first renewal's invoice.paid sets the exact date). */
+const monthFromNow = () => {
+  const d = new Date();
+  d.setUTCMonth(d.getUTCMonth() + 1);
+  d.setUTCDate(d.getUTCDate() + 3);
+  return d.toISOString().slice(0, 10);
+};
 
 /** Give access until `until` (keeps teachers, students and the admin as they are). */
 async function grant(filter: { id?: string; customer?: string }, until: string, customer?: string) {
@@ -57,10 +67,8 @@ Deno.serve(async (req) => {
 
   if (event.type === "checkout.session.completed") {
     const s = event.data.object as Stripe.Checkout.Session;
-    if (s.client_reference_id && s.subscription) {
-      const sub = await stripe.subscriptions.retrieve(s.subscription as string);
-      const end = (sub as unknown as { current_period_end?: number }).current_period_end ?? sub.items.data[0]?.current_period_end;
-      await grant({ id: s.client_reference_id }, day(end), s.customer as string);
+    if (s.client_reference_id && (s.subscription || s.mode === "subscription")) {
+      await grant({ id: s.client_reference_id }, monthFromNow(), s.customer as string);
     }
   } else if (event.type === "invoice.paid") {
     const inv = event.data.object as Stripe.Invoice;

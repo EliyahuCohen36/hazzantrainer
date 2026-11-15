@@ -83,8 +83,9 @@ kept in case the owner goes back to Netlify.
   $10/month, Managed Payments on (owner's choice), payment link redirects to
   /subscribe/?paid=1; customer portal on (cancel at period end); webhook
   destination "Kriah Trainer access" → functions/v1/stripe-webhook (JWT check off),
-  events checkout.session.completed + invoice.paid. Function secrets
-  STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are entered by the owner.
+  events checkout.session.completed + invoice.paid. Only secret needed:
+  STRIPE_WEBHOOK_SECRET (entered by the owner); no Stripe API key. First payment
+  gives a month + 3 days; each invoice.paid sets the exact paid-until date.
 - Site header on every page (Home, About, demo, account): SiteHeader in AuthGate.tsx.
   Visitors' home page: src/components/auth/Landing.tsx (pictures in public/images/,
   screenshots of the trainer). About page: src/app/about/page.tsx (open to all).
