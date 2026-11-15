@@ -20,6 +20,10 @@ const LOOKALIKES: string[][] = [
   ["rebia", "zarka", "segolta"],
 ];
 
+/** Signs that look the same on one letter (they differ only in position in the word): never offered together. */
+const SAME_LOOK: string[][] = [["yetib", "shofar-mehuppakh"]];
+const looksSame = (a: string, b: string) => SAME_LOOK.some((g) => g.includes(a) && g.includes(b));
+
 function shuffle<T>(a: T[]): T[] {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
@@ -39,11 +43,15 @@ function makeRound(pool: TaamReference[]): Question[] {
   const qs: Question[] = [];
   for (let i = 0; i < ROUND; i++) {
     const answer = order[i % order.length];
-    const others = pool.filter((t) => t.id !== answer.id);
+    const others = pool.filter((t) => t.id !== answer.id && !looksSame(t.id ?? "", answer.id ?? ""));
     const look = LOOKALIKES.find((g) => g.includes(answer.id ?? ""));
     const tricky = shuffle(others.filter((t) => look?.includes(t.id ?? ""))).slice(0, 1);
-    const rest = shuffle(others.filter((t) => !tricky.includes(t))).slice(0, 3 - tricky.length);
-    qs.push({ answer, choices: shuffle([answer, ...tricky, ...rest]) });
+    const chosen = [answer, ...tricky];
+    for (const t of shuffle(others.filter((t) => !tricky.includes(t)))) {
+      if (chosen.length >= 4) break;
+      if (!chosen.some((c) => looksSame(c.id ?? "", t.id ?? ""))) chosen.push(t);
+    }
+    qs.push({ answer, choices: shuffle(chosen) });
   }
   return qs;
 }
@@ -160,7 +168,7 @@ export function TeamimQuiz() {
         >
           ▶
         </button>
-        <p className="text-stone-600">Listen to the Hazzan. Which ta&apos;am is it?</p>
+        <p className="text-stone-600">Listen to the Hazzan. Which sign is it?</p>
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -174,7 +182,8 @@ export function TeamimQuiz() {
               type="button"
               onClick={() => choose(t)}
               disabled={!!picked}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left ring-1 transition ${
+              aria-label={picked ? t.syrian : `Choice ${q.choices.indexOf(t) + 1}`}
+              className={`flex min-h-24 items-center gap-3 rounded-xl px-4 py-3 text-left ring-1 transition ${
                 state === "idle"
                   ? "bg-white ring-stone-200 hover:bg-amber-50 hover:ring-amber-300"
                   : state === "right"
@@ -184,15 +193,22 @@ export function TeamimQuiz() {
                       : "bg-white opacity-50 ring-stone-200"
               }`}
             >
-              <span dir="rtl" lang="he" className="hebrew-text w-12 text-center font-hebrew text-3xl leading-[1.8] text-amber-800">
+              {/* Only the sign until the child answers: the Hazzan sings the name, so names would give it away. */}
+              <span
+                dir="rtl"
+                lang="he"
+                className={`hebrew-text text-center font-hebrew leading-[1.6] text-amber-800 ${picked ? "w-16 text-4xl" : "flex-1 text-5xl"}`}
+              >
                 {t.sample}
               </span>
-              <span>
-                <span className="block font-semibold text-stone-900">{t.syrian}</span>
-                <span dir="rtl" lang="he" className="block font-hebrew text-sm text-stone-500">
-                  {t.hebrew}
+              {picked && (
+                <span>
+                  <span className="block font-semibold text-stone-900">{t.syrian}</span>
+                  <span dir="rtl" lang="he" className="block font-hebrew text-sm text-stone-500">
+                    {t.hebrew}
+                  </span>
                 </span>
-              </span>
+              )}
               {state === "right" && <span className="ms-auto text-xl text-emerald-600">✓</span>}
               {state === "wrong" && <span className="ms-auto text-xl text-rose-500">✗</span>}
             </button>

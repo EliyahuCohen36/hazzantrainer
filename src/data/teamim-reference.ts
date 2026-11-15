@@ -55,7 +55,7 @@ export const PROSE_TEAMIM: TaamReference[] = [
   { id: "zarka", syrian: "Zarka", hebrew: "זרקא", ashkenazi: "Zarka", sample: `${A}֮`, role: "mafsik", level: 3, note: "Comes before Segolta." },
   { id: "kadma", syrian: "Kadma", hebrew: "קדמא", ashkenazi: "Pashta", sample: `${A}֙`, role: "mafsik", level: 3, note: "Comes before Zakef Katon. Written at the end of the word." },
   { id: "tere-kadmin", syrian: "Tere Kadmin", hebrew: "תרי קדמין", ashkenazi: "Double Pashta", sample: `${A}֙${A}֙`, role: "mafsik", level: 3, note: "Kadma on a word not stressed on the last syllable." },
-  { id: "yetib", syrian: "Yetib", hebrew: "יתיב", ashkenazi: "Yetiv", sample: `${A}֚`, role: "mafsik", level: 3, note: "Takes the place of Kadma when it stands alone." },
+  { id: "yetib", syrian: "Yetib", hebrew: "יתיב", ashkenazi: "Yetiv", sample: `${A}֚`, role: "mafsik", level: 3, note: "Takes the place of Kadma when it stands alone. Looks like Shofar Mehuppakh, but is written before the first letter of the word." },
   { id: "tebir", syrian: "Tebir", hebrew: "תביר", ashkenazi: "Tevir", sample: `${A}֛`, role: "mafsik", level: 3, note: "Comes before Tarha." },
   // Level 4
   { id: "pazer-gadol", syrian: "Pazer Gadol", hebrew: "פזר גדול", ashkenazi: "Pazer", sample: `${A}֡`, role: "mafsik", level: 4 },

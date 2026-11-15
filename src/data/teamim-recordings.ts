@@ -31,6 +31,12 @@ export const TORAH_TEAMIM_RECORDINGS: Record<string, string> = {
   "tebir": "/audio/teamim/torah/tebir.mp3",
   "tere-kadmin": "/audio/teamim/torah/tere-kadmin.mp3",
   "zakef-katon": "/audio/teamim/torah/zakef-katon.mp3",
+  "tere-taame": "/audio/teamim/torah/tere-taame.mp3",
+  "yetib": "/audio/teamim/torah/yetib.mp3",
+  "sof-pasuk": "/audio/teamim/torah/sof-pasuk.mp3",
+  "shalshelet": "/audio/teamim/torah/shalshelet.mp3",
+  "gerish": "/audio/teamim/torah/gerish.mp3",
+  "zakef-gadol": "/audio/teamim/torah/zakef-gadol.mp3",
 };
 
 export interface TaamPairRecording {
