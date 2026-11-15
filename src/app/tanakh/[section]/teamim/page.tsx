@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TorahTeamim } from "@/components/tanakh/TorahTeamim";
+import { TeamimLevels } from "@/components/tanakh/TeamimLevels";
 
 export const metadata: Metadata = { title: "Te'amim trainer · Torah · Kriah Trainer" };
 
@@ -35,16 +35,16 @@ export default function TorahTeamimPage() {
           className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm transition-colors hover:bg-amber-100"
         >
           <span className="block text-lg font-semibold text-stone-900">🎧 Listening quiz →</span>
-          <span className="block text-sm text-stone-600">Hear the Hazzan sing a ta&apos;am and pick its name.</span>
+          <span className="block text-sm text-stone-600">Hear the Hazzan sing a ta&apos;am and pick its sign (te&apos;amim from your open levels).</span>
         </Link>
         <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
           <span className="block text-lg font-semibold text-stone-900">🎤 Practice singing</span>
           <span className="block text-sm text-stone-600">
-            Press <b>Practice</b> under any recording, sing it, and get stars and tips. Any voice works.
+            Press <b>Practice</b> under a recording, sing it, and get stars. Get 2 stars on every ta&apos;am to finish a level.
           </span>
         </div>
       </div>
-      <TorahTeamim />
+      <TeamimLevels />
       <p className="mt-6 text-sm">
         <Link href="/tanakh/torah/" className="text-amber-800 hover:underline">
           ← Back to the Torah

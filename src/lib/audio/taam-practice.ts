@@ -121,12 +121,16 @@ export function loadProgress(): Progress {
   return { practice: {}, quiz: {} };
 }
 
+/** Fired on window whenever progress changes, so screens can update. */
+export const PROGRESS_EVENT = "kriah-progress";
+
 function save(p: Progress) {
   try {
     localStorage.setItem(key(), JSON.stringify(p));
   } catch {
     // ignore
   }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(PROGRESS_EVENT));
 }
 
 async function db() {

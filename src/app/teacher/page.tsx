@@ -4,16 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
+import { TEAMIM_LEVELS } from "@/data/teamim-levels";
 
 interface Klass {
   id: string;
   name: string;
   code: string;
   teacher_id: string;
+  unlocked_level: number;
 }
 interface Member {
   class_id: string;
   student_id: string;
+  unlocked_level: number | null;
 }
 interface Student {
   id: string;
@@ -42,7 +45,19 @@ function practiceName(key: string) {
 
 const stars = (s: number) => (s >= 88 ? 3 : s >= 70 ? 2 : s >= 45 ? 1 : 0);
 
-function StudentRow({ s, rows }: { s: Student; rows: Row[] }) {
+function StudentRow({
+  s,
+  rows,
+  member,
+  classLevel,
+  onLevel,
+}: {
+  s: Student;
+  rows: Row[];
+  member: Member;
+  classLevel: number;
+  onLevel: (level: number | null) => void;
+}) {
   const [open, setOpen] = useState(false);
   const practice = rows.filter((r) => r.kind === "practice");
   const quiz = rows.filter((r) => r.kind === "quiz");
@@ -58,6 +73,21 @@ function StudentRow({ s, rows }: { s: Student; rows: Row[] }) {
           {s.display_name || s.username}
           <span className="ms-2 text-xs font-normal text-stone-400">{s.username}</span>
         </td>
+        <td className="py-2 pe-3" onClick={(e) => e.stopPropagation()}>
+          <select
+            className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
+            value={member.unlocked_level ?? ""}
+            onChange={(e) => onLevel(e.target.value ? Number(e.target.value) : null)}
+            aria-label={`Level for ${s.display_name || s.username}`}
+          >
+            <option value="">Class ({classLevel})</option>
+            {TEAMIM_LEVELS.map((l) => (
+              <option key={l.n} value={l.n}>
+                Level {l.n}
+              </option>
+            ))}
+          </select>
+        </td>
         <td className="py-2 pe-3 tabular-nums">{practice.length}</td>
         <td className="py-2 pe-3 tabular-nums">{twoStars}</td>
         <td className="py-2 pe-3 tabular-nums">{total ? `${Math.round((100 * right) / total)}% (${total})` : "—"}</td>
@@ -66,7 +96,7 @@ function StudentRow({ s, rows }: { s: Student; rows: Row[] }) {
       </tr>
       {open && (
         <tr>
-          <td colSpan={6} className="bg-stone-50 px-3 py-3">
+          <td colSpan={7} className="bg-stone-50 px-3 py-3">
             {practice.length === 0 ? (
               <p className="text-sm text-stone-500">No practice yet.</p>
             ) : (
@@ -101,14 +131,14 @@ export default function TeacherPage() {
   const load = useCallback(async () => {
     if (!profile) return;
     const db = supabase();
-    let q = db.from("classes").select("id, name, code, teacher_id").order("created_at");
+    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level").order("created_at");
     if (profile.role !== "admin") q = q.eq("teacher_id", profile.id);
     const { data: cls, error } = await q;
     if (error) return setError(error.message);
     setClasses((cls as Klass[]) ?? []);
     const ids = (cls ?? []).map((c) => c.id);
     if (!ids.length) return;
-    const { data: mem } = await db.from("class_members").select("class_id, student_id").in("class_id", ids);
+    const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level").in("class_id", ids);
     setMembers((mem as Member[]) ?? []);
     const sids = [...new Set((mem ?? []).map((m) => m.student_id))];
     if (!sids.length) return;
@@ -127,6 +157,24 @@ export default function TeacherPage() {
   if (profile?.role !== "teacher" && profile?.role !== "admin") {
     return <p className="py-24 text-center text-stone-500">This page is for teachers.</p>;
   }
+
+  const setClassLevel = async (id: string, level: number) => {
+    setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, unlocked_level: level } : c)));
+    const { error } = await supabase().from("classes").update({ unlocked_level: level }).eq("id", id);
+    if (error) setError(error.message);
+  };
+
+  const setStudentLevel = async (classId: string, studentId: string, level: number | null) => {
+    setMembers((ms) =>
+      ms.map((m) => (m.class_id === classId && m.student_id === studentId ? { ...m, unlocked_level: level } : m)),
+    );
+    const { error } = await supabase()
+      .from("class_members")
+      .update({ unlocked_level: level })
+      .eq("class_id", classId)
+      .eq("student_id", studentId);
+    if (error) setError(error.message);
+  };
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +197,7 @@ export default function TeacherPage() {
       <h1 className="text-3xl font-semibold text-stone-900">My classes</h1>
       <p className="mt-1 text-stone-600">
         Make a class, then give its <b>class code</b> to your students. They go to <b>Create account</b>, choose a username
-        and password, and type the code. Click a student to see each ta&apos;am they&apos;ve practised.
+        and password, and type the code. Choose how many <b>te&apos;amim levels</b> are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
       </p>
       {error && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
@@ -177,6 +225,20 @@ export default function TeacherPage() {
             <section key={c.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-lg font-semibold text-stone-900">{c.name}</h2>
+                <label className="text-sm text-stone-600">
+                  Levels open:{" "}
+                  <select
+                    className="ms-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-sm font-semibold text-amber-900"
+                    value={c.unlocked_level}
+                    onChange={(e) => setClassLevel(c.id, Number(e.target.value))}
+                  >
+                    {TEAMIM_LEVELS.map((l) => (
+                      <option key={l.n} value={l.n}>
+                        1{l.n > 1 ? `–${l.n}` : ""} (up to {l.title})
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <span className="text-sm text-stone-600">
                   Class code <span className="ms-1 rounded bg-amber-100 px-2 py-0.5 font-mono text-base tracking-widest text-amber-900">{c.code}</span>
                 </span>
@@ -189,6 +251,7 @@ export default function TeacherPage() {
                     <thead className="text-xs uppercase tracking-wide text-stone-400">
                       <tr>
                         <th className="pb-1 pe-3 font-medium">Student</th>
+                        <th className="pb-1 pe-3 font-medium">Level</th>
                         <th className="pb-1 pe-3 font-medium">Practised</th>
                         <th className="pb-1 pe-3 font-medium">2+ stars</th>
                         <th className="pb-1 pe-3 font-medium">Quiz right</th>
@@ -198,7 +261,14 @@ export default function TeacherPage() {
                     </thead>
                     <tbody>
                       {kids.map((s) => (
-                        <StudentRow key={s.id} s={s} rows={rows.filter((r) => r.user_id === s.id)} />
+                        <StudentRow
+                          key={s.id}
+                          s={s}
+                          rows={rows.filter((r) => r.user_id === s.id)}
+                          member={members.find((m) => m.class_id === c.id && m.student_id === s.id)!}
+                          classLevel={c.unlocked_level}
+                          onLevel={(lvl) => setStudentLevel(c.id, s.id, lvl)}
+                        />
                       ))}
                     </tbody>
                   </table>

@@ -52,6 +52,11 @@ kept in case the owner goes back to Netlify.
 - Recordings other than the 3 demo ones are in the private "recordings" bucket
   and played through signed links (src/lib/recordings.ts). Never commit them to
   public/ (the repo is public). New recordings: upload from /admin/ → Recordings.
+- Te'amim levels: the trainer goes in 8 levels, easiest first (Level 1 = Ma'arikh
+  Tarha + Sof Pasuk), defined in src/data/teamim-levels.ts. Children only see the
+  levels their teacher opened (classes.unlocked_level, per-child override in
+  class_members.unlocked_level; my_level() in supabase/levels.sql). Teachers set
+  them in /teacher/. The quiz uses only open te'amim. Teachers/admins see all.
 - Payment: schools by invoice (owner sets seats/paid-until by hand). Card
   checkout for families (Stripe) is planned, not built.
 

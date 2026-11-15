@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
+import { openTeamim } from "@/data/teamim-levels";
+import { useAuth } from "@/lib/auth";
 import { useRecordingUrl } from "@/lib/recordings";
 import { recordQuiz } from "@/lib/audio/taam-practice";
 
@@ -58,7 +60,12 @@ function makeRound(pool: TaamReference[]): Question[] {
 
 /** Listening quiz: hear the Hazzan sing a ta'am, pick its name. */
 export function TeamimQuiz() {
-  const pool = useMemo(() => PROSE_TEAMIM.filter((t) => t.id && TORAH_TEAMIM_RECORDINGS[t.id]), []);
+  // Only te'amim from the levels this child's teacher has opened.
+  const { level } = useAuth();
+  const pool = useMemo(() => {
+    const open = openTeamim(level);
+    return PROSE_TEAMIM.filter((t) => t.id && TORAH_TEAMIM_RECORDINGS[t.id] && open.has(t.id));
+  }, [level]);
   const [round, setRound] = useState<Question[]>([]);
   const [n, setN] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -66,7 +73,13 @@ export function TeamimQuiz() {
   const [missed, setMissed] = useState<TaamReference[]>([]);
   const audio = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => setRound(makeRound(pool)), [pool]);
+  useEffect(() => {
+    setRound(pool.length >= 2 ? makeRound(pool) : []);
+    setN(0);
+    setRight(0);
+    setMissed([]);
+    setPicked(null);
+  }, [pool]);
 
   const q = round[n];
   const done = round.length > 0 && n >= round.length;
@@ -101,7 +114,8 @@ export function TeamimQuiz() {
     setMissed([]);
   };
 
-  if (pool.length < 4) return <p className="text-stone-500">The quiz starts once there are at least 4 recordings.</p>;
+  if (pool.length < 2)
+    return <p className="text-stone-500">The quiz opens once you have at least two te&apos;amim to tell apart.</p>;
   if (!round.length) return null;
 
   if (done) {

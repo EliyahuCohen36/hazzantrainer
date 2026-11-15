@@ -22,6 +22,8 @@ interface AuthState {
   profile: Profile | null;
   /** Signed in and the school's (or family's) licence is current. */
   access: boolean;
+  /** Highest te'amim level this user may open (teachers/admins: all). */
+  level: number;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -31,6 +33,7 @@ const AuthContext = createContext<AuthState>({
   session: null,
   profile: null,
   access: false,
+  level: 1,
   refresh: async () => {},
   signOut: async () => {},
 });
@@ -40,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [access, setAccess] = useState(false);
+  const [level, setLevel] = useState(1);
 
   const load = useCallback(async (s: Session | null) => {
     setSession(s);
@@ -51,10 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const db = supabase();
-    const [{ data: p }, { data: ok }] = await Promise.all([
+    const [{ data: p }, { data: ok }, { data: lvl }] = await Promise.all([
       db.from("profiles").select("id, role, school_id, display_name, username").eq("id", s.user.id).maybeSingle(),
       db.rpc("has_access"),
+      db.rpc("my_level"),
     ]);
+    setLevel(typeof lvl === "number" ? lvl : 1);
     setProfile((p as Profile) ?? null);
     setAccess(ok === true);
     setLoading(false);
@@ -85,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loading, session, profile, access, refresh, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ loading, session, profile, access, level, refresh, signOut }}>{children}</AuthContext.Provider>
   );
 }
 

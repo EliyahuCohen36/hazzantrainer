@@ -60,13 +60,15 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
   );
 }
 
-function TaamCard({ t, demo = false }: { t: TaamReference; demo?: boolean }) {
+export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: boolean; open?: Set<string> }) {
   const id = t.id ?? "";
   const examples = TORAH_EXAMPLES[id] ?? [];
   const audio = TORAH_TEAMIM_RECORDINGS[id];
   // The demo only has the solo recordings; pairs need a login.
-  const before = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.first === id);
-  const after = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.second === id);
+  // With levels, a pair shows once both of its te'amim are open.
+  const ok = (p: { first: string; second: string }) => !open || (open.has(p.first) && open.has(p.second));
+  const before = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.first === id && ok(p));
+  const after = demo ? [] : TORAH_TEAMIM_PAIRS.filter((p) => p.second === id && ok(p));
   const mesharet = t.role === "mesharet";
   return (
     <li id={id} className="grid gap-4 border-b border-stone-100 py-4 last:border-0 sm:grid-cols-[13rem_1fr]">
