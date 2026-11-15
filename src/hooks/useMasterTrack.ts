@@ -5,6 +5,7 @@ import type { MasterRecording, SegmentTiming, TextSegment } from "@/types/curric
 import { analyzeRecording, type PitchContour } from "@/lib/audio/contour";
 import type { AudioFeatures } from "@/lib/audio/features";
 import { createTestTone } from "@/lib/audio/test-tone";
+import { asset } from "@/lib/base-path";
 
 export type MasterStatus = "loading" | "analyzing" | "ready" | "missing" | "error";
 
@@ -69,14 +70,15 @@ export function useMasterTrack(recording: MasterRecording | undefined, segments:
     const id = ++requestId.current;
     setTrack((t) => ({ ...t, status: "loading", error: undefined }));
     try {
-      const res = await fetch(recording.src);
+      const src = asset(recording.src);
+      const res = await fetch(src);
       if (id !== requestId.current) return;
       if (!res.ok) {
         setTrack((t) => ({ ...t, status: "missing", src: null, contour: null }));
         return;
       }
       setObjectUrl(null);
-      await analyze(await res.arrayBuffer(), recording.src, recording.reader, recording.segmentTimings ?? []);
+      await analyze(await res.arrayBuffer(), src, recording.reader, recording.segmentTimings ?? []);
     } catch {
       if (id === requestId.current) setTrack((t) => ({ ...t, status: "missing", src: null }));
     }

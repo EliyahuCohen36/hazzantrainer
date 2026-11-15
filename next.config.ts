@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   output: "export",
   // Each page becomes folder/index.html, which every static host serves.
   trailingSlash: true,
+  // On GitHub Pages the site lives in a folder (/hazzantrainer).
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || undefined,
 };
 
 export default nextConfig;

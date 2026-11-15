@@ -1,6 +1,7 @@
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
+import { asset } from "@/lib/base-path";
 
 const LEVELS: Record<number, string> = {
   1: "Strongest pause",
@@ -46,7 +47,7 @@ function TaamCard({ t }: { t: TaamReference }) {
       </div>
       <div className="space-y-2">
         {audio ? (
-          <audio src={audio} controls preload="none" className="h-9 w-full max-w-sm" />
+          <audio src={asset(audio)} controls preload="none" className="h-9 w-full max-w-sm" />
         ) : (
           <p className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
             <span aria-hidden>♪</span> Recording coming soon
