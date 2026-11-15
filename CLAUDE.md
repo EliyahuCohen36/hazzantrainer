@@ -28,7 +28,10 @@ kept in case the owner goes back to Netlify.
   Torah text, te'amim examples and pasuk practice, so readers see which letter
   takes the sound (e.g. Sof Pasuk). Shown whenever nikkud or te'amim are on.
 - Qamats katan (U+05C7, marked in our text) and sheva na are drawn extra big and
-  bold; sheva nach stays normal. Rules in src/lib/hebrew/vowel-hints.ts, drawn by
+  bold; sheva nach stays normal. Sheva rules are the owner's (na after qamats,
+  tsere, hiriq male, holam, mid-word shuruk, on the first letter, or with a dagesh;
+  nach after patah, segol, hiriq haser, qamats katan, qubuts, or a word-initial וּ).
+  Rules in src/lib/hebrew/vowel-hints.ts, drawn by
   WithMaamid (Maamid.tsx) + .vowel-* in globals.css.
 - Recordings play only the Hazzan's voice (no synthetic melody, no file picker).
   One speed for all recordings (0.25–3×, presets 0.5/0.75/1/1.25/1.5/2, pitch kept):

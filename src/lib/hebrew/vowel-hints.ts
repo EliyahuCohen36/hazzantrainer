@@ -4,15 +4,15 @@
  *  - qamats katan (U+05C7, marked in our text): the short "o" qamats
  *  - sheva na: a sheva that is sounded ("e"); a sheva nach stays silent
  *
- * Sheva na rules used (standard grammar; MAM marks ga'ya with a meteg, so a
- * sounded sheva after a long vowel is caught by the meteg rule):
- *  1. sheva on the first letter of a word (also right after a וּ prefix)
- *  2. the second of two shevas in a row in the middle of a word
- *  3. sheva under a letter with a dagesh hazak (a doubled letter)
- *  4. sheva under the first of two identical letters (הַלְלוּ)
- *  5. sheva on a letter with a meteg, or right after a long vowel with a meteg
- *     (a ga'ya on a short vowel, as in וַֽיְהִי, is musical: the sheva stays nach)
- * A sheva on the last letter, or two shevas at the end of a word, is nach.
+ * Sheva na rules (as given by the site owner, Syrian tradition):
+ *  - sheva on the first letter of a word: na
+ *  - sheva on a letter with a dagesh, when it isn't the last letter: na
+ *  - after qamats, tsere, hiriq male, holam (haser or male), or a shuruk in the
+ *    middle of a word: na
+ *  - after patah, segol, hiriq haser, qamats katan, qubuts, or a shuruk that is
+ *    the first letter of the word (וּ): nach
+ *  - the second of two shevas in the middle of a word: na
+ *  - on the last letter, or two shevas at the end of a word: nach
  */
 
 export interface ClusterHint {
@@ -98,16 +98,17 @@ export function analyzeWord(word: string): { lead: string; clusters: ClusterHint
   for (let k = 0; k < n; k++) {
     if (v[k] !== "sheva") continue;
     if (k === last || (k === last - 1 && v[last] === "sheva")) continue; // nach at the end of a word
-    let na = false;
-    if (k === 0) na = true;
-    else if (k === 1 && v[0] === "shuruk") na = true;
-    else if (marks[k].includes(METEG)) na = true;
-    // A ga'ya on a long vowel before the sheva (שָֽׁמְרוּ) makes it na; on a short vowel
-    // (וַֽיְהִי) the ga'ya is only musical and the sheva stays nach.
-    else if (marks[k - 1].includes(METEG) && v[k - 1] === "long") na = true;
-    else if (v[k - 1] === "sheva" && k - 1 > 0) na = true;
-    else if (marks[k].includes(DAGESH) && full(v[k - 1]) && !(letters[k] === "ה" && k === last)) na = true;
-    else if (k + 1 < n && base(letters[k + 1]) === base(letters[k])) na = true;
+    let na: boolean;
+    if (k === 0) na = true; // first letter of the word
+    else if (marks[k].includes(DAGESH)) na = true; // a letter with a dagesh (not the last letter)
+    else if (v[k - 1] === "sheva") na = k - 1 > 0; // the second of two shevas
+    else {
+      // The vowel before it. A silent vowel letter (וֹ, וּ, ִי, …) belongs to the letter before it.
+      const prev = v[k - 1] === "mater" && k >= 2 ? v[k - 2] : v[k - 1];
+      if (prev === "shuruk") na = false; // וּ as the first letter of the word: nach
+      else na = prev === "long"; // qamats, tsere, hiriq male, holam, shuruk mid-word: na
+      // patah, segol, hiriq haser, qamats katan, qubuts: nach
+    }
     hints[k].shevaNa = na;
   }
   return { lead, clusters: hints };
