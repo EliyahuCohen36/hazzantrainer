@@ -2,10 +2,13 @@
  * The Hazzan's recordings for Beginner Keriah, in the private "recordings"
  * bucket under beginner/ (upload from /admin/ → Recordings).
  *
- * He records one file per letter: the letter's name, then the letter with each
- * sound, with a short pause between them, e.g. for Bet: "Bet – ba – be – bi – bo –
- * bu – b'". The file is cut at the pauses into files named:
+ * He records one file per letter: the letter's name, its sound alone, then the
+ * letter with each nekuda sound, with a short pause between them, e.g. for Bet:
+ * "Bet – b – ba – be – bi – bo – bu – b'". (Alef and He have no sound alone, so
+ * just the name.) The file is cut at the pauses into files named:
  *   letter-<letterId>.mp3              the name  ("Bet")        key letter:<letterId>
+ *   <letterId>-alone.mp3               the sound alone ("b"); the plain letter's
+ *                                      tile plays the name, then this
  *   <letterId>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3       key sound:<letterId>:<nekudaId>
  *   nekuda-<nekudaId>.mp3              the nekuda's name        key nekuda:<nekudaId>
  * Nekudot that sound the same in the Syrian reading share one recording (below),
@@ -52,4 +55,16 @@ function fileFor(key: string): string | undefined {
 export function beginnerRecording(key: string): string | undefined {
   const f = fileFor(key);
   return f && RECORDED.has(f) ? path(f) : undefined;
+}
+
+/**
+ * What a tile plays, in order: for a plain letter its name and then its sound
+ * alone (if recorded); otherwise the one recording.
+ */
+export function beginnerPlaylist(key: string): string[] {
+  const first = beginnerRecording(key);
+  if (!first) return [];
+  const [kind, id] = key.split(":");
+  const alone = kind === "letter" && RECORDED.has(`${id}-alone`) ? [path(`${id}-alone`)] : [];
+  return [first, ...alone];
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { beginnerRecording } from "@/data/beginner-recordings";
+import { beginnerPlaylist } from "@/data/beginner-recordings";
 import { recordingUrl } from "@/lib/recordings";
 import { applySpeed, getSpeed } from "@/lib/audio/speed";
 
@@ -37,20 +37,35 @@ export function Tile({
   /** Show only (no tap to hear), e.g. inside a link. */
   still?: boolean;
 }) {
-  const src = rec && !still ? beginnerRecording(rec) : undefined;
-  const audio = useRef<HTMLAudioElement | null>(null);
+  const list = rec && !still ? beginnerPlaylist(rec) : [];
+  const src = list[0];
+  const audios = useRef<HTMLAudioElement[] | null>(null);
   const [playing, setPlaying] = useState(false);
 
+  // Plays the recordings one after another (a plain letter: its name, then its sound).
   const play = async () => {
     if (!src) return;
-    if (!audio.current) {
-      audio.current = new Audio(await recordingUrl(src));
-      audio.current.onended = () => setPlaying(false);
+    if (!audios.current) {
+      const urls = await Promise.all(list.map((p) => recordingUrl(p)));
+      audios.current = urls.map((u) => new Audio(u));
+      audios.current.forEach((a, i) => {
+        a.onended = () => {
+          const next = audios.current?.[i + 1];
+          if (!next) return setPlaying(false);
+          setTimeout(() => {
+            applySpeed(next, getSpeed());
+            next.currentTime = 0;
+            void next.play().catch(() => setPlaying(false));
+          }, 350);
+        };
+      });
     }
-    applySpeed(audio.current, getSpeed());
-    audio.current.currentTime = 0;
+    audios.current.forEach((a) => a.pause());
+    const first = audios.current[0];
+    applySpeed(first, getSpeed());
+    first.currentTime = 0;
     setPlaying(true);
-    void audio.current.play().catch(() => setPlaying(false));
+    void first.play().catch(() => setPlaying(false));
   };
 
   const Tag = still ? "div" : "button";

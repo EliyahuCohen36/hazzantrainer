@@ -140,8 +140,10 @@ kept in case the owner goes back to Netlify.
   letter:<id>, sound:<letterId>:<nekudaId>, nekuda:<id>. Tiles without one show no 🔊.
   Same-sounding nekudot share a recording (patah→qamats, segol→sere, hireq-male→hireq,
   holem-male→holem, shureq→qibbus, hataf-*→qamats/sere/holem), so he records one file
-  per letter: "Bet – ba – be – bi – bo – bu – b'" (~28 files), cut at the pauses.
-  Cut files are named letter-<id>.mp3, <id>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3,
+  per letter: "Bet – b – ba – be – bi – bo – bu – b'" (~28 files), cut at the pauses
+  (name, sound alone, then the nekuda sounds; Alef and He have no sound alone).
+  The plain letter's tile plays the name, then the sound alone (owner's choice).
+  Cut files are named letter-<id>.mp3, <id>-alone.mp3, <id>-<qamats|sere|hireq|holem|qibbus|sheva>.mp3,
   nekuda-<id>.mp3, go to the bucket under beginner/, and are listed in BEGINNER_RECORDED.
   The admin uploads them in one go with "Upload several files" (/admin/ → Recordings).
   Alef and He have no sound by themselves: the letters page says so (owner's request).
