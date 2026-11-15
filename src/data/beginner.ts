@@ -139,3 +139,58 @@ export function spell(letter: Letter, n: Nekuda): string {
 export const NEKUDA_BY_ID = new Map(NEKUDOT.map((n) => [n.id, n]));
 export const LETTER_BY_ID = new Map(LETTERS.map((l) => [l.id, l]));
 export { DAGESH, SHIN_DOT };
+
+/**
+ * Beginner Keriah levels. A child sees only the levels their teacher opened
+ * (classes.beginner_level, or a per-child override; see supabase/beginner.sql).
+ * Teachers, admins and families see everything.
+ */
+export interface BeginnerLevel {
+  n: number;
+  title: string;
+  he: string;
+  letters?: string[];
+  sofiyot?: boolean;
+  nekudot?: string[];
+  /** The full chart (everything together). */
+  chart?: boolean;
+  href: string;
+}
+
+export const BEGINNER_LEVELS: BeginnerLevel[] = [
+  { n: 1, title: "Letters Alef to Tet", he: "א – ט", letters: ["alef", "bet", "vet", "gimel", "dalet", "he", "vav", "zayin", "het", "tet"], href: "/beginner/letters/" },
+  { n: 2, title: "Letters Yod to Samekh", he: "י – ס", letters: ["yod", "kaf", "khaf", "lamed", "mem", "nun", "samekh"], href: "/beginner/letters/" },
+  { n: 3, title: "Letters Ayin to Tav", he: "ע – ת", letters: ["ayin", "pe", "fe", "tsadi", "qof", "resh", "shin", "sin", "tav"], href: "/beginner/letters/" },
+  { n: 4, title: "Final letters", he: "סוֹפִיּוֹת", sofiyot: true, href: "/beginner/letters/#sofiyot" },
+  { n: 5, title: "Qamats and Patah: \"a\"", he: "קָמַץ פַּתַח", nekudot: ["qamats", "patah"], href: "/beginner/nekudot/qamats/" },
+  { n: 6, title: "Sere and Segol: \"e\"", he: "צֵרֵי סֶגּוֹל", nekudot: ["sere", "segol"], href: "/beginner/nekudot/sere/" },
+  { n: 7, title: "Hireq: \"i\"", he: "חִירֶק", nekudot: ["hireq", "hireq-male"], href: "/beginner/nekudot/hireq/" },
+  { n: 8, title: "Holem: \"o\"", he: "חוֹלֶם", nekudot: ["holem", "holem-male"], href: "/beginner/nekudot/holem/" },
+  { n: 9, title: "Qibbus and Shureq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shureq"], href: "/beginner/nekudot/qibbus/" },
+  { n: 10, title: "Sheva", he: "שְׁוָא", nekudot: ["sheva"], href: "/beginner/nekudot/sheva/" },
+  { n: 11, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/hataf-patah/" },
+  { n: 12, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/chart/" },
+];
+
+export const BEGINNER_MAX = BEGINNER_LEVELS.length;
+
+/** What's open for someone who has reached `level`. */
+export function openBeginner(level: number) {
+  const open = BEGINNER_LEVELS.filter((l) => l.n <= level);
+  return {
+    letters: new Set(open.flatMap((l) => l.letters ?? [])),
+    sofiyot: open.some((l) => l.sofiyot),
+    nekudot: new Set(open.flatMap((l) => l.nekudot ?? [])),
+    chart: open.some((l) => l.chart),
+  };
+}
+
+/** The level a nekuda is taught in. */
+export function nekudaLevel(id: string): number {
+  return BEGINNER_LEVELS.find((l) => l.nekudot?.includes(id))?.n ?? BEGINNER_MAX;
+}
+
+/** The level a letter is taught in. */
+export function letterLevel(id: string): number {
+  return BEGINNER_LEVELS.find((l) => l.letters?.includes(id))?.n ?? 1;
+}

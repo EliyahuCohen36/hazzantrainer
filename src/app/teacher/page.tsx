@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
+import { BEGINNER_LEVELS } from "@/data/beginner";
 
 interface Klass {
   id: string;
@@ -12,11 +13,13 @@ interface Klass {
   code: string;
   teacher_id: string;
   unlocked_level: number;
+  beginner_level: number;
 }
 interface Member {
   class_id: string;
   student_id: string;
   unlocked_level: number | null;
+  beginner_level: number | null;
 }
 interface Student {
   id: string;
@@ -51,12 +54,16 @@ function StudentRow({
   member,
   classLevel,
   onLevel,
+  classBeginner,
+  onBeginner,
 }: {
   s: Student;
   rows: Row[];
   member: Member;
   classLevel: number;
   onLevel: (level: number | null) => void;
+  classBeginner: number;
+  onBeginner: (level: number | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const practice = rows.filter((r) => r.kind === "practice");
@@ -88,6 +95,21 @@ function StudentRow({
             ))}
           </select>
         </td>
+        <td className="py-2 pe-3" onClick={(e) => e.stopPropagation()}>
+          <select
+            className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
+            value={member.beginner_level ?? ""}
+            onChange={(e) => onBeginner(e.target.value ? Number(e.target.value) : null)}
+            aria-label={`Beginner level for ${s.display_name || s.username}`}
+          >
+            <option value="">Class ({classBeginner})</option>
+            {BEGINNER_LEVELS.map((l) => (
+              <option key={l.n} value={l.n}>
+                Level {l.n}
+              </option>
+            ))}
+          </select>
+        </td>
         <td className="py-2 pe-3 tabular-nums">{practice.length}</td>
         <td className="py-2 pe-3 tabular-nums">{twoStars}</td>
         <td className="py-2 pe-3 tabular-nums">{total ? `${Math.round((100 * right) / total)}% (${total})` : "—"}</td>
@@ -96,7 +118,7 @@ function StudentRow({
       </tr>
       {open && (
         <tr>
-          <td colSpan={7} className="bg-stone-50 px-3 py-3">
+          <td colSpan={8} className="bg-stone-50 px-3 py-3">
             {practice.length === 0 ? (
               <p className="text-sm text-stone-500">No practice yet.</p>
             ) : (
@@ -131,14 +153,14 @@ export default function TeacherPage() {
   const load = useCallback(async () => {
     if (!profile) return;
     const db = supabase();
-    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level").order("created_at");
+    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level, beginner_level").order("created_at");
     if (profile.role !== "admin") q = q.eq("teacher_id", profile.id);
     const { data: cls, error } = await q;
     if (error) return setError(error.message);
     setClasses((cls as Klass[]) ?? []);
     const ids = (cls ?? []).map((c) => c.id);
     if (!ids.length) return;
-    const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level").in("class_id", ids);
+    const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level, beginner_level").in("class_id", ids);
     setMembers((mem as Member[]) ?? []);
     const sids = [...new Set((mem ?? []).map((m) => m.student_id))];
     if (!sids.length) return;
@@ -176,6 +198,24 @@ export default function TeacherPage() {
     if (error) setError(error.message);
   };
 
+  const setClassBeginner = async (id: string, level: number) => {
+    setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, beginner_level: level } : c)));
+    const { error } = await supabase().from("classes").update({ beginner_level: level }).eq("id", id);
+    if (error) setError(error.message);
+  };
+
+  const setStudentBeginner = async (classId: string, studentId: string, level: number | null) => {
+    setMembers((ms) =>
+      ms.map((m) => (m.class_id === classId && m.student_id === studentId ? { ...m, beginner_level: level } : m)),
+    );
+    const { error } = await supabase()
+      .from("class_members")
+      .update({ beginner_level: level })
+      .eq("class_id", classId)
+      .eq("student_id", studentId);
+    if (error) setError(error.message);
+  };
+
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.school_id) {
@@ -197,7 +237,7 @@ export default function TeacherPage() {
       <h1 className="text-3xl font-semibold text-stone-900">My classes</h1>
       <p className="mt-1 text-stone-600">
         Make a class, then give its <b>class code</b> to your students. They go to <b>Create account</b>, choose a username
-        and password, and type the code. Choose how many <b>te&apos;amim levels</b> are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
+        and password, and type the code. Choose how many <b>te&apos;amim levels</b> and <b>Beginner Keriah levels</b> are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
       </p>
       {error && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
@@ -239,6 +279,20 @@ export default function TeacherPage() {
                     ))}
                   </select>
                 </label>
+                <label className="text-sm text-stone-600">
+                  Beginner Keriah:{" "}
+                  <select
+                    className="ms-1 rounded-lg border border-sky-300 bg-sky-50 px-2 py-1 text-sm font-semibold text-sky-900"
+                    value={c.beginner_level}
+                    onChange={(e) => setClassBeginner(c.id, Number(e.target.value))}
+                  >
+                    {BEGINNER_LEVELS.map((l) => (
+                      <option key={l.n} value={l.n}>
+                        1{l.n > 1 ? `–${l.n}` : ""} (up to {l.title})
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <span className="text-sm text-stone-600">
                   Class code <span className="ms-1 rounded bg-amber-100 px-2 py-0.5 font-mono text-base tracking-widest text-amber-900">{c.code}</span>
                 </span>
@@ -251,7 +305,8 @@ export default function TeacherPage() {
                     <thead className="text-xs uppercase tracking-wide text-stone-400">
                       <tr>
                         <th className="pb-1 pe-3 font-medium">Student</th>
-                        <th className="pb-1 pe-3 font-medium">Level</th>
+                        <th className="pb-1 pe-3 font-medium">Te&apos;amim</th>
+                        <th className="pb-1 pe-3 font-medium">Beginner</th>
                         <th className="pb-1 pe-3 font-medium">Practised</th>
                         <th className="pb-1 pe-3 font-medium">2+ stars</th>
                         <th className="pb-1 pe-3 font-medium">Quiz right</th>
@@ -268,6 +323,8 @@ export default function TeacherPage() {
                           member={members.find((m) => m.class_id === c.id && m.student_id === s.id)!}
                           classLevel={c.unlocked_level}
                           onLevel={(lvl) => setStudentLevel(c.id, s.id, lvl)}
+                          classBeginner={c.beginner_level}
+                          onBeginner={(lvl) => setStudentBeginner(c.id, s.id, lvl)}
                         />
                       ))}
                     </tbody>

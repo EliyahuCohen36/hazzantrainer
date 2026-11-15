@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LETTERS, LETTER_BY_ID, SOFIYOT } from "@/data/beginner";
+import { LETTERS, LETTER_BY_ID, SOFIYOT, letterLevel } from "@/data/beginner";
+import { BeginnerLock, LockTile } from "@/components/beginner/Lock";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 import { SpeedControl } from "@/components/audio/SpeedControl";
@@ -28,7 +29,9 @@ export default function LettersPage() {
 
       <div dir="rtl" className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
         {LETTERS.map((l) => (
-          <Tile key={l.id} glyph={l.char} label={l.name} sub={l.sound} rec={`letter:${l.id}`} />
+          <LockTile key={l.id} need={letterLevel(l.id)}>
+            <Tile glyph={l.char} label={l.name} sub={l.sound} rec={`letter:${l.id}`} />
+          </LockTile>
         ))}
       </div>
 
@@ -42,6 +45,7 @@ export default function LettersPage() {
         <p className="mt-1 mb-4 text-stone-600">
           Five letters look different when they come at the end of a word. They sound the same as the regular letter.
         </p>
+        <BeginnerLock need={4}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SOFIYOT.map((s) => {
             const reg = LETTER_BY_ID.get(s.of)!;
@@ -55,6 +59,7 @@ export default function LettersPage() {
             );
           })}
         </div>
+        </BeginnerLock>
       </section>
 
       <div className="mt-10 flex justify-end">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
+import { BeginnerLevelPath } from "@/components/beginner/Lock";
 
 export const metadata: Metadata = { title: "Beginner Keriah · Kriah Trainer" };
 
@@ -46,6 +47,8 @@ export default function BeginnerPage() {
           </li>
         ))}
       </ol>
+
+      <BeginnerLevelPath />
     </main>
   );
 }

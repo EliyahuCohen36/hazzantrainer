@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LETTERS, NEKUDOT, SOFIT_WITH_NEKUDA, spell, withNekuda } from "@/data/beginner";
+import { LETTERS, NEKUDOT, SOFIT_WITH_NEKUDA, spell, withNekuda, nekudaLevel } from "@/data/beginner";
+import { BeginnerLock } from "@/components/beginner/Lock";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 import { SpeedControl } from "@/components/audio/SpeedControl";
@@ -37,6 +38,7 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
           {n.he}
         </span>
       </div>
+      <BeginnerLock need={nekudaLevel(n.id)}>
       {n.id === "sheva" && (
         <p className="mb-3 text-stone-600">
           At the start of a word the Sheva says a short &ldquo;e&rdquo;. In the middle of a word it is often silent.
@@ -63,6 +65,7 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
           </div>
         </section>
       )}
+      </BeginnerLock>
 
       <div className="mt-10 flex justify-between gap-3">
         {prev ? (

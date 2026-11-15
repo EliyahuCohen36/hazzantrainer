@@ -132,8 +132,15 @@ kept in case the owner goes back to Netlify.
 - Data: src/data/beginner.ts (Syrian/Sephardic pronunciation: qamats = "a",
   tav = "t"). Sofiyot take no nekuda except Khaf Sofit with sheva (ךְ) or qamats (ךָ).
   Throat letters (א ה ח ע) take hataf instead of sheva; hataf only on them.
+- Levels (12, BEGINNER_LEVELS in beginner.ts): 1–3 letters, 4 sofiyot, 5–11 nekudot by
+  sound, 12 full chart. Teachers open them per class (classes.beginner_level) and per
+  child (class_members.beginner_level); my_beginner_level() in supabase/beginner.sql.
+  Locks: src/components/beginner/Lock.tsx (BeginnerLock, LockTile, BeginnerLevelPath).
 - Recordings (his voice only) go in BEGINNER_RECORDINGS (src/data/beginner-recordings.ts):
   letter:<id>, sound:<letterId>:<nekudaId>, nekuda:<id>. Tiles without one show no 🔊.
+  Same-sounding nekudot share a recording (patah→qamats, segol→sere, hireq-male→hireq,
+  holem-male→holem, shureq→qibbus, hataf-*→qamats/sere/holem), so he records one file
+  per letter: "Bet – ba – be – bi – bo – bu – b'" (~28 files), cut at the pauses.
 
 ## Layout the owner asked for
 - Torah page: a short link card to the te'amim trainer first, then the five books

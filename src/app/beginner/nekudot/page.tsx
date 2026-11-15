@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NEKUDOT, LETTER_BY_ID, withNekuda } from "@/data/beginner";
+import { NEKUDOT, LETTER_BY_ID, withNekuda, nekudaLevel } from "@/data/beginner";
+import { BeginnerLock, LockTile } from "@/components/beginner/Lock";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 
@@ -34,6 +35,7 @@ export default function NekudotPage() {
         Patah both say &ldquo;a&rdquo;. Tap a nekuda to see it with every letter.
       </p>
 
+      <BeginnerLock need={5}>
       <div className="space-y-6">
         {GROUPS.map((g) => (
           <section key={g.sound}>
@@ -45,15 +47,18 @@ export default function NekudotPage() {
                 const n = NEKUDOT.find((x) => x.id === id)!;
                 const glyph = withNekuda(id.startsWith("hataf") ? alef : bet, n)!;
                 return (
-                  <Link key={id} href={`/beginner/nekudot/${id}/`} className="block">
-                    <Tile glyph={glyph} label={n.name} sub={n.he} color={n.color} still />
-                  </Link>
+                  <LockTile key={id} need={nekudaLevel(id)}>
+                    <Link href={`/beginner/nekudot/${id}/`} className="block">
+                      <Tile glyph={glyph} label={n.name} sub={n.he} color={n.color} still />
+                    </Link>
+                  </LockTile>
                 );
               })}
             </div>
           </section>
         ))}
       </div>
+      </BeginnerLock>
 
       <div className="mt-10 flex justify-between">
         <Link href="/beginner/letters/" className="rounded-xl border border-stone-300 bg-white px-5 py-3 font-semibold text-stone-800 hover:bg-stone-50">
