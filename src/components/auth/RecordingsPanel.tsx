@@ -75,18 +75,20 @@ export function RecordingsPanel() {
         {wanted.length - missing.length} of {wanted.length} recordings are in private storage. Only signed-in users with an
         active licence can play them. (The {DEMO_FILES.size} demo recordings stay public.)
       </p>
+      <label className="mt-3 me-3 inline-block cursor-pointer rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+        {busy === "many" ? "Uploading…" : "Upload several files"}
+        <input
+          type="file"
+          accept="audio/*"
+          multiple
+          className="hidden"
+          onChange={(e) => e.target.files && uploadMany(e.target.files)}
+        />
+      </label>
+      <span className="text-xs text-stone-500">New files are added; a file with the same name replaces the old one.</span>
       {missing.length > 0 && (
         <>
-          <label className="mt-3 me-3 inline-block cursor-pointer rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-100">
-            {busy === "many" ? "Uploading…" : "Upload several files"}
-            <input
-              type="file"
-              accept="audio/*"
-              multiple
-              className="hidden"
-              onChange={(e) => e.target.files && uploadMany(e.target.files)}
-            />
-          </label>
+
           <button
             type="button"
             onClick={copyFromSite}
