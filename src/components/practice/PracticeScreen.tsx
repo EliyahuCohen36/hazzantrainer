@@ -6,7 +6,8 @@ import type { LessonContext } from "@/types/curriculum";
 import { useMasterTrack } from "@/hooks/useMasterTrack";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
 import { HebrewReader } from "@/components/reader/HebrewReader";
-import { MasterAudioPlayer, type PlaybackRate } from "@/components/audio/MasterAudioPlayer";
+import { MasterAudioPlayer } from "@/components/audio/MasterAudioPlayer";
+import { useSpeed } from "@/lib/audio/speed";
 import { VoiceTrainer } from "@/components/trainer/VoiceTrainer";
 
 interface Props {
@@ -28,12 +29,12 @@ export function PracticeScreen({ context }: Props) {
     showTeamim: true,
     showTaamNames: true,
   });
-  const [rate, setRate] = useState<PlaybackRate>(1);
+  const rate = useSpeed();
   const [wordScores, setWordScores] = useState<Record<string, number> | null>(null);
   const [activeSegment, setActiveSegment] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { track, loadFile, loadTestTone } = useMasterTrack(recording, lesson.segments);
+  const { track } = useMasterTrack(recording, lesson.segments);
 
   // Highlight the word that is sounding. Uses rAF while playing because
   // the "timeupdate" event only fires ~4×/second.
@@ -130,10 +131,6 @@ export function PracticeScreen({ context }: Props) {
           track={track}
           audioRef={audioRef}
           rate={rate}
-          onRateChange={setRate}
-          onLoadFile={(f) => void loadFile(f)}
-          onLoadTestTone={() => void loadTestTone()}
-          defaultPath={recording?.src}
         />
 
         <VoiceTrainer

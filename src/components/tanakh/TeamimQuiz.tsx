@@ -7,6 +7,7 @@ import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
 import { openTeamim } from "@/data/teamim-levels";
 import { useAuth } from "@/lib/auth";
 import { useRecordingUrl } from "@/lib/recordings";
+import { applySpeed, getSpeed } from "@/lib/audio/speed";
 import { recordQuiz } from "@/lib/audio/taam-practice";
 
 const ROUND = 10;
@@ -89,6 +90,7 @@ export function TeamimQuiz() {
     const a = audio.current;
     if (!a) return;
     a.currentTime = 0;
+    applySpeed(a, getSpeed());
     void a.play().catch(() => {});
   };
 

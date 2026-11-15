@@ -27,6 +27,12 @@ kept in case the owner goes back to Netlify.
   (WithMaamid in src/components/reader/Maamid.tsx + .maamid in globals.css) in the
   Torah text, te'amim examples and pasuk practice, so readers see which letter
   takes the sound (e.g. Sof Pasuk). Shown whenever nikkud or te'amim are on.
+- Qamats katan (U+05C7, marked in our text) and sheva na are drawn extra big and
+  bold; sheva nach stays normal. Rules in src/lib/hebrew/vowel-hints.ts, drawn by
+  WithMaamid (Maamid.tsx) + .vowel-* in globals.css.
+- Recordings play only the Hazzan's voice (no synthetic melody, no file picker).
+  One speed for all recordings (0.25–3×, presets 0.5/0.75/1/1.25/1.5/2, pitch kept):
+  src/lib/audio/speed.ts + SpeedControl.tsx, remembered per browser.
 - Torah Scroll Mode uses Stam Sefarad CLM (Sephardic Sefer Torah letters with
   tagin/crowns; src/fonts/stam-sefarad/, GPL + font exception, loaded with
   next/font/local in layout.tsx as --font-stam).
@@ -70,6 +76,7 @@ kept in case the owner goes back to Netlify.
 - Trainer's ta'am names and pause lengths: src/lib/hebrew/teamim.ts
 - Torah examples for each ta'am (from the Westminster Leningrad Codex): src/data/torah-examples.ts
 - Recordings of each ta'am: files in public/audio/teamim/torah/, listed in src/data/teamim-recordings.ts.
+  (Only the 3 demo files stay in public/; the rest are in Supabase, see above.)
   Mafsikim get a solo recording. Mesharetim (e.g. Shofar Holekh) are recorded
   together with the ta'am they lead into, one pairing per file
   (e.g. shofar-holekh_segolta.mp3), in TORAH_TEAMIM_PAIRS with a Torah example;

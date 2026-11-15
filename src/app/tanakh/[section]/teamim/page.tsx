@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamimLevels } from "@/components/tanakh/TeamimLevels";
+import { SpeedControl } from "@/components/audio/SpeedControl";
 
 export const metadata: Metadata = { title: "Te'amim trainer · Torah · Kriah Trainer" };
 
@@ -43,6 +44,9 @@ export default function TorahTeamimPage() {
             Press <b>Practice</b> under a recording, sing it, and get stars. Get 2 stars on every ta&apos;am to finish a level.
           </span>
         </div>
+      </div>
+      <div className="sticky top-0 z-10 mb-4 rounded-xl border border-stone-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur">
+        <SpeedControl />
       </div>
       <TeamimLevels />
       <p className="mt-6 text-sm">

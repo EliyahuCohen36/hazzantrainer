@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MasterRecording, SegmentTiming, TextSegment } from "@/types/curriculum";
 import { analyzeRecording, type PitchContour } from "@/lib/audio/contour";
 import type { AudioFeatures } from "@/lib/audio/features";
-import { createTestTone } from "@/lib/audio/test-tone";
 import { recordingUrl } from "@/lib/recordings";
 
 export type MasterStatus = "loading" | "analyzing" | "ready" | "missing" | "error";
@@ -24,7 +23,7 @@ export interface MasterTrack {
 
 /**
  * Loads the master recording, then analyses its pitch contour in the browser.
- * Sources: the lesson's default file, a file the user picks or drops, or the synthetic test melody.
+ * Source: the Hazzan's recording for the lesson.
  */
 export function useMasterTrack(recording: MasterRecording | undefined, segments: TextSegment[]) {
   const [track, setTrack] = useState<MasterTrack>({
@@ -84,27 +83,11 @@ export function useMasterTrack(recording: MasterRecording | undefined, segments:
     }
   }, [recording, analyze]);
 
-  const loadFile = useCallback(
-    async (file: File) => {
-      const url = URL.createObjectURL(file);
-      setObjectUrl(url);
-      // Timings from the lesson only fit the lesson's own file, so none here.
-      await analyze(await file.arrayBuffer(), url, file.name, []);
-    },
-    [analyze],
-  );
-
-  const loadTestTone = useCallback(async () => {
-    const tone = await createTestTone(segments);
-    setObjectUrl(tone.url);
-    await analyze(tone.data, tone.url, "Synthetic test melody (not a real chant)", tone.timings);
-  }, [segments, analyze]);
-
   useEffect(() => {
     void loadDefault();
   }, [loadDefault]);
 
   useEffect(() => () => setObjectUrl(null), []);
 
-  return { track, loadFile, loadTestTone, reloadDefault: loadDefault };
+  return { track, reloadDefault: loadDefault };
 }

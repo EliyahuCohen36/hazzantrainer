@@ -48,3 +48,38 @@ body {
   background: currentColor;
   pointer-events: none;
 }
+
+/* Qamats katan and sheva na, drawn extra big and bold under their letter
+   (the font's own mark is removed). See src/components/reader/Maamid.tsx. */
+.vowel-qamats-katan,
+.vowel-sheva-na {
+  position: relative;
+}
+.vowel-qamats-katan::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: var(--vowel-bottom, 0.02em);
+  width: 0.5em;
+  height: 0.3em;
+  transform: translateX(-50%);
+  /* A qamats is a T: a bar with a short stem below it. */
+  background:
+    linear-gradient(currentColor, currentColor) top / 100% 0.11em no-repeat,
+    linear-gradient(currentColor, currentColor) center top / 0.11em 100% no-repeat;
+  pointer-events: none;
+}
+.vowel-sheva-na::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: var(--vowel-bottom, 0.02em);
+  width: 0.16em;
+  height: 0.34em;
+  transform: translateX(-50%);
+  /* Two big dots, one above the other. */
+  background:
+    radial-gradient(circle, currentColor 0 0.075em, transparent 0.08em) top / 0.16em 0.16em no-repeat,
+    radial-gradient(circle, currentColor 0 0.075em, transparent 0.08em) bottom / 0.16em 0.16em no-repeat;
+  pointer-events: none;
+}

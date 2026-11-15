@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TorahTeamim } from "@/components/tanakh/TorahTeamim";
 import { DEMO_TEAMIM } from "@/data/demo";
+import { SpeedControl } from "@/components/audio/SpeedControl";
 
 export const metadata: Metadata = { title: "Free demo · Kriah Trainer" };
 
@@ -14,6 +15,9 @@ export default function DemoPage() {
         Three te&apos;amim from the trainer. Listen to the Hazzan, then press <b>Practice</b> and sing it: you&apos;ll get
         stars and a tip. Schools get all the te&apos;amim, the listening quiz, the whole Torah text and a teacher view.
       </p>
+      <div className="mb-4 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
+        <SpeedControl />
+      </div>
       <TorahTeamim only={DEMO_TEAMIM} />
       <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
         <p className="font-semibold text-stone-900">Want this for your class?</p>
