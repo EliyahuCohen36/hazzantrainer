@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
-import { BEGINNER_LEVELS } from "@/data/beginner";
+import { BEGINNER_LEVELS, LETTERS } from "@/data/beginner";
 import { WORD_STAGES } from "@/data/beginner-words";
 
 interface Klass {
@@ -15,12 +15,14 @@ interface Klass {
   teacher_id: string;
   unlocked_level: number;
   beginner_level: number;
+  letters_open: number;
 }
 interface Member {
   class_id: string;
   student_id: string;
   unlocked_level: number | null;
   beginner_level: number | null;
+  letters_open: number | null;
 }
 interface Student {
   id: string;
@@ -40,6 +42,8 @@ interface Row {
 const NAME = new Map(PROSE_TEAMIM.map((t) => [t.id, t.syrian]));
 /** "/audio/teamim/torah/shofar-holekh_segolta.mp3" -> "Shofar Holekh + Segolta" */
 function practiceName(key: string) {
+  const lt = key.match(/^beginner-letters:(\d+)$/);
+  if (lt) return `Letter trainer (to ${LETTERS[Math.min(Number(lt[1]), LETTERS.length) - 1]?.name})`;
   const st = key.match(/^beginner-stage:(\w+)$/);
   if (st) return `Words: ${WORD_STAGES.find((x) => x.id === st[1])?.title ?? st[1]}`;
   const file = key.split("/").pop()?.replace(/\.\w+$/, "") ?? key;
@@ -59,6 +63,8 @@ function StudentRow({
   onLevel,
   classBeginner,
   onBeginner,
+  classLetters,
+  onLetters,
 }: {
   s: Student;
   rows: Row[];
@@ -67,6 +73,8 @@ function StudentRow({
   onLevel: (level: number | null) => void;
   classBeginner: number;
   onBeginner: (level: number | null) => void;
+  classLetters: number;
+  onLetters: (n: number | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const practice = rows.filter((r) => r.kind === "practice");
@@ -76,6 +84,11 @@ function StudentRow({
   const sayWords = rows.filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-word:"));
   const saidRight = saySteps.reduce((a, r) => a + r.right_n, 0);
   const saidTotal = saySteps.reduce((a, r) => a + r.total_n, 0);
+  const letterRows = rows.filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-letter:"));
+  const weakLetters = letterRows
+    .filter((r) => r.total_n >= 2 && r.right_n / r.total_n < 0.7)
+    .map((r) => LETTERS.find((l) => l.id === r.key.slice("beginner-letter:".length)))
+    .filter((l): l is (typeof LETTERS)[number] => Boolean(l));
   const toPractise = sayWords
     .filter((r) => r.right_n < r.total_n && r.right_n / r.total_n < 0.6)
     .sort((a, b) => b.total_n - b.right_n - (a.total_n - a.right_n))
@@ -122,6 +135,21 @@ function StudentRow({
             ))}
           </select>
         </td>
+        <td className="py-2 pe-3" onClick={(e) => e.stopPropagation()}>
+          <select
+            className="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs"
+            value={member.letters_open ?? ""}
+            onChange={(e) => onLetters(e.target.value ? Number(e.target.value) : null)}
+            aria-label={`Letters open for ${s.display_name || s.username}`}
+          >
+            <option value="">Class (to {LETTERS[Math.min(classLetters, LETTERS.length) - 1]?.name})</option>
+            {LETTERS.map((l, i) => (
+              <option key={l.id} value={i + 1}>
+                to {l.name} {l.char}
+              </option>
+            ))}
+          </select>
+        </td>
         <td className="py-2 pe-3 tabular-nums">{practice.length}</td>
         <td className="py-2 pe-3 tabular-nums">{twoStars}</td>
         <td className="py-2 pe-3 tabular-nums">{total ? `${Math.round((100 * right) / total)}% (${total})` : "—"}</td>
@@ -131,7 +159,17 @@ function StudentRow({
       </tr>
       {open && (
         <tr>
-          <td colSpan={9} className="bg-stone-50 px-3 py-3">
+          <td colSpan={10} className="bg-stone-50 px-3 py-3">
+            {weakLetters.length > 0 && (
+              <p className="mb-2 text-sm text-rose-700">
+                Letters to practise:{" "}
+                {weakLetters.map((l) => (
+                  <span key={l.id} className="me-2">
+                    <span className="font-hebrew text-lg">{l.char}</span> {l.name}
+                  </span>
+                ))}
+              </p>
+            )}
             {saidTotal > 0 && (
               <div className="mb-3 text-sm">
                 <p className="font-semibold text-stone-800">Words said aloud (Beginner Keriah)</p>
@@ -189,14 +227,14 @@ export default function TeacherPage() {
   const load = useCallback(async () => {
     if (!profile) return;
     const db = supabase();
-    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level, beginner_level").order("created_at");
+    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level, beginner_level, letters_open").order("created_at");
     if (profile.role !== "admin") q = q.eq("teacher_id", profile.id);
     const { data: cls, error } = await q;
     if (error) return setError(error.message);
     setClasses((cls as Klass[]) ?? []);
     const ids = (cls ?? []).map((c) => c.id);
     if (!ids.length) return;
-    const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level, beginner_level").in("class_id", ids);
+    const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level, beginner_level, letters_open").in("class_id", ids);
     setMembers((mem as Member[]) ?? []);
     const sids = [...new Set((mem ?? []).map((m) => m.student_id))];
     if (!sids.length) return;
@@ -252,6 +290,22 @@ export default function TeacherPage() {
     if (error) setError(error.message);
   };
 
+  const setClassLetters = async (id: string, n: number) => {
+    setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, letters_open: n } : c)));
+    const { error } = await supabase().from("classes").update({ letters_open: n }).eq("id", id);
+    if (error) setError(error.message);
+  };
+
+  const setStudentLetters = async (classId: string, studentId: string, n: number | null) => {
+    setMembers((ms) => ms.map((m) => (m.class_id === classId && m.student_id === studentId ? { ...m, letters_open: n } : m)));
+    const { error } = await supabase()
+      .from("class_members")
+      .update({ letters_open: n })
+      .eq("class_id", classId)
+      .eq("student_id", studentId);
+    if (error) setError(error.message);
+  };
+
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.school_id) {
@@ -273,7 +327,7 @@ export default function TeacherPage() {
       <h1 className="text-3xl font-semibold text-stone-900">My classes</h1>
       <p className="mt-1 text-stone-600">
         Make a class, then give its <b>class code</b> to your students. They go to <b>Create account</b>, choose a username
-        and password, and type the code. Choose how many <b>te&apos;amim levels</b> and <b>Beginner Keriah levels</b> are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
+        and password, and type the code. Choose how many <b>te&apos;amim levels</b>, <b>Beginner Keriah levels</b> and <b>letters</b> (one at a time, from Alef) are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
       </p>
       {error && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
@@ -316,6 +370,20 @@ export default function TeacherPage() {
                   </select>
                 </label>
                 <label className="text-sm text-stone-600">
+                  Letters open:{" "}
+                  <select
+                    className="ms-1 rounded-lg border border-emerald-300 bg-emerald-50 px-2 py-1 text-sm font-semibold text-emerald-900"
+                    value={c.letters_open}
+                    onChange={(e) => setClassLetters(c.id, Number(e.target.value))}
+                  >
+                    {LETTERS.map((l, i) => (
+                      <option key={l.id} value={i + 1}>
+                        Alef{i > 0 ? ` to ${l.name}` : " only"} {l.char}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm text-stone-600">
                   Beginner Keriah:{" "}
                   <select
                     className="ms-1 rounded-lg border border-sky-300 bg-sky-50 px-2 py-1 text-sm font-semibold text-sky-900"
@@ -343,6 +411,7 @@ export default function TeacherPage() {
                         <th className="pb-1 pe-3 font-medium">Student</th>
                         <th className="pb-1 pe-3 font-medium">Te&apos;amim</th>
                         <th className="pb-1 pe-3 font-medium">Beginner</th>
+                        <th className="pb-1 pe-3 font-medium">Letters</th>
                         <th className="pb-1 pe-3 font-medium">Practised</th>
                         <th className="pb-1 pe-3 font-medium">2+ stars</th>
                         <th className="pb-1 pe-3 font-medium">Quiz right</th>
@@ -362,6 +431,8 @@ export default function TeacherPage() {
                           onLevel={(lvl) => setStudentLevel(c.id, s.id, lvl)}
                           classBeginner={c.beginner_level}
                           onBeginner={(lvl) => setStudentBeginner(c.id, s.id, lvl)}
+                          classLetters={c.letters_open}
+                          onLetters={(n) => setStudentLetters(c.id, s.id, n)}
                         />
                       ))}
                     </tbody>

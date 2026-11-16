@@ -26,6 +26,8 @@ interface AuthState {
   level: number;
   /** Highest Beginner Keriah level this user may open. */
   beginnerLevel: number;
+  /** How many letters of the alef-bet (in order) the teacher has opened. */
+  lettersOpen: number;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -37,6 +39,7 @@ const AuthContext = createContext<AuthState>({
   access: false,
   level: 1,
   beginnerLevel: 1,
+  lettersOpen: 1,
   refresh: async () => {},
   signOut: async () => {},
 });
@@ -48,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [access, setAccess] = useState(false);
   const [level, setLevel] = useState(1);
   const [beginnerLevel, setBeginnerLevel] = useState(1);
+  const [lettersOpen, setLettersOpen] = useState(1);
 
   const load = useCallback(async (s: Session | null) => {
     setSession(s);
@@ -59,13 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const db = supabase();
-    const [{ data: p }, { data: ok }, { data: lvl }, { data: blvl }] = await Promise.all([
+    const [{ data: p }, { data: ok }, { data: lvl }, { data: blvl }, { data: lopen }] = await Promise.all([
       db.from("profiles").select("id, role, school_id, display_name, username").eq("id", s.user.id).maybeSingle(),
       db.rpc("has_access"),
       db.rpc("my_level"),
       db.rpc("my_beginner_level"),
+      db.rpc("my_letters_open"),
     ]);
     setBeginnerLevel(typeof blvl === "number" ? blvl : 1);
+    setLettersOpen(typeof lopen === "number" ? lopen : 1);
     setLevel(typeof lvl === "number" ? lvl : 1);
     setProfile((p as Profile) ?? null);
     setAccess(ok === true);
@@ -78,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Local preview without accounts: everything open.
       setLevel(99);
       setBeginnerLevel(99);
+      setLettersOpen(99);
       setLoading(false);
       return;
     }
@@ -100,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loading, session, profile, access, level, beginnerLevel, refresh, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ loading, session, profile, access, level, beginnerLevel, lettersOpen, refresh, signOut }}>{children}</AuthContext.Provider>
   );
 }
 

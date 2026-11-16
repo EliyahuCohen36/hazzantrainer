@@ -206,3 +206,16 @@ export function nekudaLevel(id: string): number {
 export function letterLevel(id: string): number {
   return BEGINNER_LEVELS.find((l) => l.letters?.includes(id))?.n ?? 1;
 }
+
+/**
+ * Letters the child may use: the teacher opens them one at a time in alef-bet order
+ * (letters_open). Once the final letters (level 4) are open, all letters are.
+ */
+export function openLetters(lettersOpen: number, beginnerLevel: number): Letter[] {
+  return beginnerLevel >= 4 ? LETTERS : LETTERS.slice(0, Math.max(1, lettersOpen));
+}
+
+/** Letters that make the same sound (e.g. Samekh and Sin, Tet and Tav, Vet and Vav). */
+export function sameSound(letter: Letter, among: Letter[]): Letter[] {
+  return letter.sym ? among.filter((l) => l.sym === letter.sym && l.id !== "alef" && l.id !== "he") : [letter];
+}

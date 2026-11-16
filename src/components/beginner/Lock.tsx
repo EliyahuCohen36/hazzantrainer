@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
-import { BEGINNER_LEVELS } from "@/data/beginner";
+import { BEGINNER_LEVELS, openLetters } from "@/data/beginner";
 
 /** Shows its children once the child's teacher has opened level `need`; otherwise a lock. */
 export function BeginnerLock({ need, children }: { need: number; children: React.ReactNode }) {
@@ -86,5 +86,19 @@ export function BeginnerLevelPath() {
         })}
       </ol>
     </section>
+  );
+}
+
+/** A letter tile, greyed out with a lock until the teacher has opened that letter. */
+export function LetterLock({ id, children }: { id: string; children: React.ReactNode }) {
+  const { beginnerLevel, lettersOpen } = useAuth();
+  if (openLetters(lettersOpen, beginnerLevel).some((l) => l.id === id)) return <>{children}</>;
+  return (
+    <div className="relative" title="Your teacher will open this letter soon">
+      <div className="pointer-events-none opacity-25 grayscale" aria-hidden>
+        {children}
+      </div>
+      <span className="absolute inset-0 flex items-center justify-center text-2xl">🔒</span>
+    </div>
   );
 }

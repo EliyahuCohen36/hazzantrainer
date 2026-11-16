@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LETTERS, LETTER_BY_ID, SOFIYOT, letterLevel } from "@/data/beginner";
-import { BeginnerLock, LockTile } from "@/components/beginner/Lock";
+import { LETTERS, LETTER_BY_ID, SOFIYOT } from "@/data/beginner";
+import { BeginnerLock, LetterLock } from "@/components/beginner/Lock";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 import { SpeedControl } from "@/components/audio/SpeedControl";
@@ -27,15 +27,25 @@ export default function LettersPage() {
         <b>Alef (א) and He (ה) have no sound by themselves.</b> Alone, without a nekuda, they are silent. They only make
         a sound when they have a nekuda: אָ says &ldquo;a&rdquo;, הָ says &ldquo;ha&rdquo;.
       </p>
+      <Link
+        href="/beginner/letters/practice/"
+        className="mb-4 flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-5 py-4 hover:bg-emerald-100"
+      >
+        <span>
+          <span className="block text-lg font-semibold text-stone-900">⭐ Letter trainer</span>
+          <span className="block text-sm text-stone-600">Which letter makes this sound? Which sound does this letter make?</span>
+        </span>
+        <span className="font-semibold text-emerald-800">Start →</span>
+      </Link>
       <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl compact />
       </div>
 
       <div dir="rtl" className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
         {LETTERS.map((l) => (
-          <LockTile key={l.id} need={letterLevel(l.id)}>
+          <LetterLock key={l.id} id={l.id}>
             <Tile glyph={l.char} label={l.name} sub={l.sound} rec={`letter:${l.id}`} />
-          </LockTile>
+          </LetterLock>
         ))}
       </div>
 
