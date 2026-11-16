@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePitchRecorder, type LiveFrame } from "@/hooks/usePitchRecorder";
 import { analyzeRecording, type AnalyzedRecording } from "@/lib/audio/contour";
-import { practiceFeedback, recordPractice, loadProgress, scoreTaamPractice, type PracticeFeedback } from "@/lib/audio/taam-practice";
+import { practiceFeedback, recordPractice, loadProgress, scoreTaamPractice, shrinkAnalysis, type PracticeFeedback } from "@/lib/audio/taam-practice";
 import { recordingUrl } from "@/lib/recordings";
 import { PitchCanvas } from "@/components/trainer/PitchCanvas";
 import type { MaybeNumber } from "@/lib/audio/pitch-math";
@@ -34,13 +34,17 @@ interface Props {
   src: string;
   /** What the child is singing, e.g. "Tarha" or "Shofar Holekh before Atnah". */
   label: string;
+  /** A whole aliyah or chapter: no stopping at short pauses; the child presses Stop. */
+  long?: boolean;
+  /** Button text (default "Practice"). */
+  buttonLabel?: string;
 }
 
 /**
  * "Practice" for one ta'am: the child sings, the site compares with the
  * Hazzan's recording (tune, any voice or octave) and gives stars and tips.
  */
-export function TaamPractice({ src, label }: Props) {
+export function TaamPractice({ src, label, long = false, buttonLabel = "Practice" }: Props) {
   const { status, error, start, stop } = usePitchRecorder();
   const [phase, setPhase] = useState<Phase>("closed");
   const [master, setMaster] = useState<AnalyzedRecording | null>(null);
@@ -80,10 +84,10 @@ export function TaamPractice({ src, label }: Props) {
         setPhase("ready");
         return;
       }
-      const scored = scoreTaamPractice(m, student);
+      const scored = long ? scoreTaamPractice(shrinkAnalysis(m), shrinkAnalysis(student)) : scoreTaamPractice(m, student);
       const fb = practiceFeedback(m.contour, scored, label);
       setFeedback(fb);
-      setAligned({ aligned: scored.result.melody.aligned, errors: scored.result.melody.alignedError });
+      if (!long) setAligned({ aligned: scored.result.melody.aligned, errors: scored.result.melody.alignedError });
       setBest(recordPractice(src, fb.score));
       setPhase("done");
     } catch {
@@ -103,9 +107,11 @@ export function TaamPractice({ src, label }: Props) {
       T.voiced += 1;
       T.lastVoice = f.t;
     }
-    const limit = Math.max(8, (master?.contour.duration ?? 4) * 2.5);
-    if ((T.voiced > 15 && f.t - T.lastVoice > 1.2) || f.t > limit) void finishRef.current();
-  }, [master]);
+    const limit = Math.max(8, (master?.contour.duration ?? 4) * (long ? 2 : 2.5));
+    // A long reading has pauses between pesukim: it stops only after 6 s of quiet, or by Stop.
+    const quiet = long ? 6 : 1.2;
+    if ((T.voiced > 15 && f.t - T.lastVoice > quiet) || f.t > limit) void finishRef.current();
+  }, [master, long]);
 
   const sing = async () => {
     setFeedback(null);
@@ -124,7 +130,7 @@ export function TaamPractice({ src, label }: Props) {
         onClick={() => void open()}
         className="inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-rose-700"
       >
-        <span aria-hidden>🎤</span> Practice{best !== null && <span className="opacity-80">· best {best}</span>}
+        <span aria-hidden>🎤</span> {buttonLabel}{best !== null && <span className="opacity-80">· best {best}</span>}
       </button>
     );
   }
@@ -151,7 +157,7 @@ export function TaamPractice({ src, label }: Props) {
               Listen to the Hazzan first, then press <b>🎤</b> and sing the <b>{label}</b>.
             </>
           )}
-          {recording && "Listening… sing now. It stops by itself when you finish."}
+          {recording && (long ? "Listening… read the whole section, then press Stop (■)." : "Listening… sing now. It stops by itself when you finish.")}
           {phase === "scoring" && "Checking your singing…"}
           {phase === "done" && feedback && (
             <span className="text-base font-semibold text-stone-900">{feedback.headline}</span>
@@ -184,8 +190,12 @@ export function TaamPractice({ src, label }: Props) {
               ))}
             </ul>
           )}
-          <PitchCanvas master={master?.contour ?? null} result={aligned} height={120} />
-          <p className="text-xs text-stone-400">Grey line: the Hazzan&apos;s tune. Coloured line: you (green = right on).</p>
+          {!long && (
+            <>
+              <PitchCanvas master={master?.contour ?? null} result={aligned} height={120} />
+              <p className="text-xs text-stone-400">Grey line: the Hazzan&apos;s tune. Coloured line: you (green = right on).</p>
+            </>
+          )}
           <button
             type="button"
             onClick={() => void sing()}

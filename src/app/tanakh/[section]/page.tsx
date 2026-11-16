@@ -131,10 +131,12 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
               <li key={book.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <div className="flex items-baseline gap-3">
-                    <span dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900">
+                    <Link href={`/tanakh/${s}/${book.id}/`} dir="rtl" lang="he" className="font-hebrew text-2xl text-stone-900 hover:text-amber-800">
                       {book.he}
-                    </span>
-                    <span className="text-sm text-stone-500">{book.en}</span>
+                    </Link>
+                    <Link href={`/tanakh/${s}/${book.id}/`} className="text-sm text-stone-500 hover:underline">
+                      {book.en}
+                    </Link>
                   </div>
                   <div className="text-xs text-stone-400">{book.melody}</div>
                 </div>
@@ -148,7 +150,12 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
                       {l.title.en}
                     </Link>
                   ))}
-                  {lessons.length === 0 && <span className="text-xs text-stone-400">Lessons coming soon</span>}
+                  <Link
+                    href={`/tanakh/${s}/${book.id}/`}
+                    className="rounded-lg bg-amber-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800"
+                  >
+                    Read the text →
+                  </Link>
                   <Link href={`/teamim/#${book.id}`} className="text-sm text-amber-800 hover:underline">
                     Te&apos;amim →
                   </Link>

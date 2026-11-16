@@ -58,3 +58,40 @@ export function useRecordingUrl(path: string | undefined | null): string | null 
   }, [path]);
   return url;
 }
+
+/* Folders of the bucket that pages look into (Tanakh readings, te'amim of other tunes). */
+const folders = new Map<string, Promise<Set<string>>>();
+
+/** Names of the files in a bucket folder ("/audio/reading/bereshit/noah"), cached for the visit. */
+export function listRecordings(folder: string, fresh = false): Promise<Set<string>> {
+  const f = folder.replace(/^\/audio\//, "").replace(/\/$/, "");
+  if (!supabaseConfigured) return Promise.resolve(new Set());
+  if (fresh || !folders.has(f)) {
+    const p = supabase()
+      .storage.from("recordings")
+      .list(f, { limit: 1000 })
+      .then(({ data }) => new Set((data ?? []).filter((o) => o.id).map((o) => o.name)));
+    p.catch(() => folders.delete(f));
+    folders.set(f, p);
+  }
+  return folders.get(f)!;
+}
+
+/** Which of these recordings exist (null while checking). */
+export function useExistingRecordings(paths: string[]): Set<string> | null {
+  const key = paths.join("|");
+  const [have, setHave] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    let live = true;
+    const dirs = [...new Set(paths.map((p) => p.slice(0, p.lastIndexOf("/"))))];
+    Promise.all(dirs.map((d) => listRecordings(d).then((names) => [...names].map((n) => `${d}/${n}`)))).then(
+      (lists) => live && setHave(new Set(lists.flat().filter((p) => paths.includes(p)))),
+      () => live && setHave(new Set()),
+    );
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return have;
+}

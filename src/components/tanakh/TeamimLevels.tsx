@@ -94,7 +94,7 @@ export function TeamimLevels() {
                         ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
                         : "border-stone-200 bg-stone-50 text-stone-400"
                 }`}
-                title={`Level ${l.n}: ${l.title}${isOpen ? "" : " (locked)"}`}
+                title={isOpen ? `Level ${l.n}: ${l.title}` : `Level ${l.n} (locked)`}
               >
                 {complete ? "✓" : !isOpen ? "🔒" : null}
                 {l.n}
@@ -104,15 +104,19 @@ export function TeamimLevels() {
         })}
       </ol>
 
+      {/* A locked level doesn't say what's in it (owner's request). */}
       <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2 border-t border-stone-100 pt-4">
         <h3 className="text-lg font-semibold text-stone-900">
-          Level {lvl.n}: {lvl.title}
+          Level {lvl.n}
+          {!locked && `: ${lvl.title}`}
         </h3>
-        <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
-          {lvl.hebrew}
-        </span>
+        {!locked && (
+          <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+            {lvl.hebrew}
+          </span>
+        )}
       </div>
-      <p className="mt-1 text-sm text-stone-600">{lvl.about}</p>
+      {!locked && <p className="mt-1 text-sm text-stone-600">{lvl.about}</p>}
 
       {locked ? (
         <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-5 text-center">

@@ -11,7 +11,11 @@ import {
   INDIVIDUAL_PRICE,
   STRIPE_PAYMENT_LINK,
   STRIPE_PORTAL_LINK,
+  STRIPE_YEARLY_LINK,
+  YEARLY_PRICE,
+  YEARLY_SAVING,
 } from "@/data/pricing";
+import { ContactBox } from "@/components/ContactBox";
 
 const input =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200";
@@ -90,7 +94,7 @@ function Pay() {
     return () => clearInterval(t);
   }, [refresh]);
 
-  if (!STRIPE_PAYMENT_LINK) {
+  if (!STRIPE_PAYMENT_LINK && !STRIPE_YEARLY_LINK) {
     return (
       <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
         <p className="font-semibold">Card payments open soon.</p>
@@ -98,11 +102,14 @@ function Pay() {
       </div>
     );
   }
-  const url = new URL(STRIPE_PAYMENT_LINK);
-  if (session) {
-    url.searchParams.set("client_reference_id", session.user.id);
-    if (session.user.email) url.searchParams.set("prefilled_email", session.user.email);
-  }
+  const link = (base: string) => {
+    const url = new URL(base);
+    if (session) {
+      url.searchParams.set("client_reference_id", session.user.id);
+      if (session.user.email) url.searchParams.set("prefilled_email", session.user.email);
+    }
+    return url.toString();
+  };
   return (
     <div className="space-y-3">
       <p className="text-sm font-semibold text-stone-900">2. Subscribe</p>
@@ -111,19 +118,35 @@ function Pay() {
           Thank you! Confirming your payment… the trainer opens as soon as it&apos;s done.
         </p>
       ) : (
-        <a
-          href={url.toString()}
-          className="block rounded-xl bg-amber-700 px-5 py-3 text-center text-base font-semibold text-white hover:bg-amber-800"
-        >
-          Pay {INDIVIDUAL_PRICE} a {INDIVIDUAL_PERIOD} by card
-        </a>
+        <>
+          {STRIPE_YEARLY_LINK && (
+            <a
+              href={link(STRIPE_YEARLY_LINK)}
+              className="block rounded-xl bg-amber-700 px-5 py-3 text-center text-base font-semibold text-white hover:bg-amber-800"
+            >
+              Pay {YEARLY_PRICE} a year <span className="font-normal opacity-90">({YEARLY_SAVING}, best deal)</span>
+            </a>
+          )}
+          {STRIPE_PAYMENT_LINK && (
+            <a
+              href={link(STRIPE_PAYMENT_LINK)}
+              className={
+                STRIPE_YEARLY_LINK
+                  ? "block rounded-xl border border-amber-600 px-5 py-3 text-center text-base font-semibold text-amber-800 hover:bg-amber-50"
+                  : "block rounded-xl bg-amber-700 px-5 py-3 text-center text-base font-semibold text-white hover:bg-amber-800"
+              }
+            >
+              Pay {INDIVIDUAL_PRICE} a {INDIVIDUAL_PERIOD}
+            </a>
+          )}
+        </>
       )}
-      <p className="text-xs text-stone-500">Secure payment by Stripe. Cancel any time.</p>
+      <p className="text-xs text-stone-500">Secure payment by card through Stripe. Cancel any time.</p>
     </div>
   );
 }
 
-/** The $10/month individual plan: create an account, then pay by card. */
+/** The individual plan ($12/month or $100/year): create an account, then pay by card. */
 export default function SubscribePage() {
   const { session, access, profile } = useAuth();
   return (
@@ -133,6 +156,9 @@ export default function SubscribePage() {
         <p className="mt-2">
           <span className="text-4xl font-semibold text-stone-900">{INDIVIDUAL_PRICE}</span>
           <span className="text-stone-500"> / {INDIVIDUAL_PERIOD}</span>
+          <span className="ml-3 text-stone-700">
+            or <b>{YEARLY_PRICE}</b> / year <span className="text-sm text-emerald-700">({YEARLY_SAVING})</span>
+          </span>
         </p>
         {[
           ["Beginner Keriah: learn to read Hebrew", BEGINNER_FEATURES],
@@ -158,6 +184,9 @@ export default function SubscribePage() {
           </Link>
           .
         </p>
+        <div className="mt-6">
+          <ContactBox />
+        </div>
       </div>
       <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
         {access ? (

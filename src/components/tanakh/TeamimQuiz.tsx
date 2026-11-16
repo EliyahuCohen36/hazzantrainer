@@ -1,5 +1,6 @@
 "use client";
 
+import { WithMaamid } from "@/components/reader/Maamid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
@@ -216,7 +217,7 @@ export function TeamimQuiz() {
                 lang="he"
                 className={`hebrew-text text-center font-hebrew leading-[1.6] text-amber-800 ${picked ? "w-16 text-4xl" : "flex-1 text-5xl"}`}
               >
-                {t.sample}
+                <WithMaamid text={t.sample} />
               </span>
               {picked && (
                 <span>

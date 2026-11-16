@@ -83,3 +83,15 @@ body {
     radial-gradient(circle, currentColor 0 0.075em, transparent 0.08em) bottom / 0.16em 0.16em no-repeat;
   pointer-events: none;
 }
+
+/* Yetib drawn before its word, on the right (Maamid.tsx YetibFirst). */
+.yetib-before {
+  display: inline-block;
+  margin-inline-end: 0.04em;
+  color: inherit;
+}
+
+/* Hebrew/Arabic interface: text still in English keeps its own direction. */
+html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
+  unicode-bidi: plaintext;
+}

@@ -30,6 +30,10 @@ export interface TorahVerse {
   v: number;
   t: TorahToken[];
   br?: string;
+  /** Nevi'im/Ketuvim books made of two or more parts (Shemuel Alef/Bet…): which part. */
+  s?: number;
+  /** 1 = this pasuk has Ta'amei Emet (Tehillim, Mishlei, Iyov 3:2–42:6). */
+  e?: number;
 }
 
 export const TORAH_TEXT: Record<string, TorahVerse[]> = {

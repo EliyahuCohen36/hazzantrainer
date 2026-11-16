@@ -8,13 +8,28 @@ import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import { curriculum } from "@/lib/curriculum/repository";
 import { TorahText, type AliyahSection } from "@/components/tanakh/TorahText";
 import { scrollColumnsFor } from "@/lib/torah/scroll-pages";
+import { allChapters, partName } from "@/data/tanakh";
+import { ChapterView } from "@/components/tanakh/ChapterView";
+import { aliyahRecording } from "@/data/tanakh-recordings";
 
 export function generateStaticParams() {
-  return PARASHOT.map((p) => ({ section: "torah", book: p.book, parasha: p.id }));
+  return [
+    ...PARASHOT.map((p) => ({ section: "torah", book: p.book, parasha: p.id })),
+    // Nevi'im and Ketuvim: one page per chapter.
+    ...TANAKH.filter((b) => b.section !== "torah").flatMap((b) =>
+      allChapters(b.id).map((c) => ({ section: b.section, book: b.id, parasha: c.slug })),
+    ),
+  ];
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ parasha: string }> }): Promise<Metadata> {
-  const { parasha } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ section: string; book: string; parasha: string }> }): Promise<Metadata> {
+  const { section, book, parasha } = await params;
+  if (section !== "torah") {
+    const b = TANAKH.find((x) => x.id === book);
+    const ref = allChapters(book).find((c) => c.slug === parasha);
+    const name = ref ? (partName(book, ref.part)?.en ?? b?.en) : b?.en;
+    return { title: ref ? `${name} ${ref.c} · Kriah Trainer` : "Kriah Trainer" };
+  }
   const p = PARASHOT.find((x) => x.id === parasha);
   return { title: p ? `Parashat ${p.en} · Kriah Trainer` : "Kriah Trainer" };
 }
@@ -22,6 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ parasha: 
 export default async function ParashaPage({ params }: { params: Promise<{ section: string; book: string; parasha: string }> }) {
   const { section, book: bookId, parasha: parashaId } = await params;
   const book = TANAKH.find((b) => b.id === bookId && b.section === section);
+  if (book && section !== "torah") return <ChapterView book={book} slug={parashaId} />;
   const idx = PARASHOT.findIndex((x) => x.id === parashaId && x.book === bookId);
   if (!book || idx < 0) notFound();
   const p = PARASHOT[idx];
@@ -40,6 +56,8 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
       range: `${a.from} – ${a.to}`,
       verses,
       maftirFrom: maftir && keys.includes(maftir.from) ? maftir.from : undefined,
+      recording: aliyahRecording(p.book, p.id, a.n as number),
+      maftirRecording: maftir && a.n === 7 ? aliyahRecording(p.book, p.id, "M") : undefined,
     };
   });
 

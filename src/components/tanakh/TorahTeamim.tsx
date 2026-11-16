@@ -74,7 +74,7 @@ export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: b
     <li id={id} className="grid gap-4 border-b border-stone-100 py-4 last:border-0 sm:grid-cols-[13rem_1fr]">
       <div className="flex items-start gap-3">
         <span dir="rtl" lang="he" className="hebrew-text w-14 shrink-0 text-center font-hebrew text-4xl leading-[1.9] text-amber-800">
-          {t.sample}
+          <WithMaamid text={t.sample} />
         </span>
         <div>
           <div className="font-semibold text-stone-900">{t.syrian}</div>

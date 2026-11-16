@@ -37,5 +37,5 @@ export const DEMO_FILES = new Set([
 /** Pages anyone can open without signing in (paths without the base path, with trailing slash). */
 export const OPEN_PAGES = ["/", "/login/", "/join/", "/demo/", "/about/", "/subscribe/"];
 
-/** Where "Bring it to your school" sends schools. Empty = the button is hidden. */
-export const CONTACT_EMAIL = "";
+/** Where schools and students send inquiries (owner's public contact address). */
+export const CONTACT_EMAIL = "eliyahucohen36@gmail.com";

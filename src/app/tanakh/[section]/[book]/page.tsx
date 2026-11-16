@@ -6,12 +6,13 @@ import { PARASHOT, type Aliyah } from "@/data/parashot";
 import { curriculum } from "@/lib/curriculum/repository";
 import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import type { Lesson } from "@/types/curriculum";
+import { BookChapters } from "@/components/tanakh/BookChapters";
 
 
 
-/** Book pages exist for the Torah, where the parashiyot are. */
+/** Every book has a page: parashiyot for the Torah, chapters for Nevi'im and Ketuvim. */
 export function generateStaticParams() {
-  return TANAKH.filter((b) => b.section === "torah").map((b) => ({ section: "torah", book: b.id }));
+  return TANAKH.map((b) => ({ section: b.section, book: b.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ book: string }> }): Promise<Metadata> {
@@ -38,7 +39,8 @@ function lessonsIn(lessons: Lesson[], a: Aliyah): Lesson[] {
 export default async function BookPage({ params }: { params: Promise<{ section: string; book: string }> }) {
   const { section, book: bookId } = await params;
   const book = TANAKH.find((b) => b.id === bookId && b.section === section);
-  if (!book || section !== "torah") notFound();
+  if (!book) notFound();
+  if (section !== "torah") return <BookChapters book={book} />;
   const parashot = PARASHOT.filter((p) => p.book === book.id);
 
   let lessons: Lesson[] = [];

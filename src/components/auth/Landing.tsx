@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { asset } from "@/lib/base-path";
 import { CONTACT_EMAIL } from "@/data/demo";
-import { BEGINNER_FEATURES, INDIVIDUAL_PERIOD, INDIVIDUAL_PRICE, SCHOOL_FEATURES, TORAH_FEATURES } from "@/data/pricing";
+import { BEGINNER_FEATURES, INDIVIDUAL_PERIOD, INDIVIDUAL_PRICE, SCHOOL_FEATURES, TORAH_FEATURES, YEARLY_PRICE, YEARLY_SAVING } from "@/data/pricing";
+import { ContactBox } from "@/components/ContactBox";
 
 function Shot({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
@@ -204,7 +205,7 @@ export function Landing() {
         <div className="mx-auto max-w-5xl px-4">
           <h2 className="text-center text-3xl font-semibold text-stone-900">Everything in one subscription</h2>
           <p className="mt-2 text-center text-stone-600">
-            One {INDIVIDUAL_PRICE}/{INDIVIDUAL_PERIOD} subscription opens all of it, from the first letter to the whole Torah.
+            One subscription ({INDIVIDUAL_PRICE}/{INDIVIDUAL_PERIOD} or {YEARLY_PRICE}/year) opens all of it, from the first letter to the whole Torah.
           </p>
           <FeatureColumns />
         </div>
@@ -224,6 +225,9 @@ export function Landing() {
               <p className="mt-2">
                 <span className="text-4xl font-semibold text-stone-900">{INDIVIDUAL_PRICE}</span>
                 <span className="text-stone-500"> / {INDIVIDUAL_PERIOD}</span>
+              </p>
+              <p className="mt-1 text-sm text-stone-700">
+                or <b>{YEARLY_PRICE} a year</b> <span className="text-emerald-700">({YEARLY_SAVING})</span>
               </p>
               <p className="mt-5 text-sm font-semibold text-stone-900">Beginner Keriah</p>
               <ul className="mt-2 space-y-2 text-sm text-stone-700">
@@ -277,6 +281,12 @@ export function Landing() {
               )}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-stone-200 bg-white py-12">
+        <div className="mx-auto max-w-2xl px-4">
+          <ContactBox />
         </div>
       </section>
 

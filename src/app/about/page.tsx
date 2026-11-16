@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { asset } from "@/lib/base-path";
+import { ContactBox } from "@/components/ContactBox";
 
 export const metadata: Metadata = { title: "About · Kriah Trainer" };
 
@@ -56,8 +57,9 @@ export default function AboutPage() {
                 next generation of Hazzanim in the community.
               </p>
               <p>
-                He has taught Qeriah and Pizmonim at <b>Barkai Yeshiva Elementary School</b> for five years, and is an
-                active Hazzan and Qoreh across the SY community.
+                He has been teaching Keriah for <b>over 10 years</b>, including Qeriah and Pizmonim at{" "}
+                <b>Barkai Yeshiva Elementary School</b>, and is an active Hazzan and Qoreh across the SY community. He holds a{" "}
+                <b>BA in Judaic Studies and Education from CUNY Brooklyn College</b>.
               </p>
             </div>
           </div>
@@ -123,6 +125,8 @@ export default function AboutPage() {
             <li>Scroll letters: Stam Sefarad CLM by Yoram Gnat, Culmus Project (GPL with font exception).</li>
           </ul>
         </div>
+
+        <ContactBox />
 
         <div className="flex flex-wrap justify-center gap-3">
           <Link href="/demo/" className="rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800">

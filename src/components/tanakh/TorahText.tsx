@@ -1,15 +1,21 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import { useZoom, ZoomControl, zoomWidth } from "@/components/reader/Zoom";
 import Link from "next/link";
 import type { TorahToken, TorahVerse } from "@/data/torah";
 import { renderHebrew, type DisplayOptions } from "@/lib/hebrew/marks";
 import { WithMaamid } from "@/components/reader/Maamid";
 
 const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, o)} source={t} />;
-import { taamOfWord } from "@/lib/hebrew/taam-of-word";
+import { emetTeamim, taamOfWord } from "@/lib/hebrew/taam-of-word";
+import type { TaamReference } from "@/data/teamim-reference";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
 import { ScrollPages } from "./ScrollPages";
+import { Recording } from "@/components/audio/Recording";
+import { SpeedControl } from "@/components/audio/SpeedControl";
+import { TaamPractice } from "./TaamPractice";
+import { useExistingRecordings } from "@/lib/recordings";
 import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
 export interface AliyahSection {
@@ -20,6 +26,9 @@ export interface AliyahSection {
   verses: TorahVerse[];
   /** "c:v" where the Maftir starts inside this aliyah, if it does. */
   maftirFrom?: string;
+  /** The Hazzan's recording of this section (shown when it's been uploaded). */
+  recording?: string;
+  maftirRecording?: string;
 }
 
 interface Props {
@@ -28,16 +37,23 @@ interface Props {
   practice: Record<string, string>;
   /** The parasha's columns in the Sefer Torah, shown in Torah Scroll Mode. */
   scrollColumns?: ScrollColumn[];
+  /** false = no Scroll Mode (Nevi'im and most of Ketuvim). */
+  allowScroll?: boolean;
+  scrollLabel?: string;
 }
 
 /** Draw {large} and [small] letters, then strip marks per the settings. */
 function Letters({ text, opts }: { text: string; opts: { showNikkud: boolean; showTeamim: boolean } }) {
-  const parts = text.split(/(\{[^}]*\}|\[[^\]]*\])/).filter(Boolean);
+  const parts = text.split(/(\{[^}]*\}|\[[^\]]*\]|<[^>]*>)/).filter(Boolean);
   return (
     <>
       {parts.map((p, i) =>
         p.startsWith("{") ? (
           <span key={i} className="text-[1.45em] leading-none">
+            {heb(p.slice(1, -1), opts)}
+          </span>
+        ) : p.startsWith("<") ? (
+          <span key={i} className="relative -top-[0.45em] text-[0.7em]" title="A raised (hanging) letter">
             {heb(p.slice(1, -1), opts)}
           </span>
         ) : p.startsWith("[") ? (
@@ -76,23 +92,36 @@ function Word({
   token,
   pesikAfter,
   settings,
+  emet,
 }: {
   token: TorahToken;
   pesikAfter: boolean;
   settings: ReaderSettings;
+  /** Ta'amei Emet books: the ta'am worked out for the whole pasuk (null = none). */
+  emet?: TaamReference | null;
 }) {
   const scroll = settings.scrollMode;
   const opts = scroll ? { showNikkud: false, showTeamim: false } : { showNikkud: settings.showNikkud, showTeamim: settings.showTeamim };
   // In the scroll, the ketiv is written; when reading aloud, the qere is said.
   const isKq = typeof token !== "string";
   const text = isKq ? (scroll ? token.k : token.q) : token;
-  const taam = !scroll && settings.showTaamNames ? taamOfWord(isKq ? token.q : token, pesikAfter) : undefined;
+  // Written but not read (ketiv without qere): only in the scroll; read but not written: only aloud.
+  if (isKq && !text && !(!scroll && token.k)) return null;
+  const taam =
+    !scroll && settings.showTaamNames
+      ? emet !== undefined
+        ? (emet ?? undefined)
+        : taamOfWord(isKq ? token.q : token, pesikAfter)
+      : undefined;
   const pesikWord = taam?.id === "shofar-holekh-pesik" && !/[{}[\]]/.test(text);
   const body = (
     <>
       {pesikWord ? <PesikLetter text={text} opts={opts} /> : <Letters text={text} opts={opts} />}
-      {isKq && !scroll && (
-        <span className="mx-0.5 align-middle font-sans text-[0.4em] text-stone-400" title="Ketiv: as written in the Sefer Torah">
+      {isKq && !scroll && token.k && (
+        <span
+          className="mx-0.5 align-middle font-sans text-[0.4em] text-stone-400"
+          title={token.q ? "Ketiv: as written" : "Written, but not read aloud"}
+        >
           ({token.k})
         </span>
       )}
@@ -114,6 +143,22 @@ function Word({
 
 function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings: ReaderSettings; practiceHref?: string }) {
   const scroll = settings.scrollMode;
+  // Tehillim, Mishlei and Iyov: the Emet ta'am of each word needs the whole pasuk.
+  let emet: (TaamReference | undefined)[] | undefined;
+  if (verse.e && !scroll && settings.showTaamNames) {
+    const idx: number[] = [];
+    const words: string[] = [];
+    const pes: boolean[] = [];
+    verse.t.forEach((tok, i) => {
+      if (typeof tok === "string" && (tok === "|" || tok === "_" || tok.startsWith("¶") || tok === "׆")) return;
+      idx.push(i);
+      words.push(typeof tok === "string" ? tok : tok.q);
+      pes.push(verse.t[i + 1] === "|");
+    });
+    const names = emetTeamim(words, pes);
+    emet = [];
+    idx.forEach((i, n) => (emet![i] = names[n]));
+  }
   return (
     <>
       {!scroll && (
@@ -139,7 +184,12 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
         if (tok === "¶s") return <span key={i} className="inline-block w-[3em]" />;
         return (
           <Fragment key={i}>
-            <Word token={tok} pesikAfter={verse.t[i + 1] === "|"} settings={settings} />{" "}
+            <Word
+              token={tok}
+              pesikAfter={verse.t[i + 1] === "|"}
+              settings={settings}
+              emet={emet ? (emet[i] ?? null) : undefined}
+            />{" "}
           </Fragment>
         );
       })}
@@ -150,7 +200,7 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
 }
 
 /** The text of a parasha, aliyah by aliyah, with the reader switches. */
-export function TorahText({ sections, practice, scrollColumns }: Props) {
+export function TorahText({ sections, practice, scrollColumns, allowScroll = true, scrollLabel }: Props) {
   const [settings, setSettings] = useState<ReaderSettings>({
     scrollMode: false,
     showNikkud: true,
@@ -158,12 +208,18 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
     showTaamNames: false,
   });
   const scroll = settings.scrollMode;
+  const [zoom, setZoom] = useZoom();
+  const wanted = sections.flatMap((x) => [x.recording, x.maftirRecording]).filter((p): p is string => !!p);
+  const have = useExistingRecordings(wanted);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={zoomWidth(zoom)}>
       <div className="sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
-        <DisplayModeToggle value={settings} onChange={setSettings} />
-        {settings.showTaamNames && !scroll && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
+          <ZoomControl zoom={zoom} onChange={setZoom} />
+        </div>
+        {settings.showTaamNames && !scroll && !sections.some((x) => x.verses.some((v) => v.e)) && (
           <p className="mt-2 text-xs text-stone-500">
             <span className="font-semibold text-amber-700">Shofar Holekh with Pesik:</span> when a pesik (׀) follows a word
             with Shofar Holekh, that word is sung with the Pesik sound, on the letter that has the Shofar Holekh under
@@ -172,7 +228,7 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
         )}
       </div>
 
-      {scroll && scrollColumns?.length ? <ScrollPages columns={scrollColumns} /> : null}
+      {scroll && scrollColumns?.length ? <ScrollPages columns={scrollColumns} zoom={zoom} /> : null}
 
       {!(scroll && scrollColumns?.length) && sections.map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-20 sm:scroll-mt-36 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
@@ -184,6 +240,14 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
               {s.he}
             </span>
           </div>
+          {have && (
+            <SectionAudio
+              items={[
+                { src: s.recording, label: s.en },
+                { src: s.maftirRecording, label: "Maftir" },
+              ].filter((x): x is { src: string; label: string } => !!x.src && have.has(x.src))}
+            />
+          )}
           <div
             dir="rtl"
             lang="he"
@@ -192,6 +256,7 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
                 ? "rounded-xl bg-[#f6eedd] px-4 py-5 font-scroll text-[1.9rem] leading-[1.9] text-stone-900 sm:text-[2.1rem]"
                 : `font-hebrew text-[1.55rem] text-stone-900 sm:text-[1.9rem] ${settings.showTaamNames ? "leading-[2.6]" : "leading-[2.1]"}`
             }`}
+            style={zoom !== 1 ? { fontSize: `calc(${zoom} * ${scroll ? "clamp(1.9rem, 4vw, 2.1rem)" : "clamp(1.55rem, 4vw, 1.9rem)"})` } : undefined}
           >
             {s.verses.map((v) => {
               const key = `${v.c}:${v.v}`;
@@ -209,6 +274,23 @@ export function TorahText({ sections, practice, scrollColumns }: Props) {
           </div>
         </section>
       ))}
+    </div>
+  );
+}
+
+/** The Hazzan reading this section: listen (at any speed), then read it yourself and get a score. */
+function SectionAudio({ items }: { items: { src: string; label: string }[] }) {
+  if (!items.length) return null;
+  return (
+    <div className="mb-3 space-y-2 rounded-xl bg-amber-50/70 p-3">
+      {items.map((it) => (
+        <div key={it.src} className="flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium text-stone-800">🔊 {it.label}: the Hazzan</span>
+          <Recording src={it.src} className="h-9 w-full max-w-md" />
+          <TaamPractice src={it.src} label={it.label} long buttonLabel={`Read ${it.label} yourself`} />
+        </div>
+      ))}
+      <SpeedControl />
     </div>
   );
 }

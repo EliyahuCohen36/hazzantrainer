@@ -1,4 +1,5 @@
-// Stripe → Supabase: gives an account access when its $10/month subscription is paid.
+// Stripe → Supabase: gives an account access when its subscription is paid
+// ($12/month or $100/year).
 //
 // Deploy: Supabase dashboard → Edge Functions → Deploy a new function → "stripe-webhook",
 // paste this file, and turn OFF "Verify JWT" (Stripe can't send a Supabase token;
@@ -32,10 +33,10 @@ function secretKey(): string {
 const db = createClient(Deno.env.get("SUPABASE_URL")!, secretKey(), { auth: { persistSession: false } });
 
 const day = (unix: number) => new Date(unix * 1000).toISOString().slice(0, 10);
-/** A month from now plus a few days' grace (the first renewal's invoice.paid sets the exact date). */
-const monthFromNow = () => {
+/** A month (or a year) from now plus a few days' grace (invoice.paid sets the exact date). */
+const fromNow = (months: number) => {
   const d = new Date();
-  d.setUTCMonth(d.getUTCMonth() + 1);
+  d.setUTCMonth(d.getUTCMonth() + months);
   d.setUTCDate(d.getUTCDate() + 3);
   return d.toISOString().slice(0, 10);
 };
@@ -68,7 +69,9 @@ Deno.serve(async (req) => {
   if (event.type === "checkout.session.completed") {
     const s = event.data.object as Stripe.Checkout.Session;
     if (s.client_reference_id && (s.subscription || s.mode === "subscription")) {
-      await grant({ id: s.client_reference_id }, monthFromNow(), s.customer as string);
+      // The yearly price ($100) pays for 12 months; the monthly one for 1.
+      const yearly = (s.amount_total ?? 0) >= 5000;
+      await grant({ id: s.client_reference_id }, fromNow(yearly ? 12 : 1), s.customer as string);
     }
   } else if (event.type === "invoice.paid") {
     const inv = event.data.object as Stripe.Invoice;

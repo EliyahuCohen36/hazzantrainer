@@ -49,6 +49,13 @@ kept in case the owner goes back to Netlify.
 - Don't list Yareah ben Yomo among the te'amim (the owner removed it).
 - Pauses at a mafsik are reminders only, not part of the score
   (`SCORING.weights.pauses = 0` in src/lib/audio/scoring-config.ts).
+- Yetib (U+059A) is drawn BEFORE its word, at the far right (YetibFirst in
+  Maamid.tsx, .yetib-before), never under/after a letter, so it isn't confused with
+  Shofar Mehuppakh. Te'amim levels: a locked level shows only its number (no title/contents).
+- Text size (zoom) on all Tanakh text pages, both modes, remembered per browser:
+  src/components/reader/Zoom.tsx (wider than the page when zoomed; scroll columns grow).
+- Inquiries: eliyahucohen36@gmail.com (CONTACT_EMAIL in src/data/demo.ts, ContactBox on
+  welcome, about, subscribe).
 - Everything must stay free to run (GitHub Pages + Supabase free plan; never anything paid).
   The site itself is pay-to-use for schools (owner's decision, Nov 2026).
 
@@ -74,7 +81,8 @@ kept in case the owner goes back to Netlify.
   class_members.unlocked_level; my_level() in supabase/levels.sql). Teachers set
   them in /teacher/. The quiz uses only open te'amim. Teachers/admins see all.
 - Payment: schools by invoice (owner sets seats/paid-until by hand).
-  Individuals: $10/month (src/data/pricing.ts). /subscribe/ creates an account
+  Individuals: $12/month or $100/year (src/data/pricing.ts: STRIPE_PAYMENT_LINK monthly,
+  STRIPE_YEARLY_LINK yearly; the webhook gives 12 months when amount_total ≥ $50). /subscribe/ creates an account
   (email, no code) and opens the Stripe Payment Link with client_reference_id =
   user id. The webhook supabase/functions/stripe-webhook sets role 'family' and
   paid_until (supabase/payments.sql adds profiles.stripe_customer_id). Until
@@ -118,6 +126,29 @@ kept in case the owner goes back to Netlify.
   only from MAM-simple (github.com/bdenckla/MAM-basics). Parasha pages show it:
   /tanakh/torah/<book>/<parasha>/ (#aliyah-1 … #aliyah-7). Ta'am of each word:
   src/lib/hebrew/taam-of-word.ts.
+- Nevi'im and Ketuvim full texts: src/data/tanakh/<book>.json (same format, `s` = part of a
+  combined book: Shemuel/Melakhim/Tere Asar/Ezra-Nehemia/Divre HaYamim), built by
+  scripts/tanakh-text/build.py from MAM-simple. Chapter list (browser-safe):
+  src/data/tanakh-chapters.ts. Pages: /tanakh/<neviim|ketuvim>/<book>/ (chapters) and
+  /tanakh/<section>/<book>/<chapter>/ (ChapterView.tsx; chapter slug "3" or "alef-3",
+  "yonah-2"). No Scroll Mode in Nevi'im; in Ketuvim only the 5 megillot (MEGILLOT,
+  "Megillah Scroll Mode"). Tehillim, Mishle, Iyov 3:2–42:6 are Ta'amei Emet (verse e: 1):
+  ta'am names by emetTeamim() in taam-of-word.ts (EMET_TEAMIM ids emet-*).
+- Tanakh recordings (admin uploads at /admin/ → Tanakh recordings, TanakhRecordingsPanel):
+  readings reading/<book>/<parasha>/aliyah-<n>.mp3 + maftir.mp3, reading/<book>/<chapter>.mp3;
+  te'amim of each tune teamim/<tune>/<taamId>.mp3 (TUNE_SETS in src/data/tanakh-recordings.ts:
+  torah, neviim, tehillim, mishle, iyov, shir-hashirim, ruth (+Kohelet, Daniel, Ezra-Neh,
+  Divre HaYamim), eikha, ester). Pages find them by listing the bucket folder
+  (useExistingRecordings in src/lib/recordings.ts), so no code change per upload. A reading
+  shows on its aliyah/chapter with "Read … yourself": TaamPractice long mode (manual stop,
+  6 s quiet, scored on shrinkAnalysis() coarse contours). Tune te'amim play on /teamim/.
+- Language: flags top right (US English, Israel Hebrew, Syria Arabic), LanguageProvider in
+  src/lib/i18n/Translator.tsx swaps page text for src/lib/i18n/dict.ts translations
+  (exact text; {n} numbers, {*} any words) and names to Hebrew (names.ts); <html dir=rtl>
+  for he/ar. To translate more, add lines to dict.ts. Elements with lang="he" or
+  data-no-translate are left alone.
+- Nusach picker in the header (src/data/nusachim.ts): Syrian ready; Ashkenaz, Yerushalmi,
+  Egyptian, Moroccan "coming soon" until their Hazzanim record.
 - Aliyot are the common division (Hebcal). The owner wants the Edot HaMizrah
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
@@ -208,7 +239,8 @@ kept in case the owner goes back to Netlify.
 - Demo (/demo/): BeginnerDemo.tsx, 6 mixed questions on 8 "a" words (src/data/beginner-demo.json);
   only their letters' clips (all five vowels, for the say-it check) are public (public/audio/beginner/, in DEMO_FILES).
 - Tap-to-hear sounds (tiles, practice words) play through ONE shared player
-  (src/lib/audio/player.ts) unlocked during a tap: Safari on the Mac blocked players started
+  (src/lib/audio/player.ts; never hangs: falls back to the Web Audio engine if the player
+  doesn't start in 4 s; the engine is unlocked with a silent sample on every tap) unlocked during a tap: Safari on the Mac blocked players started
   after an await; if the player is refused it falls back to the Web Audio engine.
   /beginner/check/ (SoundCheck.tsx): one-tap device check (audio engine, player, engine
   playback, private recordings, mic permission, recording) shown as ✅/❌ and saved to the

@@ -124,7 +124,7 @@ function Column({ col, vowels }: { col: ScrollColumn; vowels: boolean }) {
  * 245-column, 42-line scroll, line for line. Like a tikkun, the same column can
  * be shown with vowels and te'amim beside it. Words outside the parasha are pale.
  */
-export function ScrollPages({ columns }: { columns: ScrollColumn[] }) {
+export function ScrollPages({ columns, zoom = 1 }: { columns: ScrollColumn[]; zoom?: number }) {
   // Side by side on wide screens; on a phone, the scroll alone (the vowels can be turned on).
   const [tikkun, setTikkun] = useState(true);
   useEffect(() => {
@@ -146,7 +146,8 @@ export function ScrollPages({ columns }: { columns: ScrollColumn[] }) {
       {columns.map((c) => (
         <section key={c.n} aria-label={`Column ${c.n}`}>
           <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-stone-400">Column {c.n}</div>
-          <div className={tikkun ? "grid gap-3 md:grid-cols-2" : "mx-auto max-w-xl"}>
+          {/* Scroll letters are sized by the column's width, so a bigger zoom = a wider column. */}
+          <div className={tikkun ? "grid gap-3 md:grid-cols-2" : "mx-auto"} style={tikkun ? undefined : { maxWidth: `${36 * zoom}rem` }}>
             {tikkun && (
               <div className="md:order-2">
                 <Column col={c} vowels />

@@ -10,6 +10,9 @@ export interface ReaderSettings {
 interface Props {
   value: ReaderSettings;
   onChange: (next: ReaderSettings) => void;
+  /** Hide the Torah Scroll Mode switch (books not read from a scroll, e.g. Nevi'im). */
+  noScroll?: boolean;
+  scrollLabel?: string;
 }
 
 function Switch({
@@ -51,12 +54,14 @@ function Switch({
  * and the scroll typeface is used. When it's off, nikkud and te'amim can be
  * toggled separately (for example, te'amim only, to practise the tune without vowels).
  */
-export function DisplayModeToggle({ value, onChange }: Props) {
+export function DisplayModeToggle({ value, onChange, noScroll, scrollLabel = "Torah Scroll Mode" }: Props) {
   const set = (patch: Partial<ReaderSettings>) => onChange({ ...value, ...patch });
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-      <Switch big label="Torah Scroll Mode" checked={value.scrollMode} onChange={(v) => set({ scrollMode: v })} />
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-stone-200 sm:border-s sm:ps-6">
+      {!noScroll && (
+        <Switch big label={scrollLabel} checked={value.scrollMode} onChange={(v) => set({ scrollMode: v })} />
+      )}
+      <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 border-stone-200 ${noScroll ? "" : "sm:border-s sm:ps-6"}`}>
         <Switch label="Nikkud" disabled={value.scrollMode} checked={value.showNikkud} onChange={(v) => set({ showNikkud: v })} />
         <Switch label="Te'amim" disabled={value.scrollMode} checked={value.showTeamim} onChange={(v) => set({ showTeamim: v })} />
         <Switch

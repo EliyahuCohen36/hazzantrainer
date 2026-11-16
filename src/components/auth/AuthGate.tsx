@@ -5,8 +5,11 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { supabaseConfigured } from "@/lib/supabase";
 import { OPEN_PAGES } from "@/data/demo";
+import { INDIVIDUAL_PRICE, YEARLY_PRICE } from "@/data/pricing";
 import { LoginForm, RedeemForm } from "./forms";
 import { Landing } from "./Landing";
+import { LanguageSwitcher } from "@/lib/i18n/Translator";
+import { NusachPicker } from "@/components/NusachPicker";
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -54,6 +57,8 @@ function SiteHeader() {
               Sign in
             </Link>
           )}
+          <NusachPicker />
+          <LanguageSwitcher />
         </div>
       </div>
     </header>
@@ -96,7 +101,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             href="/subscribe/"
             className="mt-2 block rounded-lg border border-amber-600 px-4 py-2.5 font-semibold text-amber-800 hover:bg-amber-50"
           >
-            Subscribe for $10 a month
+            Subscribe: {INDIVIDUAL_PRICE} a month or {YEARLY_PRICE} a year
           </Link>
         </div>
       </Card>
@@ -107,7 +112,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         <Card title="Your subscription has ended">
           <p className="text-stone-600">Your progress is saved. Subscribe again to keep learning.</p>
           <Link href="/subscribe/" className="mt-4 block rounded-lg bg-amber-700 px-4 py-2.5 text-center font-semibold text-white hover:bg-amber-800">
-            Subscribe for $10 a month
+            Subscribe: {INDIVIDUAL_PRICE} a month or {YEARLY_PRICE} a year
           </Link>
         </Card>
       ) : (

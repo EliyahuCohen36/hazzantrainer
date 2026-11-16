@@ -1,6 +1,11 @@
 "use client";
 
+import { WithMaamid } from "@/components/reader/Maamid";
 import { useEffect, useState } from "react";
+import { Recording } from "@/components/audio/Recording";
+import { SpeedControl } from "@/components/audio/SpeedControl";
+import { tuneOf, tuneRecording } from "@/data/tanakh-recordings";
+import { useExistingRecordings } from "@/lib/recordings";
 import {
   EMET_TEAMIM,
   PROSE_TEAMIM,
@@ -25,17 +30,18 @@ function bookFromHash(): TanakhBook {
   return TANAKH.find((b) => b.id === id) ?? TANAKH[0];
 }
 
-function TaamRow({ t }: { t: TaamReference }) {
+function TaamRow({ t, audio }: { t: TaamReference; audio?: string }) {
   return (
     <tr className="border-b border-stone-100 last:border-0">
       <td className="w-20 py-2 pe-3 text-center">
         <span dir="rtl" lang="he" className="hebrew-text font-hebrew text-4xl leading-[1.9] text-amber-800">
-          {t.sample}
+          <WithMaamid text={t.sample} />
         </span>
       </td>
       <td className="py-2 pe-3">
         <div className="font-semibold text-stone-900">{t.syrian}</div>
         <div className="text-xs text-stone-500">Ashkenazi: {t.ashkenazi}</div>
+        {audio && <Recording src={audio} className="mt-1 h-8 w-full max-w-[14rem]" />}
       </td>
       <td dir="rtl" lang="he" className="py-2 pe-3 font-hebrew text-lg text-stone-700">
         {t.hebrew}
@@ -45,7 +51,19 @@ function TaamRow({ t }: { t: TaamReference }) {
   );
 }
 
-function TaamTable({ title, subtitle, rows, grouped }: { title: string; subtitle: string; rows: TaamReference[]; grouped?: boolean }) {
+function TaamTable({
+  title,
+  subtitle,
+  rows,
+  grouped,
+  audio,
+}: {
+  title: string;
+  subtitle: string;
+  rows: TaamReference[];
+  grouped?: boolean;
+  audio: (t: TaamReference) => string | undefined;
+}) {
   const groups = grouped
     ? [1, 2, 3, 4].map((lvl) => ({ lvl, items: rows.filter((r) => r.level === lvl) })).filter((g) => g.items.length)
     : [{ lvl: 0, items: rows }];
@@ -64,7 +82,7 @@ function TaamTable({ title, subtitle, rows, grouped }: { title: string; subtitle
                 </td>
               </tr>
             ) : null,
-            ...items.map((t) => <TaamRow key={t.syrian + t.sample} t={t} />),
+            ...items.map((t) => <TaamRow key={t.syrian + t.sample} t={t} audio={audio(t)} />),
           ])}
         </tbody>
       </table>
@@ -86,6 +104,14 @@ export function TeamimBrowser() {
   const list = book.system === "emet" ? EMET_TEAMIM : PROSE_TEAMIM;
   const mafsikim = list.filter((t) => t.role === "mafsik");
   const mesharetim = list.filter((t) => t.role === "mesharet");
+  // This book's tune: te'amim the Hazzan has recorded in it (uploaded at /admin/).
+  const tune = tuneOf(book);
+  const paths = tune ? list.filter((t) => t.id).map((t) => tuneRecording(tune.id, t.id!)) : [];
+  const have = useExistingRecordings(paths);
+  const audio = (t: TaamReference) => {
+    const p = tune && t.id ? tuneRecording(tune.id, t.id) : undefined;
+    return p && have?.has(p) ? p : undefined;
+  };
 
   return (
     <div className="space-y-5">
@@ -137,8 +163,9 @@ export function TeamimBrowser() {
         )}
 
         <div className="mt-5 space-y-6">
-          <TaamTable title="Mafsikim" subtitle="(pausing te'amim)" rows={mafsikim} grouped />
-          <TaamTable title="Mesharetim" subtitle="(connecting te'amim)" rows={mesharetim} />
+          {!!have?.size && <SpeedControl compact />}
+          <TaamTable title="Mafsikim" subtitle="(pausing te'amim)" rows={mafsikim} grouped audio={audio} />
+          <TaamTable title="Mesharetim" subtitle="(connecting te'amim)" rows={mesharetim} audio={audio} />
         </div>
         {book.system === "emet" && (
           <p className="mt-4 text-xs text-stone-500">

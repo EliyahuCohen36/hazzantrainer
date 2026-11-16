@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { RecordingsPanel } from "@/components/auth/RecordingsPanel";
+import { TanakhRecordingsPanel } from "@/components/auth/TanakhRecordingsPanel";
 
 interface School {
   id: string;
@@ -141,6 +142,7 @@ export default function AdminPage() {
         {schools.length === 0 && <p className="text-stone-500">No schools yet.</p>}
       </div>
       <RecordingsPanel />
+      <TanakhRecordingsPanel />
     </main>
   );
 }

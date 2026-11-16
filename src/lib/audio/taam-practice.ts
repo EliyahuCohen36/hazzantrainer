@@ -1,5 +1,5 @@
 import { scoreReading, type ReadingResult, type RecordingAnalysis } from "./reading-score";
-import type { PitchContour } from "./contour";
+import { contourFromHz, type PitchContour } from "./contour";
 import { foldOctave, pointScore } from "./pitch-math";
 
 /**
@@ -48,6 +48,31 @@ export function scoreTaamPractice(master: RecordingAnalysis, student: RecordingA
   const tune = (0.5 * result.melody.score + 0.5 * shapeScore) * lengthFactor;
   const score = Math.round(0.9 * tune + 0.1 * result.clarity.score);
   return { score, result, tooLong: ratio > 2, tooShort: ratio < 0.5 };
+}
+
+/**
+ * A long recording (a whole aliyah or chapter) made coarser so it can be
+ * compared quickly: at most `maxFrames` frames (blocks of frames merged:
+ * the middle pitch of the voiced frames, the average loudness).
+ */
+export function shrinkAnalysis(a: RecordingAnalysis, maxFrames = 1200): RecordingAnalysis {
+  const n = a.features.hz.length;
+  const k = Math.ceil(n / maxFrames);
+  if (k <= 1) return a;
+  const hz: (number | null)[] = [];
+  const db: number[] = [];
+  const mfcc: Float32Array[] = [];
+  for (let i = 0; i < n; i += k) {
+    const block = a.features.hz.slice(i, i + k).filter((x): x is number => x !== null);
+    hz.push(block.length * 2 >= Math.min(k, n - i) ? block.sort((x, y) => x - y)[block.length >> 1] : null);
+    const d = a.features.db.slice(i, i + k);
+    db.push(d.reduce((x, y) => x + y, 0) / Math.max(1, d.length));
+    const m = a.features.mfcc;
+    if (m.length) mfcc.push(m[Math.min(i, m.length - 1)]);
+  }
+  const hopSec = a.features.hopSec * k;
+  const features = { ...a.features, hopSec, hz, db, mfcc };
+  return { features, contour: contourFromHz(hz, hopSec) };
 }
 
 export function practiceFeedback(

@@ -1,16 +1,21 @@
 /**
  * Plans shown on the welcome page and /subscribe/.
  *
- * Individual plan: paid by card through Stripe. Set STRIPE_PAYMENT_LINK to the
- * Stripe Payment Link for the $10/month subscription (Stripe dashboard →
- * Payment Links). Until it's set, the page says payments open soon. After
+ * Individual plan: paid by card through Stripe, $12 a month or $100 a year.
+ * STRIPE_PAYMENT_LINK / STRIPE_YEARLY_LINK are the Stripe Payment Links for the
+ * two prices (Stripe dashboard → Payment Links). Until one is set, that option
+ * says payments open soon. After
  * paying, a Stripe webhook (supabase/functions/stripe-webhook) gives the account
  * access (profiles.role = 'family', paid_until = end of the paid month).
  * STRIPE_PORTAL_LINK is the Stripe customer portal link, for cancelling.
  */
-export const INDIVIDUAL_PRICE = "$10";
+export const INDIVIDUAL_PRICE = "$12";
 export const INDIVIDUAL_PERIOD = "month";
+export const YEARLY_PRICE = "$100";
+/** What the yearly plan saves against 12 months. */
+export const YEARLY_SAVING = "save $44";
 export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cIfZh1CL6J0d8KczT0VO00";
+export const STRIPE_YEARLY_LINK = "";
 export const STRIPE_PORTAL_LINK = "https://billing.stripe.com/p/login/3cIfZh1CL6J0d8KczT0VO00";
 
 /** Everything in the monthly subscription, in two groups (shown on the welcome, sign-in and subscribe pages). */

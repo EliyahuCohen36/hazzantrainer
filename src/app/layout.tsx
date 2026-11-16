@@ -7,6 +7,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { LanguageProvider } from "@/lib/i18n/Translator";
 
 // Torah Scroll Mode: Sephardic scroll letters with tagin (crowns), like a real Sefer Torah.
 const stam = localFont({
@@ -29,15 +30,17 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // The UI chrome is English (LTR). Every Hebrew block sets dir="rtl" lang="he"
-  // itself. For a Hebrew interface, set lang="he" dir="rtl" here; the layout
-  // uses logical properties (ms-/me-/ps-/border-s) so it mirrors correctly.
+  // The UI is written in English (LTR). Every Hebrew block sets dir="rtl" lang="he"
+  // itself. The language buttons (Hebrew, Arabic) switch <html> to RTL and
+  // translate the text (src/lib/i18n/); the layout uses logical properties.
   return (
     <html lang="en" className={stam.variable}>
       <body className="min-h-dvh antialiased">
-        <AuthProvider>
-          <AuthGate>{children}</AuthGate>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <AuthGate>{children}</AuthGate>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
