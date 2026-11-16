@@ -26,8 +26,16 @@ const N_MELS = 26;
 const N_CEP = 12;
 const WARPS = [1.0, 1.1, 1.2, 1.3];
 const VOWELS = ["qamats", "sere", "hireq", "holem", "qibbus"];
-/** How much closer than every wrong answer the right word must be (1 = just closest; a little lenient for children). */
-const LENIENCY = 1.02;
+/**
+ * When the right word counts as matched. Distances are per frame; in tests a real
+ * reading was 1.4–2.2 from the right word, and beeps or noise were 2.3 and more
+ * (noise is about equally far from every word, so the ratio alone can't reject it).
+ *  - closest of all, and not too far: right
+ *  - nearly closest (within 5%), and clearly close: right (lenient for children)
+ */
+const LENIENCY = 1.05;
+const MAX_DIST = 2.45;
+const CLOSE_DIST = 2.25;
 
 export const canRecord = () =>
   typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof window !== "undefined" && "AudioContext" in window;
@@ -37,32 +45,62 @@ export const canRecord = () =>
 export type Utterance = { samples: Float32Array; rate: number } | null;
 
 /**
- * Records from the microphone until the child has spoken and stopped (or `maxMs`).
- * Returns null if nothing was said. `onVoice` is called when speech starts.
+ * One microphone stream for the whole practice session: asking for the microphone
+ * again for every word is slow on iPhone (the start of the word got cut off) and
+ * sometimes fails. Released when the practice screen closes.
  */
-export function recordWord(maxMs = 5000, onVoice?: () => void): { done: Promise<Utterance>; stop: () => void } {
+let mic: Promise<MediaStream> | null = null;
+function getMic(): Promise<MediaStream> {
+  if (mic) {
+    const m = mic;
+    return m.then((s) => (s.getAudioTracks().some((t) => t.readyState === "live") ? s : ((mic = null), getMic())));
+  }
+  mic = navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true },
+  });
+  mic.catch(() => (mic = null));
+  return mic;
+}
+export function releaseMic() {
+  mic?.then((s) => s.getTracks().forEach((t) => t.stop())).catch(() => {});
+  mic = null;
+}
+
+/**
+ * Records until the child has spoken and stopped (or `maxMs`). Returns null if
+ * nothing was said. `onReady` fires when the microphone is really listening,
+ * `onVoice` when speech starts.
+ */
+export function recordWord(
+  maxMs = 5000,
+  onVoice?: () => void,
+  onReady?: () => void,
+): { done: Promise<Utterance>; stop: () => void } {
   let stopNow = () => {};
   const done = (async (): Promise<Utterance> => {
     const ctx = audioContext();
     await ctx.resume();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true },
-    });
+    const stream = await getMic();
     const src = ctx.createMediaStreamSource(stream);
     const proc = ctx.createScriptProcessor(2048, 1, 1);
     const chunks: Float32Array[] = [];
     const rate = ctx.sampleRate;
     return await new Promise<Utterance>((resolve) => {
-      let floor = 0;
-      let n = 0;
+      let floor = Infinity;
+      let peak = 0;
       let started = -1;
       let quietSince = -1;
       let t = 0;
-      const finish = (keep: boolean) => {
+      let ready = false;
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        proc.onaudioprocess = null;
         proc.disconnect();
         src.disconnect();
-        stream.getTracks().forEach((tr) => tr.stop());
-        if (!keep || started < 0) return resolve(null);
+        // Nothing louder than a whisper: nothing was said.
+        if (peak < 0.006 || (started < 0 && peak < floor * 3)) return resolve(null);
         const all = new Float32Array(chunks.reduce((a, c) => a + c.length, 0));
         let o = 0;
         for (const c of chunks) {
@@ -71,20 +109,24 @@ export function recordWord(maxMs = 5000, onVoice?: () => void): { done: Promise<
         }
         resolve({ samples: all, rate });
       };
-      stopNow = () => finish(true);
+      stopNow = finish;
       proc.onaudioprocess = (e) => {
+        if (!ready) {
+          ready = true;
+          onReady?.();
+        }
         const x = e.inputBuffer.getChannelData(0);
         chunks.push(new Float32Array(x));
         let s = 0;
         for (let i = 0; i < x.length; i++) s += x[i] * x[i];
         const rms = Math.sqrt(s / x.length);
         t += x.length / rate;
-        if (n < 6) {
-          floor = (floor * n + rms) / (n + 1); // background noise, first ~0.25 s
-          n++;
+        peak = Math.max(peak, rms);
+        if (t < 0.35) {
+          floor = Math.min(floor, rms); // the quietest moment = background noise
           return;
         }
-        const loud = rms > Math.max(floor * 3, 0.008);
+        const loud = rms > Math.max(floor * 4, 0.004);
         if (started < 0 && loud) {
           started = t;
           onVoice?.();
@@ -92,9 +134,9 @@ export function recordWord(maxMs = 5000, onVoice?: () => void): { done: Promise<
         if (started >= 0) {
           if (loud) quietSince = -1;
           else if (quietSince < 0) quietSince = t;
-          if (quietSince >= 0 && t - quietSince > 0.8) return finish(true);
+          if (quietSince >= 0 && t - quietSince > 0.9) return finish();
         }
-        if (t * 1000 > maxMs) finish(started >= 0);
+        if (t * 1000 > maxMs) finish();
       };
       src.connect(proc);
       proc.connect(ctx.destination);
@@ -276,11 +318,48 @@ export function candidates(word: PracticeWord, pool: PracticeWord[]): string[][]
   return out;
 }
 
-/** Is the recording the right word (the first candidate)? Null if it can't tell. */
-export async function matchesWord(rec: NonNullable<Utterance>, cands: string[][]): Promise<boolean | null> {
+export interface WordMatch {
+  ok: boolean;
+  /** 1 = the right word was the closest match. */
+  rank: number;
+  /** Right word's distance ÷ the closest wrong one (below 1 = right word closer). */
+  ratio: number;
+  /** How far the voice is from the right word (smaller = closer). */
+  dist: number;
+  seconds: number;
+}
+
+/** Is the recording the right word (the first candidate)? Null if it can't tell (too short). */
+/**
+ * Does it sound like a voice at all? A voice's spectrum has peaks (formants);
+ * hiss and fan noise are flat, and a beep or hum is a single line. Median
+ * "spectral flatness" over the loud frames: voices were 0.01–0.36 in tests,
+ * noise 0.57, a beep 0.000.
+ */
+function soundsLikeVoice(spec: Float64Array[]): boolean {
+  const en = spec.map((p) => Math.log(p.reduce((a, b) => a + b, 0) + 1e-8));
+  const top = Math.max(...en);
+  const flat = spec
+    .filter((_, i) => en[i] > top - 6)
+    .map((p) => {
+      let lg = 0;
+      let ar = 0;
+      for (let k = 3; k < 200; k++) {
+        lg += Math.log(p[k] + 1e-10);
+        ar += p[k] + 1e-10;
+      }
+      return Math.exp(lg / 197) / (ar / 197);
+    })
+    .sort((a, b) => a - b);
+  const med = flat[Math.floor(flat.length / 2)] ?? 0;
+  return med > 0.004 && med < 0.45;
+}
+
+export async function matchesWord(rec: NonNullable<Utterance>, cands: string[][]): Promise<WordMatch | null> {
   const temps = await Promise.all(cands.map(template));
   if (!temps[0]) return null;
   const spec = spectra(resample(rec.samples, rec.rate));
+  if (!soundsLikeVoice(spec)) return null;
   const best = cands.map(() => Infinity);
   for (const w of WARPS) {
     const f = features(spec, w);
@@ -290,8 +369,11 @@ export async function matchesWord(rec: NonNullable<Utterance>, cands: string[][]
     });
   }
   const others = Math.min(...best.slice(1));
-  return best[0] <= others * LENIENCY;
+  const rank = 1 + best.slice(1).filter((d) => d < best[0]).length;
+  const ratio = best[0] / others;
+  const ok = (ratio <= 1 && best[0] <= MAX_DIST) || (ratio <= LENIENCY && best[0] <= CLOSE_DIST);
+  return { ok, rank, ratio, dist: best[0], seconds: rec.samples.length / rec.rate };
 }
 
 /** For tests only. */
-export const _internals = { features, spectra, resample, dtw, WARPS, LENIENCY };
+export const _internals = { features, spectra, resample, dtw, soundsLikeVoice, WARPS, LENIENCY, MAX_DIST, CLOSE_DIST };

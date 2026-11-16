@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { BEGINNER_DEMO_WORDS } from "@/data/demo";
+import { releaseMic } from "@/lib/audio/word-check";
+import { useAuth } from "@/lib/auth";
 import { WordQuestion, QUESTION_LABEL, shuffle, type QuestionType } from "./WordQuestion";
 
 const TYPES: QuestionType[] = ["listen", "sound", "say", "listen", "sound", "say"];
@@ -11,6 +13,8 @@ export function BeginnerDemo() {
   // Shuffled after the page loads (shuffling while the page is built would differ from the browser's).
   const [order, setOrder] = useState(BEGINNER_DEMO_WORDS.slice(0, TYPES.length));
   const [ready, setReady] = useState(false);
+  const { profile } = useAuth();
+  useEffect(() => () => releaseMic(), []);
   useEffect(() => {
     setOrder(shuffle(BEGINNER_DEMO_WORDS).slice(0, TYPES.length));
     setReady(true);
@@ -38,6 +42,7 @@ export function BeginnerDemo() {
             word={order[i]}
             type={TYPES[i]}
             pool={BEGINNER_DEMO_WORDS}
+            showDebug={profile?.role === "admin" || profile?.role === "teacher"}
             onAnswer={(ok) => {
               if (ok) setRight((r) => r + 1);
               setI((n) => n + 1);

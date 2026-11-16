@@ -74,38 +74,48 @@ const Word = ({ w, size }: { w: string; size: string }) => (
  * (and the same letters with wrong vowels). Two tries; "didn't hear you" doesn't count.
  */
 function useSpeechCheck(word: PracticeWord, pool: PracticeWord[]) {
-  const [state, setState] = useState<"idle" | "listening" | "checking" | "right" | "wrong" | "nothing" | "manual">(
+  const [state, setState] = useState<"idle" | "starting" | "listening" | "checking" | "right" | "wrong" | "nothing" | "manual">(
     canRecord() && hasSound(word) ? "idle" : "manual",
   );
   const [tries, setTries] = useState(0);
   const [misses, setMisses] = useState(0);
   const [hearing, setHearing] = useState(false);
+  const [debug, setDebug] = useState("");
   const stopRef = useRef<() => void>(() => {});
   useEffect(() => () => stopRef.current(), []);
   const listen = async () => {
-    setState("listening");
+    setState("starting");
     setHearing(false);
+    setDebug("");
     try {
-      const { done, stop } = recordWord(5000, () => setHearing(true));
+      const { done, stop } = recordWord(
+        5000,
+        () => setHearing(true),
+        () => setState("listening"),
+      );
       stopRef.current = stop;
       const rec = await done;
       if (!rec) {
+        setDebug("nothing loud enough was recorded");
         setMisses((m) => m + 1);
         return setState("nothing");
       }
       setState("checking");
-      const ok = await matchesWord(rec, candidates(word, pool));
-      if (ok === null) {
-        setMisses((m) => m + 1);
+      const m = await matchesWord(rec, candidates(word, pool));
+      if (m === null) {
+        setDebug(`too short or not a voice (${(rec.samples.length / rec.rate).toFixed(1)} s)`);
+        setMisses((x) => x + 1);
         return setState("nothing");
       }
+      setDebug(`${m.seconds.toFixed(1)} s recorded · right word ranked ${m.rank} · ratio ${m.ratio.toFixed(2)} · distance ${m.dist.toFixed(2)}`);
       setTries((t) => t + 1);
-      setState(ok ? "right" : "wrong");
-    } catch {
+      setState(m.ok ? "right" : "wrong");
+    } catch (e) {
+      setDebug(`microphone: ${e instanceof Error ? e.name + " " + e.message : String(e)}`);
       setState("manual"); // no microphone or permission refused
     }
   };
-  return { state, tries, misses, hearing, listen, stop: () => stopRef.current() };
+  return { state, tries, misses, hearing, debug, listen, stop: () => stopRef.current() };
 }
 
 /**
@@ -117,11 +127,14 @@ export function WordQuestion({
   type,
   pool,
   onAnswer,
+  showDebug = false,
 }: {
   word: PracticeWord;
   type: QuestionType;
   pool: PracticeWord[];
   onAnswer: (right: boolean) => void;
+  /** Teachers and admins see what the microphone check measured. */
+  showDebug?: boolean;
 }) {
   const { play, playing } = useWordPlayer();
   const [answer, setAnswer] = useState<string | null>(null);
@@ -282,6 +295,7 @@ export function WordQuestion({
         <>
           <p className="mt-4 text-stone-600">
             {st === "idle" && "Tap the microphone and say the word."}
+            {st === "starting" && "Getting the microphone ready…"}
             {st === "listening" && (speech.hearing ? "I hear you… 👂" : "Listening… say the word now, nice and clear.")}
             {st === "checking" && "Checking…"}
             {st === "nothing" && "I didn't hear you. Tap the microphone and try again, a little louder."}
@@ -303,7 +317,7 @@ export function WordQuestion({
               </button>
             </div>
           )}
-          {st === "listening" && (
+          {(st === "listening" || st === "starting") && (
             <button
               type="button"
               onClick={speech.stop}
@@ -343,6 +357,7 @@ export function WordQuestion({
           )}
         </>
       )}
+      {showDebug && speech.debug && <p className="mt-3 text-[0.7rem] text-stone-400">Check (teachers only): {speech.debug}</p>}
     </div>
   );
 }

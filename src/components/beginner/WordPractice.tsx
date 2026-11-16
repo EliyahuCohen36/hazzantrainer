@@ -6,6 +6,7 @@ import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, stageKey, type PracticeWord, 
 import { WordQuestion, QUESTION_LABEL, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
 import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
+import { releaseMic } from "@/lib/audio/word-check";
 
 type Mode = "mixed" | "listen" | "read";
 const PASS_PCT = Math.round((100 * STAGE_PASS) / STAGE_QUESTIONS);
@@ -69,6 +70,7 @@ export function WordPractice() {
   const user = profile?.id ?? "guest";
   const free = profile?.role === "teacher" || profile?.role === "admin";
   const best = useBest();
+  useEffect(() => () => releaseMic(), []);
   const passed = (s: WordStage) => (best[stageKey(s.id)] ?? 0) >= PASS_PCT;
   const isOpen = (i: number) =>
     beginnerLevel >= WORD_STAGES[i].level && (free || i === 0 || passed(WORD_STAGES[i - 1]));
@@ -247,7 +249,7 @@ export function WordPractice() {
           </div>
 
           <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-amber-700">{QUESTION_LABEL[qType]}</p>
-          <WordQuestion key={`${run.i}-${word.w}`} word={word} type={qType} pool={stage.words} onAnswer={next} />
+          <WordQuestion key={`${run.i}-${word.w}`} word={word} type={qType} pool={stage.words} onAnswer={next} showDebug={free} />
         </div>
       )}
 

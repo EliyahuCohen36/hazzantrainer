@@ -168,8 +168,10 @@ kept in case the owner goes back to Netlify.
   listen (hear him, pick the written word of 3), sound (see the word, pick which of 3
   sounds says it), say (say it into the mic; checked ON THE DEVICE by src/lib/audio/word-check.ts:
   records until the child stops, MFCC + DTW against his joined word, the same letters with one
-  vowel changed (6) and 2 other words, at 4 voice-size warps; right if the word is closest
-  (×1.02). Browser speech recognition was tried first and heard nothing on the owner's iPhone,
+  vowel changed (6) and 2 other words, at 4 voice-size warps; right if closest and distance
+  ≤ 2.45, or within 5% and distance ≤ 2.25; non-voices (flat noise, hum) rejected by spectral
+  flatness. One mic stream per session (releaseMic on unmount); teachers/admins see a small
+  "Check (teachers only)" line with the numbers. Browser speech recognition was tried first and heard nothing on the owner's iPhone,
   so it's not used. Simulated child voice: 90% right accepted, 7% wrong vowel accepted.
   Two tries; "didn't hear you" doesn't count; owner wants no grown-up grading, so ✓/✗ only
   where there's no microphone. The Claude app's built-in browser blocks the mic: test on a phone). Modes: Mixed practice (all three in turn; default, owner's
