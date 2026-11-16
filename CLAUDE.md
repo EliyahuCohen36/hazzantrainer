@@ -154,6 +154,8 @@ kept in case the owner goes back to Netlify.
   Cut a letter recording with: python3 scripts/beginner-recordings/cut.py <file> <letterId> <outdir>,
   then add the names to BEGINNER_RECORDED and put the clips in his Downloads/torah-trainer/beginner-recordings/.
   Alef and He have no sound by themselves: the letters page says so (owner's request).
+  Final letters use their regular letter's recordings (fileFor strips -sofit; owner's choice).
+  To check a cut, vowel formants tell a/e/i/o/u apart (F1 high = a, F2 high = i, F1 low + F2 low = u).
 - Practice words: /beginner/words/ (WordPractice.tsx), real Torah words with no sheva, from
   src/data/beginner-words.json (each word: syllables + the sounds it uses, "a","e","ae"…; built by
   scripts/beginner-words/build.py: no sheva/qamats qatan/furtive patah/mappiq/names of Hashem;
