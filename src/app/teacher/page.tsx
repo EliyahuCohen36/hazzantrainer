@@ -5,8 +5,9 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
-import { BEGINNER_LEVELS, LETTERS } from "@/data/beginner";
+import { BEGINNER_LEVELS, LETTERS, NEKUDOT } from "@/data/beginner";
 import { WORD_STAGES } from "@/data/beginner-words";
+import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 
 interface Klass {
   id: string;
@@ -42,6 +43,8 @@ interface Row {
 const NAME = new Map(PROSE_TEAMIM.map((t) => [t.id, t.syrian]));
 /** "/audio/teamim/torah/shofar-holekh_segolta.mp3" -> "Shofar Holekh + Segolta" */
 function practiceName(key: string) {
+  const nk = key.match(/^beginner-nekudot:(\w+)$/);
+  if (nk) return `Nekudot practice: ${NEKUDA_GROUPS.find((g) => g.id === nk[1])?.title ?? nk[1]}`;
   const lt = key.match(/^beginner-letters:(\d+)$/);
   if (lt) return `Letter trainer (to ${LETTERS[Math.min(Number(lt[1]), LETTERS.length) - 1]?.name})`;
   const st = key.match(/^beginner-stage:(\w+)$/);
@@ -89,6 +92,10 @@ function StudentRow({
     .filter((r) => r.total_n >= 2 && r.right_n / r.total_n < 0.7)
     .map((r) => LETTERS.find((l) => l.id === r.key.slice("beginner-letter:".length)))
     .filter((l): l is (typeof LETTERS)[number] => Boolean(l));
+  const weakNekudot = rows
+    .filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-nekuda:") && r.total_n >= 3 && r.right_n / r.total_n < 0.7)
+    .map((r) => NEKUDOT.find((n) => n.id === r.key.slice("beginner-nekuda:".length))?.name)
+    .filter(Boolean);
   const toPractise = sayWords
     .filter((r) => r.right_n < r.total_n && r.right_n / r.total_n < 0.6)
     .sort((a, b) => b.total_n - b.right_n - (a.total_n - a.right_n))
@@ -160,6 +167,7 @@ function StudentRow({
       {open && (
         <tr>
           <td colSpan={10} className="bg-stone-50 px-3 py-3">
+            {weakNekudot.length > 0 && <p className="mb-2 text-sm text-rose-700">Nekudot to practise: {weakNekudot.join(", ")}</p>}
             {weakLetters.length > 0 && (
               <p className="mb-2 text-sm text-rose-700">
                 Letters to practise:{" "}

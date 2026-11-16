@@ -166,6 +166,13 @@ kept in case the owner goes back to Netlify.
   "Letters open" select in /teacher/); the alef-bet page locks the rest (LetterLock). Level 4+
   opens all letters. Scores: recordPractice beginner-letters:<n>, recordQuiz beginner-letter:<id>
   (teacher sees "Letters to practise").
+- Nekudot practice: /beginner/nekudot/practice/<a|e|i|o|u|hataf|all>/ (NekudaTrainer.tsx, groups in
+  src/data/nekuda-groups.ts), single sounds only (owner: not words): a letter with the nekuda (בָּ)
+  or letter + nekuda + a final letter (אָב), from open letters and nekudot learned so far; 5 per open
+  letter (130 max). Hear → tap the written form(s) (multi-select when they sound the same: בָּ/בַּ,
+  סָ/שָׂ); read → pick the sound of 3. Stop for now / Carry on. Linked from each nekuda page and the
+  nekudot page; locked to the group's beginner level. recordPractice beginner-nekudot:<group>,
+  recordQuiz beginner-nekuda:<id> (teacher sees "Nekudot to practise").
 - Practice words: /beginner/words/ (WordPractice.tsx), real Torah words with no sheva, from
   src/data/beginner-words.json (each word: syllables + the sounds it uses, "a","e","ae"…; built by
   scripts/beginner-words/build.py: no sheva/qamats qatan/furtive patah/mappiq/names of Hashem;

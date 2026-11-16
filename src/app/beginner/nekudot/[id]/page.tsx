@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LETTERS, NEKUDOT, SOFIT_WITH_NEKUDA, spell, withNekuda, nekudaLevel } from "@/data/beginner";
 import { BeginnerLock } from "@/components/beginner/Lock";
+import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 import { SpeedControl } from "@/components/audio/SpeedControl";
@@ -45,6 +46,21 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
             &ldquo;be&rdquo;, and <span lang="he" className="font-hebrew text-xl">אֲחֵי</span> says &ldquo;a-he&rdquo;.
           </p>
         )}
+      {(() => {
+        const g = NEKUDA_GROUPS.find((x) => x.id !== "all" && x.nekudot.includes(n.id));
+        return g ? (
+          <Link
+            href={`/beginner/nekudot/practice/${g.id}/`}
+            className="mb-4 flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-5 py-4 hover:bg-emerald-100"
+          >
+            <span>
+              <span className="block text-lg font-semibold text-stone-900">⭐ Practice {g.title}</span>
+              <span className="block text-sm text-stone-600">Hear a sound and find it, read it and pick the sound.</span>
+            </span>
+            <span className="font-semibold text-emerald-800">Start →</span>
+          </Link>
+        ) : null;
+      })()}
       <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl compact />
       </div>

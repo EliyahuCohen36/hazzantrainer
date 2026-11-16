@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NEKUDOT, LETTER_BY_ID, withNekuda, nekudaLevel } from "@/data/beginner";
 import { BeginnerLock, LockTile } from "@/components/beginner/Lock";
+import { NEKUDA_GROUPS, groupLevel } from "@/data/nekuda-groups";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 
@@ -58,6 +59,25 @@ export default function NekudotPage() {
         ))}
       </div>
       </BeginnerLock>
+
+      <section className="mt-10">
+        <h2 className="mb-2 text-xl font-semibold text-stone-900">⭐ Practice the nekudot</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {NEKUDA_GROUPS.map((g) => (
+            <LockTile key={g.id} need={g.id === "all" ? 11 : groupLevel(g)}>
+              <Link
+                href={`/beginner/nekudot/practice/${g.id}/`}
+                className="flex items-center justify-between rounded-2xl border-2 border-emerald-200 bg-emerald-50 px-4 py-3 hover:bg-emerald-100"
+              >
+                <span className="font-semibold text-stone-900">{g.title}</span>
+                <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                  {g.he}
+                </span>
+              </Link>
+            </LockTile>
+          ))}
+        </div>
+      </section>
 
       <div className="mt-10 flex justify-between">
         <Link href="/beginner/letters/" className="rounded-xl border border-stone-300 bg-white px-5 py-3 font-semibold text-stone-800 hover:bg-stone-50">

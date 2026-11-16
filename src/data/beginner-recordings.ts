@@ -204,7 +204,7 @@ const path = (name: string) => `/audio/beginner/${name}.mp3`;
 export const BEGINNER_RECORDING_PATHS = BEGINNER_RECORDED.map(path);
 
 /** Same sound, same recording (Syrian/Sephardic pronunciation). */
-const SAME_SOUND: Record<string, string> = {
+export const SAME_SOUND: Record<string, string> = {
   patah: "qamats",
   segol: "sere",
   "hireq-male": "hireq",
@@ -258,3 +258,6 @@ export function beginnerPlaylist(key: string): string[] {
   const alone = kind === "letter" && RECORDED.has(`${id}-alone`) ? [path(`${id}-alone`)] : [];
   return [first, ...alone];
 }
+
+/** The recorded sound a nekuda uses (Patah → Qamats's "a", Segol → Sere's "e", …). */
+export const soundOf = (nekudaId: string) => SAME_SOUND[nekudaId] ?? nekudaId;
