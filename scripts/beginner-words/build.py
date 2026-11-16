@@ -86,6 +86,8 @@ def analyze(word):
             syl.append(f"{lid}:{SOUND[v]}")
             used.add(v)
             i += 1
+        elif ch == "י" and syl and syl[-1].split(":")[-1] in ("sere", "hireq"):
+            pass  # silent yod after sere / segol (also at the end: אֲחֵי = "a-he")
         elif last:
             if ch in "אה":
                 if DAGESH in marks:
@@ -94,8 +96,6 @@ def analyze(word):
                 syl.append(lid)
         elif ch == "א":
             pass  # silent alef
-        elif ch == "י" and syl and syl[-1].split(":")[-1] in ("sere", "hireq"):
-            pass  # silent yod after sere / segol
         else:
             raise Skip
         i += 1

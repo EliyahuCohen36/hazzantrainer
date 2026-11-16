@@ -157,7 +157,7 @@ kept in case the owner goes back to Netlify.
 - Practice words: /beginner/words/ (WordPractice.tsx), real Torah words that use only
   the nekudot learned so far (no sheva), from src/data/beginner-words.json, built by
   scripts/beginner-words/build.py (filters: no sheva/qamats qatan/furtive patah/mappiq,
-  no names of Hashem; up to 120 most frequent words per level 5–10). A round is 10
+  no names of Hashem; a yod after sere/segol is silent, also at the end: אֲחֵי = a-he; up to 120 most frequent words per level 5–10). A round is 10
   words: 7 with the newest nekudot + 3 review. Two graded modes (owner chose both):
   "Listen and pick" (the word is sounded out syllable by syllable from his
   recordings, syllableRecordings(); child taps it among 3) — only words whose

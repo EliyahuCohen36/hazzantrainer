@@ -39,6 +39,12 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
         </span>
       </div>
       <BeginnerLock need={nekudaLevel(n.id)}>
+        {(n.id === "sere" || n.id === "segol") && (
+          <p className="mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-900">
+            <b>A Yod after a {n.name} is silent.</b> It makes no sound of its own: <span lang="he" className="font-hebrew text-xl">בֵּי</span> says
+            &ldquo;be&rdquo;, and <span lang="he" className="font-hebrew text-xl">אֲחֵי</span> says &ldquo;a-he&rdquo;.
+          </p>
+        )}
       <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl compact />
       </div>
