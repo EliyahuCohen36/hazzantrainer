@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PracticeWord } from "@/data/beginner-words";
 import { syllableRecordings } from "@/data/beginner-recordings";
 import { joinedWordUrl } from "@/lib/audio/join-syllables";
-import { applySpeed, getSpeed } from "@/lib/audio/speed";
+import { playUrls, unlockAudio } from "@/lib/audio/player";
 import { canRecord, candidates, matchesWord, recordWord } from "@/lib/audio/word-check";
 
 /**
@@ -42,22 +42,22 @@ export function distractors(word: PracticeWord, pool: PracticeWord[], needSound:
 
 /** Plays a word in the Hazzan's voice: its syllables joined into one smooth word. */
 export function useWordPlayer() {
-  const current = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState<string | null>(null);
-  useEffect(() => () => current.current?.pause(), []);
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
   const play = async (word: PracticeWord) => {
     const paths = syllableRecordings(word.s);
     if (!paths) return;
-    current.current?.pause();
+    unlockAudio(); // must happen during the tap (Safari)
+    stopRef.current();
     setPlaying(word.w);
     try {
-      const a = new Audio(await joinedWordUrl(paths));
-      current.current = a;
-      applySpeed(a, getSpeed());
-      a.onended = () => setPlaying(null);
-      await a.play();
-    } catch {
-      setPlaying(null);
+      const url = await joinedWordUrl(paths);
+      const p = playUrls([url]);
+      stopRef.current = p.stop;
+      await p.done;
+    } finally {
+      setPlaying((w) => (w === word.w ? null : w));
     }
   };
   return { play, playing };

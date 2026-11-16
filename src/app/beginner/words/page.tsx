@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { BeginnerLock } from "@/components/beginner/Lock";
@@ -20,6 +21,11 @@ export default function WordsPage() {
       <p className="mb-5 text-stone-600">
         Real words from the Torah, step by step: first words with only one sound, then the next sound, then words
         with both sounds together.
+      </p>
+      <p className="-mt-3 mb-5 text-sm">
+        <Link href="/beginner/check/" className="text-amber-800 underline">
+          Can&apos;t hear the Hazzan, or the trainer can&apos;t hear you? Check sound and microphone
+        </Link>
       </p>
       <BeginnerLock need={FIRST_WORD_LEVEL}>
         <WordPractice />

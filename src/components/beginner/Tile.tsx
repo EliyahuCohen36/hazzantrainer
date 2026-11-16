@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { beginnerPlaylist } from "@/data/beginner-recordings";
 import { recordingUrl } from "@/lib/recordings";
-import { applySpeed, getSpeed } from "@/lib/audio/speed";
+import { playUrls, unlockAudio } from "@/lib/audio/player";
 
 const COLORS: Record<string, string> = {
   amber: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-950",
@@ -39,33 +39,23 @@ export function Tile({
 }) {
   const list = rec && !still ? beginnerPlaylist(rec) : [];
   const src = list[0];
-  const audios = useRef<HTMLAudioElement[] | null>(null);
   const [playing, setPlaying] = useState(false);
+  const stopRef = useRef<() => void>(() => {});
 
   // Plays the recordings one after another (a plain letter: its name, then its sound).
   const play = async () => {
     if (!src) return;
-    if (!audios.current) {
-      const urls = await Promise.all(list.map((p) => recordingUrl(p)));
-      audios.current = urls.map((u) => new Audio(u));
-      audios.current.forEach((a, i) => {
-        a.onended = () => {
-          const next = audios.current?.[i + 1];
-          if (!next) return setPlaying(false);
-          setTimeout(() => {
-            applySpeed(next, getSpeed());
-            next.currentTime = 0;
-            void next.play().catch(() => setPlaying(false));
-          }, 350);
-        };
-      });
-    }
-    audios.current.forEach((a) => a.pause());
-    const first = audios.current[0];
-    applySpeed(first, getSpeed());
-    first.currentTime = 0;
+    unlockAudio(); // must happen during the tap (Safari)
+    stopRef.current();
     setPlaying(true);
-    void first.play().catch(() => setPlaying(false));
+    try {
+      const urls = await Promise.all(list.map((p) => recordingUrl(p)));
+      const p = playUrls(urls, 0.35);
+      stopRef.current = p.stop;
+      await p.done;
+    } finally {
+      setPlaying(false);
+    }
   };
 
   const Tag = still ? "div" : "button";

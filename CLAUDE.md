@@ -190,6 +190,10 @@ kept in case the owner goes back to Netlify.
   with the speed control.
 - Demo (/demo/): BeginnerDemo.tsx, 6 mixed questions on 8 "a" words (src/data/beginner-demo.json);
   only their letters' clips (all five vowels, for the say-it check) are public (public/audio/beginner/, in DEMO_FILES).
+- Tap-to-hear sounds (tiles, practice words) play through ONE shared player
+  (src/lib/audio/player.ts) unlocked during a tap: Safari on the Mac blocked players started
+  after an await. /beginner/check/ (SoundCheck.tsx): test sound + microphone, with
+  how-to-allow instructions; linked from the practice words page.
 - Local preview without Supabase settings opens every level (auth.tsx).
 
 ## Layout the owner asked for
