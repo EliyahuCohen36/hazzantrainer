@@ -169,8 +169,9 @@ kept in case the owner goes back to Netlify.
   syllables are all recorded) and "Read aloud" (a grown-up taps ✓/✗). Score saved with
   recordPractice key beginner-stage:<id>; teachers see it.
   Words are played as ONE smooth word (owner's request): src/lib/audio/join-syllables.ts
-  decodes the syllable clips, trims silence, cuts each syllable to a natural length
-  (middle 0.32 s, last 0.5 s, letter alone 0.2 s), cross-fades 60 ms, and plays the WAV
+  decodes the syllable clips, trims silence, keeps each syllable whole (only very long
+  ones trimmed: middle 0.65 s, last 0.8 s, alone 0.45 s; owner found 0.32 s far too fast),
+  cross-fades 30 ms, and plays the WAV
   with the speed control.
 - Local preview without Supabase settings opens every level (auth.tsx).
 

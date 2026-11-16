@@ -10,13 +10,12 @@ import { recordingUrl } from "@/lib/recordings";
  * recording (so the speed control still works, with the pitch kept).
  */
 
-const OVERLAP = 0.06; // seconds of cross-fade between syllables
-// He says each syllable slowly and clearly (about 0.5–0.8 s). In a word they are much
-// shorter, so each one is cut to a natural length (keeping its start: the letter and
-// the vowel), and the cut is hidden by the cross-fade into the next syllable.
-const MAX_MIDDLE = 0.32; // a syllable in the middle of a word
-const MAX_LAST = 0.5; // the last syllable (Hebrew words usually end on the stress)
-const MAX_ALONE = 0.2; // a letter with no nekuda (e.g. the ר at the end of דָּבָר)
+const OVERLAP = 0.03; // seconds of cross-fade between syllables
+// Each syllable is kept whole (the owner found shortened syllables too fast to
+// understand); only very long ones are trimmed a little.
+const MAX_MIDDLE = 0.65; // a syllable in the middle of a word
+const MAX_LAST = 0.8; // the last syllable
+const MAX_ALONE = 0.45; // a letter with no nekuda (e.g. the ר at the end of דָּבָר)
 const cache = new Map<string, Promise<string>>();
 let ctx: AudioContext | null = null;
 
