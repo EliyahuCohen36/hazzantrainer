@@ -38,7 +38,7 @@ const MAX_DIST = 2.45;
 const CLOSE_DIST = 2.25;
 
 export const canRecord = () =>
-  typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof window !== "undefined" && "AudioContext" in window;
+  typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof window !== "undefined" && ("AudioContext" in window || "webkitAudioContext" in window);
 
 // ── Recording ──
 

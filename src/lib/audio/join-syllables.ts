@@ -1,5 +1,7 @@
 "use client";
 
+import { decodeAudio } from "./decode";
+
 import { recordingUrl } from "@/lib/recordings";
 
 /**
@@ -27,7 +29,7 @@ export function audioContext() {
 async function decode(path: string): Promise<AudioBuffer> {
   const url = await recordingUrl(path);
   const data = await (await fetch(url)).arrayBuffer();
-  return await audioContext().decodeAudioData(data);
+  return await decodeAudio(audioContext(), data);
 }
 
 /** The voiced part of a clip: from where the sound starts to where it ends. */

@@ -2,6 +2,7 @@
 
 import { applySpeed, getSpeed } from "./speed";
 import { audioContext } from "./join-syllables";
+import { decodeAudio } from "./decode";
 
 /**
  * One shared audio player for tap-to-hear sounds.
@@ -91,7 +92,7 @@ async function engine(url: string): Promise<void> {
   try {
     const ctx = audioContext();
     if (ctx.state !== "running") await ctx.resume();
-    const buf = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
+    const buf = await decodeAudio(ctx, await (await fetch(url)).arrayBuffer());
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = getSpeed();

@@ -288,3 +288,7 @@ drop policy if exists "diag insert own" on public.diagnostics;
 create policy "diag insert own" on public.diagnostics for insert to authenticated with check (user_id = auth.uid());
 drop policy if exists "diag admin read" on public.diagnostics;
 create policy "diag admin read" on public.diagnostics for select to authenticated using (public.is_admin());
+drop policy if exists "diag update own" on public.diagnostics;
+create policy "diag update own" on public.diagnostics for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "diag select own" on public.diagnostics;
+create policy "diag select own" on public.diagnostics for select to authenticated using (user_id = auth.uid());

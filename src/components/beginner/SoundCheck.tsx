@@ -7,6 +7,7 @@ import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { playUrls, unlockAudio } from "@/lib/audio/player";
 import { audioContext } from "@/lib/audio/join-syllables";
 import { recordWord } from "@/lib/audio/word-check";
+import { decodeAudio } from "@/lib/audio/decode";
 
 type Step = { name: string; ok: boolean | null; detail: string };
 
@@ -32,9 +33,29 @@ export function SoundCheck() {
     setRunning(true);
     setSaved("");
     const out: Step[] = [];
+    // The report is saved after every step, so even if a step hangs the owner can see how far it got.
+    let rowId: number | null = null;
+    let saving = Promise.resolve();
+    const save = () => {
+      if (!supabaseConfigured) return;
+      saving = saving.then(async () => {
+        try {
+          const db = supabase();
+          const report = { steps: out, at: new Date().toISOString() };
+          if (rowId === null) {
+            const { data } = await db.from("diagnostics").insert({ report }).select("id").single();
+            rowId = (data as { id: number } | null)?.id ?? null;
+          } else await db.from("diagnostics").update({ report }).eq("id", rowId);
+          if (rowId !== null) setSaved("These results were sent to the Hazzan so he can fix any problem.");
+        } catch {
+          // not saved
+        }
+      });
+    };
     const add = (s: Step) => {
       out.push(s);
       setSteps([...out]);
+      save();
     };
     const demoClip = asset("/audio/beginner/alef-qamats.mp3");
 
@@ -57,8 +78,8 @@ export function SoundCheck() {
 
     // 2. Play a sound through the audio engine.
     try {
-      const data = await (await fetch(demoClip)).arrayBuffer();
-      const buf = await ctx.decodeAudioData(data);
+      const data = await withTimeout(fetch(demoClip).then((r) => r.arrayBuffer()), 8000, "Loading the sound");
+      const buf = await decodeAudio(ctx, data);
       const src = ctx.createBufferSource();
       src.buffer = buf;
       src.connect(ctx.destination);
@@ -111,18 +132,7 @@ export function SoundCheck() {
     }
 
     setRunning(false);
-    if (supabaseConfigured) {
-      try {
-        const db = supabase();
-        const { data } = await db.auth.getUser();
-        if (data.user) {
-          const { error } = await db.from("diagnostics").insert({ report: { steps: out, at: new Date().toISOString() } });
-          setSaved(error ? "" : "These results were sent to the Hazzan so he can fix any problem.");
-        }
-      } catch {
-        // not saved: fine
-      }
-    }
+    await saving;
   };
 
   return (

@@ -1,3 +1,4 @@
+import { decodeAudio } from "./decode";
 import { createPitchDetector } from "./pitch-detector";
 import type { MaybeNumber } from "./pitch-math";
 
@@ -170,10 +171,11 @@ export function normalizePeak(samples: Float32Array, target = 0.5): Float32Array
 
 /** Browser only: decode any audio file to mono 16 kHz samples. */
 export async function decodeToMono16k(data: ArrayBuffer): Promise<Float32Array> {
-  const decoder = new OfflineAudioContext(1, 1, 44100);
-  const decoded = await decoder.decodeAudioData(data.slice(0));
+  const Offline = window.OfflineAudioContext || (window as unknown as { webkitOfflineAudioContext: typeof OfflineAudioContext }).webkitOfflineAudioContext;
+  const decoder = new Offline(1, 1, 44100);
+  const decoded = await decodeAudio(decoder, data.slice(0));
   const length = Math.max(1, Math.ceil(decoded.duration * ANALYSIS_RATE));
-  const offline = new OfflineAudioContext(1, length, ANALYSIS_RATE);
+  const offline = new Offline(1, length, ANALYSIS_RATE);
   const src = offline.createBufferSource();
   src.buffer = decoded;
   src.connect(offline.destination);

@@ -71,7 +71,7 @@ export function usePitchRecorder() {
         });
         streamRef.current = stream;
 
-        const ctx = new AudioContext();
+        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
         await ctx.resume();
         ctxRef.current = ctx;
         const source = ctx.createMediaStreamSource(stream);
