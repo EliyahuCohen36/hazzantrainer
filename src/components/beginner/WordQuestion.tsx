@@ -119,7 +119,8 @@ function useSpeechCheck(word: PracticeWord, pool: PracticeWord[]) {
 }
 
 /**
- * One question. Calls onAnswer(right) when the child has answered and pressed Next.
+ * One question. Calls onAnswer(right, said) when the child has answered and pressed Next.
+ * After picking a word or a sound, the child also says the word (tracked as "said").
  * `pool` is where the wrong choices come from (words with the same sounds).
  */
 export function WordQuestion({
@@ -132,14 +133,14 @@ export function WordQuestion({
   word: PracticeWord;
   type: QuestionType;
   pool: PracticeWord[];
-  onAnswer: (right: boolean) => void;
+  /** right = the question was answered right; said = how saying the word went (if it was said). */
+  onAnswer: (right: boolean, said?: boolean) => void;
   /** Teachers and admins see what the microphone check measured. */
   showDebug?: boolean;
 }) {
   const { play, playing } = useWordPlayer();
   const [answer, setAnswer] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
-  const speech = useSpeechCheck(word, pool);
   const choices = useMemo(
     () => (type === "say" ? [] : shuffle([word, ...distractors(word, pool, type === "sound")])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,13 +161,12 @@ export function WordQuestion({
         <p className={`text-lg font-semibold ${right ? "text-emerald-700" : "text-rose-700"}`}>
           {right ? "Right! 🎉" : type === "sound" ? "Not quite. Listen to the green one: that's the word." : "Not quite. The green one is the word."}
         </p>
-        <button
-          type="button"
-          onClick={() => onAnswer(right)}
-          className="mt-3 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800"
-        >
-          Next →
-        </button>
+        <div className="mx-auto mt-4 max-w-md rounded-2xl border border-rose-100 bg-rose-50/50 p-3">
+          <p className="font-semibold text-stone-800">
+            Now you say it: <Word w={word.w} size="text-3xl" />
+          </p>
+          <SayIt word={word} pool={pool} onDone={(said) => onAnswer(right, said)} showDebug={showDebug} />
+        </div>
       </div>
     ) : null;
 
@@ -255,13 +255,39 @@ export function WordQuestion({
   }
 
   // say
-  const st = speech.state;
-  const finalWrong = st === "wrong" && speech.tries >= 2;
   return (
     <div>
       <div className="mt-8">
         <Word w={word.w} size="text-7xl sm:text-8xl" />
       </div>
+      <SayIt word={word} pool={pool} onDone={(said) => onAnswer(said, said)} showDebug={showDebug} />
+    </div>
+  );
+}
+
+/**
+ * The child says the word into the microphone; it's checked on the device.
+ * Calls onDone(true/false) when the child presses Next (false also for "skip").
+ */
+function SayIt({
+  word,
+  pool,
+  onDone,
+  showDebug,
+}: {
+  word: PracticeWord;
+  pool: PracticeWord[];
+  onDone: (said: boolean) => void;
+  showDebug: boolean;
+}) {
+  const { play } = useWordPlayer();
+  const speech = useSpeechCheck(word, pool);
+  const canHear = hasSound(word);
+  const done = onDone;
+  const st = speech.state;
+  const finalWrong = st === "wrong" && speech.tries >= 2;
+  return (
+    <div>
       {st === "manual" ? (
         <>
           <p className="mt-4 text-stone-600">Say the word out loud.</p>
@@ -273,14 +299,14 @@ export function WordQuestion({
           <div className="mt-6 flex justify-center gap-4">
             <button
               type="button"
-              onClick={() => onAnswer(false)}
+              onClick={() => done(false)}
               className="rounded-2xl border-2 border-rose-300 bg-rose-50 px-6 py-4 text-lg font-semibold text-rose-800 hover:bg-rose-100"
             >
               ✗ Not yet
             </button>
             <button
               type="button"
-              onClick={() => onAnswer(true)}
+              onClick={() => done(true)}
               className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-6 py-4 text-lg font-semibold text-emerald-800 hover:bg-emerald-100"
             >
               ✓ Said it right
@@ -312,7 +338,7 @@ export function WordQuestion({
           )}
           {st === "nothing" && speech.misses >= 2 && (
             <div>
-              <button type="button" onClick={() => onAnswer(false)} className="mt-3 text-sm text-stone-500 underline">
+              <button type="button" onClick={() => done(false)} className="mt-3 text-sm text-stone-500 underline">
                 Skip this word
               </button>
             </div>
@@ -348,7 +374,7 @@ export function WordQuestion({
             <div>
               <button
                 type="button"
-                onClick={() => onAnswer(st === "right")}
+                onClick={() => done(st === "right")}
                 className="mt-4 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800"
               >
                 Next →
@@ -362,13 +388,21 @@ export function WordQuestion({
   );
 }
 
-/** Question types for a mixed round: listen, sound, say in turn (only types the word's recordings allow). */
+/**
+ * Question types for a mixed round, in a random mix (no more than two of a kind in a
+ * row). Every kind ends with the child saying the word. Listen/sound only for words
+ * whose syllables are recorded.
+ */
 export function mixedTypes(words: PracticeWord[], pool: PracticeWord[]): QuestionType[] {
   const enoughSounds = pool.filter(hasSound).length >= 3;
-  const order: QuestionType[] = ["listen", "sound", "say"];
-  return words.map((w, i) => {
-    const t = order[i % 3];
-    if (t !== "say" && (!hasSound(w) || !enoughSounds)) return "say";
-    return t;
+  const kinds: QuestionType[] = ["listen", "sound", "say"];
+  const out: QuestionType[] = [];
+  words.forEach((w) => {
+    let t: QuestionType;
+    do t = kinds[Math.floor(Math.random() * 3)];
+    while (out.length >= 2 && out[out.length - 1] === t && out[out.length - 2] === t);
+    if (t !== "say" && (!hasSound(w) || !enoughSounds)) t = "say";
+    out.push(t);
   });
+  return out;
 }

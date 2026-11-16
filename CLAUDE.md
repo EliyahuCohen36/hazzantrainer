@@ -175,7 +175,13 @@ kept in case the owner goes back to Netlify.
   so it's not used. Simulated child voice: 90% right accepted, 7% wrong vowel accepted.
   Two tries; "didn't hear you" doesn't count; owner wants no grown-up grading, so ✓/✗ only
   where there's no microphone. The Claude app's built-in browser blocks the mic: test on a phone). Modes: Mixed practice (all three in turn; default, owner's
-  request), Listen and pick, Read aloud. Listen/sound need the word's syllables recorded. Score saved with
+  request; kinds in a random mix, no more than two of a kind in a row), Listen and pick,
+  Read aloud. After every listen/sound answer the child also SAYS the word ("Now you say it",
+  SayIt in WordQuestion.tsx). Every spoken word is tracked (owner's request) with recordQuiz:
+  beginner-say:<stage> (right/total per step) and beginner-word:<word>; the teacher page shows
+  "Said aloud" % and "Words to practise". Up to 250 words per sound mix (u-only has just 34 in
+  the Torah); a step's 50 questions never repeat a word unless the step has fewer than 50.
+  Listen/sound need the word's syllables recorded. Score saved with
   recordPractice key beginner-stage:<id>; teachers see it.
   Words are played as ONE smooth word (owner's request): src/lib/audio/join-syllables.ts
   decodes the syllable clips, trims silence, keeps each syllable whole (only very long

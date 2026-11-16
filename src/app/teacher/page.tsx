@@ -70,7 +70,16 @@ function StudentRow({
 }) {
   const [open, setOpen] = useState(false);
   const practice = rows.filter((r) => r.kind === "practice");
-  const quiz = rows.filter((r) => r.kind === "quiz");
+  const quiz = rows.filter((r) => r.kind === "quiz" && !r.key.startsWith("beginner-"));
+  // Beginner Keriah: words said aloud (checked by the microphone), per step and per word.
+  const saySteps = rows.filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-say:"));
+  const sayWords = rows.filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-word:"));
+  const saidRight = saySteps.reduce((a, r) => a + r.right_n, 0);
+  const saidTotal = saySteps.reduce((a, r) => a + r.total_n, 0);
+  const toPractise = sayWords
+    .filter((r) => r.right_n < r.total_n && r.right_n / r.total_n < 0.6)
+    .sort((a, b) => b.total_n - b.right_n - (a.total_n - a.right_n))
+    .slice(0, 20);
   const twoStars = practice.filter((r) => stars(r.best) >= 2).length;
   const right = quiz.reduce((a, r) => a + r.right_n, 0);
   const total = quiz.reduce((a, r) => a + r.total_n, 0);
@@ -116,12 +125,36 @@ function StudentRow({
         <td className="py-2 pe-3 tabular-nums">{practice.length}</td>
         <td className="py-2 pe-3 tabular-nums">{twoStars}</td>
         <td className="py-2 pe-3 tabular-nums">{total ? `${Math.round((100 * right) / total)}% (${total})` : "—"}</td>
+        <td className="py-2 pe-3 tabular-nums">{saidTotal ? `${Math.round((100 * saidRight) / saidTotal)}% (${saidTotal})` : "—"}</td>
         <td className="py-2 pe-3 text-xs text-rose-700">{weak.join(", ")}</td>
         <td className="py-2 text-xs text-stone-500">{last ? new Date(last).toLocaleDateString() : "never"}</td>
       </tr>
       {open && (
         <tr>
-          <td colSpan={8} className="bg-stone-50 px-3 py-3">
+          <td colSpan={9} className="bg-stone-50 px-3 py-3">
+            {saidTotal > 0 && (
+              <div className="mb-3 text-sm">
+                <p className="font-semibold text-stone-800">Words said aloud (Beginner Keriah)</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {saySteps.map((r) => (
+                    <span key={r.key} className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-xs">
+                      {WORD_STAGES.find((x) => x.id === r.key.split(":")[1])?.title ?? r.key}:{" "}
+                      <b>
+                        {r.right_n}/{r.total_n}
+                      </b>
+                    </span>
+                  ))}
+                </div>
+                {toPractise.length > 0 && (
+                  <p className="mt-2 text-xs text-rose-700">
+                    Words to practise:{" "}
+                    <span dir="rtl" lang="he" className="font-hebrew text-base">
+                      {toPractise.map((r) => r.key.slice("beginner-word:".length)).join(" · ")}
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
             {practice.length === 0 ? (
               <p className="text-sm text-stone-500">No practice yet.</p>
             ) : (
@@ -313,6 +346,7 @@ export default function TeacherPage() {
                         <th className="pb-1 pe-3 font-medium">Practised</th>
                         <th className="pb-1 pe-3 font-medium">2+ stars</th>
                         <th className="pb-1 pe-3 font-medium">Quiz right</th>
+                        <th className="pb-1 pe-3 font-medium" title="Beginner Keriah words the child said into the microphone">Said aloud</th>
                         <th className="pb-1 pe-3 font-medium">Needs work</th>
                         <th className="pb-1 font-medium">Last active</th>
                       </tr>

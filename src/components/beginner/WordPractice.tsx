@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
+import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, sayKey, sayWordKey, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
 import { WordQuestion, QUESTION_LABEL, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
-import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
+import { loadProgress, recordPractice, recordQuiz, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { releaseMic } from "@/lib/audio/word-check";
 
@@ -28,7 +28,7 @@ interface Run {
   i: number;
   right: number;
 }
-const runKey = (user: string, stage: string) => `kriah-word-run:${user}:${stage}`;
+const runKey = (user: string, stage: string) => `kriah-word-run-v2:${user}:${stage}`;
 function loadRun(user: string, stage: string): Run | null {
   try {
     const r = localStorage.getItem(runKey(user, stage));
@@ -103,8 +103,13 @@ export function WordPractice() {
   const word = run && stage ? byWord.get(run.q[run.i]) : undefined;
   const qType: QuestionType = run?.t?.[run.i] ?? (run?.mode === "read" ? "say" : "listen");
 
-  const next = (ok: boolean) => {
+  const next = (ok: boolean, said?: boolean) => {
     if (!run || !stage) return;
+    // Track every word the child said: per step (for the teacher's table) and per word (words to practise).
+    if (said !== undefined && word) {
+      recordQuiz(sayKey(stage.id), said);
+      recordQuiz(sayWordKey(word.w), said);
+    }
     const r = { ...run, i: run.i + 1, right: run.right + (ok ? 1 : 0) };
     if (r.i >= r.q.length) {
       const score = Math.round((100 * r.right) / r.q.length);

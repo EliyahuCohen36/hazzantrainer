@@ -145,7 +145,7 @@ for w, n in count.most_common():
     groups = "".join(g for g in ORDER if any(GROUP[u] == g for u in used))
     hataf = any(u.startswith("hataf") for u in used)
     key = groups + ("h" if hataf else "")
-    if len(buckets[key]) < 80:
+    if len(buckets[key]) < 250:
         buckets[key].append({"w": w, "s": syl, "g": groups, **({"h": 1} if hataf else {})})
 
 words = [x for k in sorted(buckets) for x in buckets[k]]
