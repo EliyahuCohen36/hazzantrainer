@@ -14,7 +14,8 @@ import { shuffle } from "./WordQuestion";
 /**
  * The letter trainer, for the letters the teacher has opened so far:
  *  - sound → letter: hear a letter's sound, tap the letter(s) that make it. When two
- *    letters make the same sound (Samekh and Sin, Tet and Tav, Vet and Vav), tap both.
+ *    letters make the same sound (Samekh and Sin, Vet and Vav), tap both. Tet (ط) and
+ *    Tav (ت) are different sounds (owner).
  *  - letter → sound: see a letter, tap the sound (of three) it makes.
  *  - name → letter: hear a letter's name, tap the letter (Alef and He have no sound
  *    alone, so they're asked by name).
@@ -61,7 +62,8 @@ function optionsFor(kind: Kind, letter: Letter, open: Letter[]): Letter[] {
  * A round: every letter known comes up PER_LETTER times, asked in different ways
  * (twice "which letter makes this sound", twice "which sound does it make", once by
  * name; Alef and He only by name), all mixed: never the same letter twice in a row,
- * never the same kind of question three times in a row.
+ * never the same kind of question three times in a row, and within any 10 questions
+ * the same letter is never asked the same way twice.
  */
 function makeRound(open: Letter[]): Question[] {
   const withSound = open.filter(hasAlone);
@@ -84,9 +86,16 @@ function makeRound(open: Letter[]): Question[] {
   while (pool.length) {
     const prev = out[out.length - 1];
     const prev2 = out[out.length - 2];
-    const ok = (it: (typeof items)[number]) =>
+    const recent = out.slice(-10);
+    const spread = Math.min(4, Math.max(1, open.length - 1)); // same letter not again within this many questions
+    const strict = (it: (typeof items)[number]) =>
+      !out.slice(-spread).some((q) => q.letter.id === it.letter.id) &&
+      !recent.some((q) => q.letter.id === it.letter.id && q.kind === it.kind) &&
+      !(prev && prev2 && prev.kind === it.kind && prev2.kind === it.kind);
+    const loose = (it: (typeof items)[number]) =>
       (!prev || it.letter.id !== prev.letter.id) && !(prev && prev2 && prev.kind === it.kind && prev2.kind === it.kind);
-    const idx = Math.max(0, pool.findIndex(ok));
+    let idx = pool.findIndex(strict);
+    if (idx < 0) idx = Math.max(0, pool.findIndex(loose));
     const it = pool[idx];
     pool = [...pool.slice(0, idx), ...pool.slice(idx + 1)];
     out.push({ kind: it.kind, letter: it.letter, options: optionsFor(it.kind, it.letter, open) });

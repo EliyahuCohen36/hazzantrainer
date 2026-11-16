@@ -159,8 +159,8 @@ kept in case the owner goes back to Netlify.
   To check a cut, vowel formants tell a/e/i/o/u apart (F1 high = a, F2 high = i, F1 low + F2 low = u).
 - Letter trainer: /beginner/letters/practice/ (LetterTrainer.tsx), 5 questions per open letter
   (130 for the whole alef-bet; owner's request), mixed so no letter twice in a row and no kind
-  three times in a row; a round in progress is saved in the browser (Stop for now / Carry on): hear a letter's sound → tap the letter(s) (multi-select when letters share a
-  sound, by sym: Samekh/Sin, Tet/Tav, Vet/Vav), see a letter → pick its sound of 3, hear a
+  three times in a row, and no letter asked the same way twice within 10 questions; a round in progress is saved in the browser (Stop for now / Carry on): hear a letter's sound → tap the letter(s) (multi-select when letters share a
+  sound, by sym: Samekh/Sin, Vet/Vav; Tet ط and Tav ت are DIFFERENT sounds, owner), see a letter → pick its sound of 3, hear a
   name → tap the letter (Alef/He only by name). Teachers open letters ONE AT A TIME from Alef
   (classes.letters_open / class_members.letters_open, my_letters_open() in supabase/letters.sql;
   "Letters open" select in /teacher/); the alef-bet page locks the rest (LetterLock). Level 4+

@@ -36,7 +36,7 @@ export const LETTERS: Letter[] = [
   { id: "vav", char: "ו", name: "Vav", he: "וָו", sound: "v", sym: "v" },
   { id: "zayin", char: "ז", name: "Zayin", he: "זַיִן", sound: "z", sym: "z" },
   { id: "het", char: "ח", name: "Het", he: "חֵית", sound: "ḥ (deep h)", sym: "ḥ" },
-  { id: "tet", char: "ט", name: "Tet", he: "טֵית", sound: "t", sym: "t" },
+  { id: "tet", char: "ט", name: "Tet", he: "טֵית", sound: "ṭ (deep t, like Arabic ط)", sym: "ṭ" },
   { id: "yod", char: "י", name: "Yod", he: "יוֹד", sound: "y", sym: "y" },
   { id: "kaf", char: "כּ", name: "Kaf", he: "כַּף", sound: "k", sym: "k" },
   { id: "khaf", char: "כ", name: "Khaf", he: "כַף", sound: "kh", sym: "kh", sofit: "ך" },
@@ -52,7 +52,7 @@ export const LETTERS: Letter[] = [
   { id: "resh", char: "ר", name: "Resh", he: "רֵישׁ", sound: "r", sym: "r" },
   { id: "shin", char: "שׁ", name: "Shin", he: "שִׁין", sound: "sh", sym: "sh" },
   { id: "sin", char: "שׂ", name: "Sin", he: "שִׂין", sound: "s", sym: "s" },
-  { id: "tav", char: "ת", name: "Tav", he: "תָּו", sound: "t", sym: "t" },
+  { id: "tav", char: "ת", name: "Tav", he: "תָּו", sound: "t (like Arabic ت)", sym: "t" },
 ];
 
 /** The five final letters (they only come at the end of a word). */
@@ -215,7 +215,7 @@ export function openLetters(lettersOpen: number, beginnerLevel: number): Letter[
   return beginnerLevel >= 4 ? LETTERS : LETTERS.slice(0, Math.max(1, lettersOpen));
 }
 
-/** Letters that make the same sound (e.g. Samekh and Sin, Tet and Tav, Vet and Vav). */
+/** Letters that make the same sound (Samekh and Sin, Vet and Vav). Tet (ط) and Tav (ت) are different sounds. */
 export function sameSound(letter: Letter, among: Letter[]): Letter[] {
   return letter.sym ? among.filter((l) => l.sym === letter.sym && l.id !== "alef" && l.id !== "he") : [letter];
 }
