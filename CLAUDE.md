@@ -157,8 +157,9 @@ kept in case the owner goes back to Netlify.
   vet-alone.mp3 is stretched to ~1.9 s (owner wanted a longer "v"): rubberband tempo=0.6.
   Final letters use their regular letter's recordings (fileFor strips -sofit; owner's choice).
   To check a cut, vowel formants tell a/e/i/o/u apart (F1 high = a, F2 high = i, F1 low + F2 low = u).
-- Letter trainer: /beginner/letters/practice/ (LetterTrainer.tsx), 10 questions on the letters
-  open so far: hear a letter's sound → tap the letter(s) (multi-select when letters share a
+- Letter trainer: /beginner/letters/practice/ (LetterTrainer.tsx), 5 questions per open letter
+  (130 for the whole alef-bet; owner's request), mixed so no letter twice in a row and no kind
+  three times in a row; a round in progress is saved in the browser (Stop for now / Carry on): hear a letter's sound → tap the letter(s) (multi-select when letters share a
   sound, by sym: Samekh/Sin, Tet/Tav, Vet/Vav), see a letter → pick its sound of 3, hear a
   name → tap the letter (Alef/He only by name). Teachers open letters ONE AT A TIME from Alef
   (classes.letters_open / class_members.letters_open, my_letters_open() in supabase/letters.sql;

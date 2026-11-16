@@ -20,7 +20,9 @@ import { shuffle } from "./WordQuestion";
  *    alone, so they're asked by name).
  */
 type Kind = "sound" | "letter" | "name";
-const ROUND = 10;
+/** Questions per letter known: the whole alef-bet (26 letters) makes a round of 130. */
+const PER_LETTER = 5;
+const MIN_ROUND = 10;
 const LABEL: Record<Kind, string> = {
   sound: "Which letter makes this sound?",
   letter: "Which sound does this letter make?",
@@ -39,33 +41,87 @@ interface Question {
   options: Letter[];
 }
 
+function optionsFor(kind: Kind, letter: Letter, open: Letter[]): Letter[] {
+  const withSound = open.filter(hasAlone);
+  if (kind === "letter") {
+    // Three letters with different sounds, one of them this letter.
+    const picked: Letter[] = [];
+    for (const o of shuffle(withSound.filter((l) => l.sym !== letter.sym)))
+      if (!picked.some((p) => p.sym === o.sym) && picked.length < 2) picked.push(o);
+    return shuffle([letter, ...picked]);
+  }
+  // Up to 6 letters to tap, always including every letter with the same sound.
+  const right = kind === "sound" ? sameSound(letter, open) : [letter];
+  const pool = kind === "sound" ? withSound : open;
+  const rest = shuffle(pool.filter((l) => !right.includes(l))).slice(0, Math.max(0, 6 - right.length));
+  return shuffle([...right, ...rest]);
+}
+
+/**
+ * A round: every letter known comes up PER_LETTER times, asked in different ways
+ * (twice "which letter makes this sound", twice "which sound does it make", once by
+ * name; Alef and He only by name), all mixed: never the same letter twice in a row,
+ * never the same kind of question three times in a row.
+ */
 function makeRound(open: Letter[]): Question[] {
   const withSound = open.filter(hasAlone);
-  const distinctSounds = new Set(withSound.map((l) => l.sym)).size;
-  const qs: Question[] = [];
-  const order = shuffle(Array.from({ length: ROUND }, (_, i) => open[i % open.length]));
-  for (const letter of order) {
-    const kinds: Kind[] = ["name"];
-    if (hasAlone(letter) && withSound.length >= 2) kinds.push("sound", "sound");
-    if (hasAlone(letter) && distinctSounds >= 2) kinds.push("letter", "letter");
-    const kind = kinds[Math.floor(Math.random() * kinds.length)];
-    let options: Letter[];
-    if (kind === "letter") {
-      // Three letters with different sounds, one of them this letter.
-      const others = shuffle(withSound.filter((l) => l.sym !== letter.sym));
-      const picked: Letter[] = [];
-      for (const o of others) if (!picked.some((p) => p.sym === o.sym) && picked.length < 2) picked.push(o);
-      options = shuffle([letter, ...picked]);
-    } else {
-      // Up to 6 letters to tap, always including every letter with the same sound.
-      const right = kind === "sound" ? sameSound(letter, open) : [letter];
-      const pool = kind === "sound" ? withSound : open;
-      const rest = shuffle(pool.filter((l) => !right.includes(l))).slice(0, Math.max(0, 6 - right.length));
-      options = shuffle([...right, ...rest]);
+  const canSound = withSound.length >= 2;
+  const canLetter = new Set(withSound.map((l) => l.sym)).size >= 2;
+  const items: { letter: Letter; kind: Kind }[] = [];
+  const perLetter = Math.max(PER_LETTER, Math.ceil(MIN_ROUND / open.length));
+  for (const letter of open) {
+    const kinds: Kind[] = hasAlone(letter) ? ["sound", "letter", "sound", "letter", "name"] : ["name"];
+    for (let k = 0; k < perLetter; k++) {
+      let kind = kinds[k % kinds.length];
+      if (kind === "sound" && !canSound) kind = canLetter ? "letter" : "name";
+      if (kind === "letter" && !canLetter) kind = canSound ? "sound" : "name";
+      items.push({ letter, kind });
     }
-    qs.push({ kind, letter, options });
   }
-  return qs;
+  // Mix: pick at random among the items that don't repeat the last letter or a kind 3 times.
+  let pool = shuffle(items);
+  const out: Question[] = [];
+  while (pool.length) {
+    const prev = out[out.length - 1];
+    const prev2 = out[out.length - 2];
+    const ok = (it: (typeof items)[number]) =>
+      (!prev || it.letter.id !== prev.letter.id) && !(prev && prev2 && prev.kind === it.kind && prev2.kind === it.kind);
+    const idx = Math.max(0, pool.findIndex(ok));
+    const it = pool[idx];
+    pool = [...pool.slice(0, idx), ...pool.slice(idx + 1)];
+    out.push({ kind: it.kind, letter: it.letter, options: optionsFor(it.kind, it.letter, open) });
+  }
+  return out;
+}
+
+/** A round in progress, kept in the browser so a child can stop and carry on later. */
+interface SavedRound {
+  i: number;
+  score: number;
+  qs: { kind: Kind; letter: string; options: string[] }[];
+}
+const roundKey = (user: string, n: number) => `kriah-letter-run:${user}:${n}`;
+function saveRound(user: string, n: number, qs: Question[] | null, i = 0, score = 0) {
+  try {
+    if (!qs) return localStorage.removeItem(roundKey(user, n));
+    const data: SavedRound = { i, score, qs: qs.map((q) => ({ kind: q.kind, letter: q.letter.id, options: q.options.map((o) => o.id) })) };
+    localStorage.setItem(roundKey(user, n), JSON.stringify(data));
+  } catch {
+    // storage unavailable
+  }
+}
+function loadRound(user: string, n: number, open: Letter[]): { qs: Question[]; i: number; score: number } | null {
+  try {
+    const raw = localStorage.getItem(roundKey(user, n));
+    if (!raw) return null;
+    const d = JSON.parse(raw) as SavedRound;
+    const by = new Map(open.map((l) => [l.id, l]));
+    const qs = d.qs.map((q) => ({ kind: q.kind, letter: by.get(q.letter)!, options: q.options.map((o) => by.get(o)!) }));
+    if (qs.some((q) => !q.letter || q.options.some((o) => !o))) return null;
+    return { qs, i: d.i, score: d.score };
+  } catch {
+    return null;
+  }
 }
 
 function useBest() {
@@ -211,7 +267,8 @@ function QuestionCard({ q, onDone }: { q: Question; onDone: (right: boolean) => 
 }
 
 export function LetterTrainer() {
-  const { beginnerLevel, lettersOpen } = useAuth();
+  const { beginnerLevel, lettersOpen, profile } = useAuth();
+  const user = profile?.id ?? "guest";
   const open = useMemo(() => openLetters(lettersOpen, beginnerLevel), [lettersOpen, beginnerLevel]);
   const best = useBest();
   const [round, setRound] = useState<Question[] | null>(null);
@@ -220,13 +277,22 @@ export function LetterTrainer() {
   const [done, setDone] = useState(false);
   const key = lettersKey(open.length);
   const newest = open[open.length - 1];
+  const total = Math.max(MIN_ROUND, open.length * PER_LETTER);
+  const [saved, setSaved] = useState<{ i: number } | null>(null);
+  useEffect(() => {
+    const r = loadRound(user, open.length, open);
+    setSaved(r ? { i: r.i } : null);
+  }, [user, open]);
 
-  const start = () => {
+  const start = (resume = false) => {
     unlockAudio();
-    setRound(makeRound(open));
-    setI(0);
-    setScore(0);
+    const r = resume ? loadRound(user, open.length, open) : null;
+    const qs = r?.qs ?? makeRound(open);
+    setRound(qs);
+    setI(r?.i ?? 0);
+    setScore(r?.score ?? 0);
     setDone(false);
+    if (!r) saveRound(user, open.length, qs);
   };
 
   return (
@@ -257,23 +323,38 @@ export function LetterTrainer() {
       ) : !round ? (
         <div className="mt-5 rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm">
           <p className="text-stone-700">
-            {ROUND} questions on the letters you know. Newest letter: <b>{newest.name}</b>{" "}
+            {total} questions on the letters you know, all mixed up. Newest letter: <b>{newest.name}</b>{" "}
             <span dir="rtl" lang="he" className="font-hebrew text-2xl">
               {newest.char}
             </span>
           </p>
           {best[key] !== undefined && <p className="mt-1 text-sm text-amber-700">Best: {best[key]}%</p>}
-          <button type="button" onClick={start} className="mt-4 rounded-xl bg-amber-700 px-6 py-3 text-lg font-semibold text-white hover:bg-amber-800">
-            Start ▶
-          </button>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            {saved && (
+              <button
+                type="button"
+                onClick={() => start(true)}
+                className="rounded-xl bg-emerald-600 px-6 py-3 text-lg font-semibold text-white hover:bg-emerald-700"
+              >
+                Carry on (question {saved.i + 1} of {total}) ▶
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => start(false)}
+              className={`rounded-xl px-6 py-3 text-lg font-semibold ${saved ? "border border-stone-300 bg-white text-stone-800 hover:bg-stone-50" : "bg-amber-700 text-white hover:bg-amber-800"}`}
+            >
+              {saved ? "Start again" : "Start ▶"}
+            </button>
+          </div>
         </div>
       ) : done ? (
         <div className="mt-5 rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center">
-          <p className="text-5xl">{score >= 9 ? "🌟" : score >= 7 ? "⭐" : "👍"}</p>
+          <p className="text-5xl">{score >= round.length * 0.9 ? "🌟" : score >= round.length * 0.7 ? "⭐" : "👍"}</p>
           <p className="mt-2 text-2xl font-semibold text-stone-900">
             {score} of {round.length} right
           </p>
-          <button type="button" onClick={start} className="mt-4 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800">
+          <button type="button" onClick={() => start(false)} className="mt-4 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800">
             Again
           </button>
         </div>
@@ -284,6 +365,17 @@ export function LetterTrainer() {
               Question {i + 1} of {round.length}
             </span>
             <span>{score} right</span>
+            <button
+              type="button"
+              onClick={() => {
+                setRound(null);
+                setSaved({ i });
+              }}
+              className="underline"
+              title="Your place is saved"
+            >
+              Stop for now
+            </button>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-stone-100">
             <div className="h-full bg-amber-500 transition-all" style={{ width: `${(100 * i) / round.length}%` }} />
@@ -297,8 +389,13 @@ export function LetterTrainer() {
               setScore(s);
               if (i + 1 >= round.length) {
                 recordPractice(key, Math.round((100 * s) / round.length));
+                saveRound(user, open.length, null);
+                setSaved(null);
                 setDone(true);
-              } else setI(i + 1);
+              } else {
+                setI(i + 1);
+                saveRound(user, open.length, round, i + 1, s);
+              }
             }}
           />
         </div>
