@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import {
-  INDIVIDUAL_FEATURES,
+  BEGINNER_FEATURES,
+  TORAH_FEATURES,
   INDIVIDUAL_PERIOD,
   INDIVIDUAL_PRICE,
   STRIPE_PAYMENT_LINK,
@@ -133,14 +134,22 @@ export default function SubscribePage() {
           <span className="text-4xl font-semibold text-stone-900">{INDIVIDUAL_PRICE}</span>
           <span className="text-stone-500"> / {INDIVIDUAL_PERIOD}</span>
         </p>
-        <ul className="mt-5 space-y-2 text-stone-700">
-          {INDIVIDUAL_FEATURES.map((f) => (
-            <li key={f} className="flex gap-2">
-              <span className="text-amber-700">✓</span>
-              {f}
-            </li>
-          ))}
-        </ul>
+        {[
+          ["Beginner Keriah: learn to read Hebrew", BEGINNER_FEATURES],
+          ["Torah reading with the te'amim", TORAH_FEATURES],
+        ].map(([title, items]) => (
+          <div key={title as string}>
+            <p className="mt-5 font-semibold text-stone-900">{title as string}</p>
+            <ul className="mt-2 space-y-2 text-stone-700">
+              {(items as string[]).map((f) => (
+                <li key={f} className="flex gap-2">
+                  <span className="text-amber-700">✓</span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
         <p className="mt-5 text-sm text-stone-500">
           Learning through your school? You don&apos;t need to pay: create your account with the code from your teacher on
           the{" "}

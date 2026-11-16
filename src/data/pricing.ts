@@ -13,7 +13,15 @@ export const INDIVIDUAL_PERIOD = "month";
 export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cIfZh1CL6J0d8KczT0VO00";
 export const STRIPE_PORTAL_LINK = "https://billing.stripe.com/p/login/3cIfZh1CL6J0d8KczT0VO00";
 
-export const INDIVIDUAL_FEATURES = [
+/** Everything in the monthly subscription, in two groups (shown on the welcome, sign-in and subscribe pages). */
+export const BEGINNER_FEATURES = [
+  "Every letter of the alef-bet, with the Hazzan saying its name and sound",
+  "Every letter with every nekuda, read in the Syrian way",
+  "Practice words from the Torah, one sound at a time, with stars",
+  "The Sheva Na and Sheva Nach, once the nekudot are learned",
+];
+
+export const TORAH_FEATURES = [
   "All the te'amim, in 8 levels, with the Hazzan's recordings",
   "Practice: sing into the microphone and get stars",
   "Listening quiz",
@@ -21,6 +29,8 @@ export const INDIVIDUAL_FEATURES = [
   "Torah Scroll Mode, line for line like a tikkun",
   "Slow down any recording without changing the tune",
 ];
+
+export const INDIVIDUAL_FEATURES = [...BEGINNER_FEATURES, ...TORAH_FEATURES];
 
 export const SCHOOL_FEATURES = [
   "Accounts for every student, no email needed",

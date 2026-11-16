@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { asset } from "@/lib/base-path";
 import { CONTACT_EMAIL } from "@/data/demo";
-import { INDIVIDUAL_FEATURES, INDIVIDUAL_PERIOD, INDIVIDUAL_PRICE, SCHOOL_FEATURES } from "@/data/pricing";
+import { BEGINNER_FEATURES, INDIVIDUAL_PERIOD, INDIVIDUAL_PRICE, SCHOOL_FEATURES, TORAH_FEATURES } from "@/data/pricing";
 
 function Shot({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
@@ -19,6 +19,27 @@ function Check() {
     </svg>
   );
 }
+
+const BEGINNER_STEPS = [
+  {
+    title: "Start with the alef-bet",
+    text: "Every letter with its name and its sound, in the Hazzan's voice. Tap a letter to hear it. The final letters sit beside their regular letters.",
+    img: "/images/beginner-letters.webp",
+    alt: "The alef-bet: big letter tiles with each letter's name and sound",
+  },
+  {
+    title: "Then every letter with every nekuda",
+    text: "Qamats, Sere, Hireq, Holem, Shuruq and the rest, each on every letter, read the Syrian way. Teachers open one nekuda at a time.",
+    img: "/images/beginner-nekuda.webp",
+    alt: "Every letter with a Qamats: ba, ga, da and so on",
+  },
+  {
+    title: "Read real words, one sound at a time",
+    text: "Words from the Torah with only the nekudot learned so far: first one sound, then the next, then both together. Listen and pick the word, or read aloud, and earn stars.",
+    img: "/images/beginner-words.webp",
+    alt: "Practice words: listen to the Hazzan and pick the word you heard",
+  },
+];
 
 const STEPS = [
   {
@@ -41,6 +62,37 @@ const STEPS = [
   },
 ];
 
+/** The two halves of the subscription, side by side (also on the sign-in page). */
+export function FeatureColumns({ compact = false }: { compact?: boolean }) {
+  const cols = [
+    { title: "Beginner Keriah", he: "קְרִיאָה לְמַתְחִילִים", text: "Learn to read Hebrew in the Syrian tradition", items: BEGINNER_FEATURES },
+    { title: "Torah reading", he: "טַעֲמֵי הַמִּקְרָא", text: "Read the Torah with the te'amim", items: TORAH_FEATURES },
+  ];
+  return (
+    <div className={`grid gap-5 ${compact ? "mt-4" : "mt-10 md:grid-cols-2"}`}>
+      {cols.map((c) => (
+        <div key={c.title} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-lg font-semibold text-stone-900">{c.title}</h3>
+            <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+              {c.he}
+            </span>
+          </div>
+          <p className="text-sm text-stone-500">{c.text}</p>
+          <ul className="mt-4 space-y-2 text-sm text-stone-700">
+            {c.items.map((f) => (
+              <li key={f} className="flex gap-2">
+                <Check />
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** What visitors who aren't signed in see on the home page. */
 export function Landing() {
   return (
@@ -50,14 +102,14 @@ export function Landing() {
         <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 pt-12 pb-16 md:grid-cols-[1.05fr_1fr] md:pt-20">
           <div>
             <p dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
-              טעמי המקרא · מנהג ארם צובא
+              קְרִיאָה וְטַעֲמֵי הַמִּקְרָא · מִנְהַג אֲרַם צוֹבָא
             </p>
             <h1 className="mt-2 text-4xl font-semibold leading-tight tracking-tight text-stone-900 sm:text-5xl">
-              Learn to read the Torah in the Syrian tradition
+              Learn to read Hebrew and the Torah in the Syrian tradition
             </h1>
             <p className="mt-4 text-lg text-stone-700">
-              Kriah Trainer teaches children the te&apos;amim with the Hazzan&apos;s own voice. They listen, sing it back, and
-              get stars every time they practise, one level at a time.
+              From a child&apos;s very first letter to reading the parasha with te&apos;amim, all in the Hazzan&apos;s own voice.
+              Children listen, read and sing it back, and get stars every time they practise, one level at a time.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
@@ -87,13 +139,46 @@ export function Landing() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* Beginner Keriah */}
+      <section className="mx-auto max-w-5xl space-y-16 px-4 pt-16">
+        <div className="text-center">
+          <p dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+            קְרִיאָה לְמַתְחִילִים
+          </p>
+          <h2 className="mt-1 text-3xl font-semibold text-stone-900">Beginner Keriah: learn to read Hebrew</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-stone-600">
+            For kindergarten and first-time readers. The letters, then the nekudot, then real words, in the Syrian
+            pronunciation.
+          </p>
+        </div>
+        {BEGINNER_STEPS.map((s, i) => (
+          <div key={s.title} className="grid items-center gap-8 md:grid-cols-2">
+            <div className={i % 2 ? "md:order-2" : ""}>
+              <span className="text-sm font-semibold uppercase tracking-wide text-amber-700">Step {i + 1}</span>
+              <h3 className="mt-1 text-2xl font-semibold text-stone-900">{s.title}</h3>
+              <p className="mt-3 text-stone-700">{s.text}</p>
+            </div>
+            <Shot src={s.img} alt={s.alt} className={i % 2 ? "md:order-1" : ""} />
+          </div>
+        ))}
+      </section>
+
+      {/* Torah reading */}
       <section className="mx-auto max-w-5xl space-y-16 px-4 py-16">
+        <div className="border-t border-stone-200 pt-16 text-center">
+          <p dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+            טַעֲמֵי הַמִּקְרָא
+          </p>
+          <h2 className="mt-1 text-3xl font-semibold text-stone-900">Torah reading with the te&apos;amim</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-stone-600">
+            When they can read, they learn to read the Torah: the te&apos;amim, the parasha and the Sefer Torah itself.
+          </p>
+        </div>
         {STEPS.map((s, i) => (
           <div key={s.title} className="grid items-center gap-8 md:grid-cols-2">
             <div className={i % 2 ? "md:order-2" : ""}>
               <span className="text-sm font-semibold uppercase tracking-wide text-amber-700">Step {i + 1}</span>
-              <h2 className="mt-1 text-2xl font-semibold text-stone-900">{s.title}</h2>
+              <h3 className="mt-1 text-2xl font-semibold text-stone-900">{s.title}</h3>
               <p className="mt-3 text-stone-700">{s.text}</p>
             </div>
             <Shot src={s.img} alt={s.alt} className={i % 2 ? "md:order-1" : ""} />
@@ -114,6 +199,17 @@ export function Landing() {
         </div>
       </section>
 
+      {/* Everything in a subscription */}
+      <section className="border-t border-stone-200 bg-amber-50/60 py-16">
+        <div className="mx-auto max-w-5xl px-4">
+          <h2 className="text-center text-3xl font-semibold text-stone-900">Everything in one subscription</h2>
+          <p className="mt-2 text-center text-stone-600">
+            One {INDIVIDUAL_PRICE}/{INDIVIDUAL_PERIOD} subscription opens all of it, from the first letter to the whole Torah.
+          </p>
+          <FeatureColumns />
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="border-t border-stone-200 bg-white py-16">
         <div className="mx-auto max-w-5xl px-4">
@@ -129,8 +225,18 @@ export function Landing() {
                 <span className="text-4xl font-semibold text-stone-900">{INDIVIDUAL_PRICE}</span>
                 <span className="text-stone-500"> / {INDIVIDUAL_PERIOD}</span>
               </p>
-              <ul className="mt-5 space-y-2 text-sm text-stone-700">
-                {INDIVIDUAL_FEATURES.map((f) => (
+              <p className="mt-5 text-sm font-semibold text-stone-900">Beginner Keriah</p>
+              <ul className="mt-2 space-y-2 text-sm text-stone-700">
+                {BEGINNER_FEATURES.map((f) => (
+                  <li key={f} className="flex gap-2">
+                    <Check />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-sm font-semibold text-stone-900">Torah reading</p>
+              <ul className="mt-2 space-y-2 text-sm text-stone-700">
+                {TORAH_FEATURES.map((f) => (
                   <li key={f} className="flex gap-2">
                     <Check />
                     {f}
