@@ -164,15 +164,19 @@ kept in case the owner goes back to Netlify.
   i with a,e → o → o mixed → u → u mixed → hataf → all. Each stage is 50 questions; pass
   = 40/50; the next stage stays locked until the one before is passed (teachers/admins
   see all), and a stage also needs its nekudot level opened by the teacher. A stage in
-  progress is saved in the browser (stop and carry on). Two graded modes: "Listen and
-  pick" (word sounded out syllable by syllable from his recordings; only words whose
-  syllables are all recorded) and "Read aloud" (a grown-up taps ✓/✗). Score saved with
+  progress is saved in the browser (stop and carry on). Question kinds (WordQuestion.tsx):
+  listen (hear him, pick the written word of 3), sound (see the word, pick which of 3
+  sounds says it), say (say it aloud, optionally record yourself and compare with him;
+  a grown-up taps ✓/✗). Modes: Mixed practice (all three in turn; default, owner's
+  request), Listen and pick, Read aloud. Listen/sound need the word's syllables recorded. Score saved with
   recordPractice key beginner-stage:<id>; teachers see it.
   Words are played as ONE smooth word (owner's request): src/lib/audio/join-syllables.ts
   decodes the syllable clips, trims silence, keeps each syllable whole (only very long
   ones trimmed: middle 0.65 s, last 0.8 s, alone 0.45 s; owner found 0.32 s far too fast),
   cross-fades 30 ms, and plays the WAV
   with the speed control.
+- Demo (/demo/): BeginnerDemo.tsx, 6 mixed questions on 8 "a" words (src/data/beginner-demo.json);
+  only their 14 syllable clips are public (public/audio/beginner/, in DEMO_FILES).
 - Local preview without Supabase settings opens every level (auth.tsx).
 
 ## Layout the owner asked for

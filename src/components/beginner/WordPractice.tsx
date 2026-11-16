@@ -1,26 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
-import { syllableRecordings } from "@/data/beginner-recordings";
-import { joinedWordUrl } from "@/lib/audio/join-syllables";
-import { applySpeed, getSpeed } from "@/lib/audio/speed";
+import { WordQuestion, QUESTION_LABEL, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
 import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 
-type Mode = "listen" | "read";
+type Mode = "mixed" | "listen" | "read";
 const PASS_PCT = Math.round((100 * STAGE_PASS) / STAGE_QUESTIONS);
 const stars = (s: number) => (s >= 95 ? 3 : s >= PASS_PCT ? 2 : s >= 50 ? 1 : 0);
-
-function shuffle<T>(a: T[]): T[] {
-  const b = [...a];
-  for (let i = b.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [b[i], b[j]] = [b[j], b[i]];
-  }
-  return b;
-}
 
 /** 50 questions from the stage's words (repeating words if there are fewer than 50). */
 function makeQuestions(words: PracticeWord[]): string[] {
@@ -33,6 +22,8 @@ function makeQuestions(words: PracticeWord[]): string[] {
 interface Run {
   mode: Mode;
   q: string[];
+  /** The kind of each question. */
+  t?: QuestionType[];
   i: number;
   right: number;
 }
@@ -54,27 +45,6 @@ function saveRun(user: string, stage: string, run: Run | null) {
   }
 }
 
-/** Plays a word in the Hazzan's voice: its syllables joined into one smooth word. */
-function usePlayer() {
-  const current = useRef<HTMLAudioElement | null>(null);
-  const [playing, setPlaying] = useState(false);
-  useEffect(() => () => current.current?.pause(), []);
-  const play = async (paths: string[]) => {
-    current.current?.pause();
-    setPlaying(true);
-    try {
-      const a = new Audio(await joinedWordUrl(paths));
-      current.current = a;
-      applySpeed(a, getSpeed());
-      a.onended = () => setPlaying(false);
-      await a.play();
-    } catch {
-      setPlaying(false);
-    }
-  };
-  return { play, playing };
-}
-
 function useBest() {
   const [best, setBest] = useState<Record<string, number>>({});
   useEffect(() => {
@@ -85,12 +55,6 @@ function useBest() {
   }, []);
   return best;
 }
-
-const Word = ({ w, size }: { w: string; size: string }) => (
-  <span dir="rtl" lang="he" className={`font-hebrew leading-tight ${size}`}>
-    {w}
-  </span>
-);
 
 /**
  * Word practice for Beginner Keriah, in stages of 50 questions: one sound alone,
@@ -112,49 +76,34 @@ export function WordPractice() {
   const [stageId, setStageId] = useState<string | null>(null);
   const stage = WORD_STAGES.find((s) => s.id === stageId) ?? null;
   const [run, setRun] = useState<Run | null>(null);
-  const [answer, setAnswer] = useState<string | null>(null);
   const [done, setDone] = useState<{ score: number; right: number } | null>(null);
-  const { play, playing } = usePlayer();
 
   const byWord = useMemo(() => new Map((stage?.words ?? []).map((w) => [w.w, w])), [stage]);
-  const listenWords = useMemo(() => (stage?.words ?? []).filter((w) => syllableRecordings(w.s)), [stage]);
+  const listenWords = useMemo(() => (stage?.words ?? []).filter(hasSound), [stage]);
   const canListen = listenWords.length >= 4;
 
   const open = (s: WordStage) => {
     setStageId(s.id);
     setRun(loadRun(user, s.id));
-    setAnswer(null);
     setDone(null);
   };
   const start = (m: Mode) => {
     if (!stage) return;
-    const r: Run = { mode: m, q: makeQuestions(m === "listen" ? listenWords : stage.words), i: 0, right: 0 };
+    const q = makeQuestions(m === "listen" ? listenWords : stage.words);
+    const words = q.map((w) => byWord.get(w)!);
+    const t: QuestionType[] = m === "listen" ? q.map(() => "listen") : m === "read" ? q.map(() => "say") : mixedTypes(words, stage.words);
+    const r: Run = { mode: m, q, t, i: 0, right: 0 };
     setRun(r);
     saveRun(user, stage.id, r);
-    setAnswer(null);
     setDone(null);
   };
 
   const word = run && stage ? byWord.get(run.q[run.i]) : undefined;
-  const sound = word ? syllableRecordings(word.s) : null;
-
-  const choices = useMemo(() => {
-    if (!word || run?.mode !== "listen" || !stage) return [];
-    const others = shuffle(stage.words.filter((w) => w.w !== word.w));
-    const same = others.filter((w) => w.s.length === word.s.length);
-    return shuffle([word, ...[...same, ...others.filter((w) => w.s.length !== word.s.length)].slice(0, 2)]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [word?.w, run?.mode, stage]);
-
-  useEffect(() => {
-    if (run?.mode === "listen" && sound && answer === null) void play(sound);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [word?.w, run?.mode]);
+  const qType: QuestionType = run?.t?.[run.i] ?? (run?.mode === "read" ? "say" : "listen");
 
   const next = (ok: boolean) => {
     if (!run || !stage) return;
     const r = { ...run, i: run.i + 1, right: run.right + (ok ? 1 : 0) };
-    setAnswer(null);
     if (r.i >= r.q.length) {
       const score = Math.round((100 * r.right) / r.q.length);
       recordPractice(stageKey(stage.id), score);
@@ -236,7 +185,18 @@ export function WordPractice() {
       </div>
 
       {!run && !done && (
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => start("mixed")}
+            className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-5 text-left transition-colors hover:bg-emerald-100 sm:col-span-3"
+          >
+            <span className="text-3xl">⭐</span>
+            <span className="mt-2 block text-xl font-semibold text-stone-900">Mixed practice (best)</span>
+            <span className="mt-1 block text-stone-600">
+              A bit of everything: hear the Hazzan and pick the word, see a word and pick its sound, and say words out loud.
+            </span>
+          </button>
           <button
             type="button"
             onClick={() => start("listen")}
@@ -286,86 +246,8 @@ export function WordPractice() {
             <div className="h-full bg-amber-500 transition-all" style={{ width: `${(100 * run.i) / run.q.length}%` }} />
           </div>
 
-          {run.mode === "listen" ? (
-            <>
-              <button
-                type="button"
-                onClick={() => sound && play(sound)}
-                className={`mt-6 inline-flex size-20 items-center justify-center rounded-full bg-amber-600 text-4xl text-white shadow hover:bg-amber-700 ${playing ? "animate-pulse" : ""}`}
-                aria-label="Hear the word again"
-              >
-                🔊
-              </button>
-              <p className="mt-2 text-stone-600">Which word did you hear?</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                {choices.map((c) => {
-                  const isRight = c.w === word.w;
-                  const tone =
-                    answer === null
-                      ? "border-stone-200 bg-white hover:bg-amber-50"
-                      : isRight
-                        ? "border-emerald-400 bg-emerald-50"
-                        : answer === c.w
-                          ? "border-rose-400 bg-rose-50"
-                          : "border-stone-200 bg-white opacity-50";
-                  return (
-                    <button
-                      key={c.w}
-                      type="button"
-                      disabled={answer !== null}
-                      onClick={() => setAnswer(c.w)}
-                      className={`rounded-2xl border-2 px-3 py-5 transition-colors ${tone}`}
-                    >
-                      <Word w={c.w} size="text-5xl" />
-                    </button>
-                  );
-                })}
-              </div>
-              {answer !== null && (
-                <div className="mt-5">
-                  <p className={`text-lg font-semibold ${answer === word.w ? "text-emerald-700" : "text-rose-700"}`}>
-                    {answer === word.w ? "Right! 🎉" : "Not quite. The green one is the word."}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => next(answer === word.w)}
-                    className="mt-3 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800"
-                  >
-                    Next →
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="mt-8">
-                <Word w={word.w} size="text-7xl sm:text-8xl" />
-              </div>
-              <p className="mt-4 text-stone-600">Read the word out loud.</p>
-              {sound && (
-                <button type="button" onClick={() => play(sound)} className="mt-2 text-sm font-medium text-amber-800 underline">
-                  🔊 Hear how to read it
-                </button>
-              )}
-              <div className="mt-6 flex justify-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => next(false)}
-                  className="rounded-2xl border-2 border-rose-300 bg-rose-50 px-6 py-4 text-lg font-semibold text-rose-800 hover:bg-rose-100"
-                >
-                  ✗ Not yet
-                </button>
-                <button
-                  type="button"
-                  onClick={() => next(true)}
-                  className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-6 py-4 text-lg font-semibold text-emerald-800 hover:bg-emerald-100"
-                >
-                  ✓ Read it right
-                </button>
-              </div>
-              <p className="mt-3 text-xs text-stone-400">For the grown-up: tap ✓ if the child read the word correctly.</p>
-            </>
-          )}
+          <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-amber-700">{QUESTION_LABEL[qType]}</p>
+          <WordQuestion key={`${run.i}-${word.w}`} word={word} type={qType} pool={stage.words} onAnswer={next} />
         </div>
       )}
 
