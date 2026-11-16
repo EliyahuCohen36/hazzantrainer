@@ -19,7 +19,7 @@ const MAX_ALONE = 0.45; // a letter with no nekuda (e.g. the ר at the end of ד
 const cache = new Map<string, Promise<string>>();
 let ctx: AudioContext | null = null;
 
-function audioContext() {
+export function audioContext() {
   ctx ??= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   return ctx;
 }
@@ -69,7 +69,7 @@ function toWav(samples: Float32Array, rate: number): Blob {
   return new Blob([out], { type: "audio/wav" });
 }
 
-async function build(paths: string[]): Promise<string> {
+async function buildSamples(paths: string[]): Promise<{ samples: Float32Array; rate: number }> {
   const bufs = await Promise.all(paths.map(decode));
   const rate = bufs[0].sampleRate;
   const parts = bufs.map((b, k) => {
@@ -101,7 +101,24 @@ async function build(paths: string[]): Promise<string> {
     }
     at += p.length - (k < parts.length - 1 ? Math.min(ov, p.length) : 0);
   });
-  return URL.createObjectURL(toWav(out, rate));
+  return { samples: out, rate };
+}
+
+const sampleCache = new Map<string, Promise<{ samples: Float32Array; rate: number }>>();
+/** The joined word as raw samples (for comparing with a child's voice). */
+export function joinedWordSamples(paths: string[]) {
+  const key = paths.join("|");
+  if (!sampleCache.has(key)) {
+    const p = buildSamples(paths);
+    p.catch(() => sampleCache.delete(key));
+    sampleCache.set(key, p);
+  }
+  return sampleCache.get(key)!;
+}
+
+async function build(paths: string[]): Promise<string> {
+  const { samples, rate } = await joinedWordSamples(paths);
+  return URL.createObjectURL(toWav(samples, rate));
 }
 
 /** A playable URL of the whole word, joined from its syllable recordings. */

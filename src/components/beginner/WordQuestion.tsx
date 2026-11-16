@@ -5,14 +5,14 @@ import type { PracticeWord } from "@/data/beginner-words";
 import { syllableRecordings } from "@/data/beginner-recordings";
 import { joinedWordUrl } from "@/lib/audio/join-syllables";
 import { applySpeed, getSpeed } from "@/lib/audio/speed";
-import { canCheckSpeech, listenFor } from "@/lib/audio/speech-check";
+import { canRecord, candidates, matchesWord, recordWord } from "@/lib/audio/word-check";
 
 /**
  * The kinds of question in word practice:
  *  - listen: hear the Hazzan say a word, tap the written word
  *  - sound:  see a written word, tap the sound (of three) that says it
- *  - say:    see a word and say it; the browser's speech recognition checks it
- *            (a grown-up marks it only where the browser can't listen)
+ *  - say:    see a word and say it; it's recorded and checked on the device against
+ *            the Hazzan (a grown-up marks it only where there's no microphone)
  */
 export type QuestionType = "listen" | "sound" | "say";
 
@@ -69,35 +69,43 @@ const Word = ({ w, size }: { w: string; size: string }) => (
   </span>
 );
 
-/** Listens for the word and checks it. Two tries; "didn't hear you" doesn't count as a try. */
-function useSpeechCheck(target: string) {
-  const [state, setState] = useState<"idle" | "listening" | "right" | "wrong" | "nothing" | "manual">(
-    canCheckSpeech() ? "idle" : "manual",
+/**
+ * Records the child saying the word and checks it on the device against the Hazzan
+ * (and the same letters with wrong vowels). Two tries; "didn't hear you" doesn't count.
+ */
+function useSpeechCheck(word: PracticeWord, pool: PracticeWord[]) {
+  const [state, setState] = useState<"idle" | "listening" | "checking" | "right" | "wrong" | "nothing" | "manual">(
+    canRecord() && hasSound(word) ? "idle" : "manual",
   );
   const [tries, setTries] = useState(0);
   const [misses, setMisses] = useState(0);
   const [hearing, setHearing] = useState(false);
-  const [heard, setHeard] = useState<string | null>(null);
   const stopRef = useRef<() => void>(() => {});
   useEffect(() => () => stopRef.current(), []);
   const listen = async () => {
     setState("listening");
     setHearing(false);
-    setHeard(null);
-    const { done, stop } = listenFor(target, 7000, () => setHearing(true));
-    stopRef.current = stop;
-    const r = await done;
-    if (r.ok === null) {
-      if (r.reason === "nothing") setMisses((m) => m + 1);
-      setState(r.reason === "nothing" ? "nothing" : "manual");
-    }
-    else {
+    try {
+      const { done, stop } = recordWord(5000, () => setHearing(true));
+      stopRef.current = stop;
+      const rec = await done;
+      if (!rec) {
+        setMisses((m) => m + 1);
+        return setState("nothing");
+      }
+      setState("checking");
+      const ok = await matchesWord(rec, candidates(word, pool));
+      if (ok === null) {
+        setMisses((m) => m + 1);
+        return setState("nothing");
+      }
       setTries((t) => t + 1);
-      setHeard(r.heard[r.heard.length - 1] ?? null);
-      setState(r.ok ? "right" : "wrong");
+      setState(ok ? "right" : "wrong");
+    } catch {
+      setState("manual"); // no microphone or permission refused
     }
   };
-  return { state, tries, misses, hearing, heard, listen, stop: () => stopRef.current() };
+  return { state, tries, misses, hearing, listen, stop: () => stopRef.current() };
 }
 
 /**
@@ -118,7 +126,7 @@ export function WordQuestion({
   const { play, playing } = useWordPlayer();
   const [answer, setAnswer] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
-  const speech = useSpeechCheck(word.w);
+  const speech = useSpeechCheck(word, pool);
   const choices = useMemo(
     () => (type === "say" ? [] : shuffle([word, ...distractors(word, pool, type === "sound")])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -266,8 +274,8 @@ export function WordQuestion({
             </button>
           </div>
           <p className="mx-auto mt-3 max-w-md text-xs text-stone-500">
-            This browser can&apos;t listen (or the microphone is off), so a grown-up checks this one. In Chrome or Safari, with
-            the microphone allowed, the trainer listens and checks by itself.
+            The microphone isn&apos;t available here (or wasn&apos;t allowed), so a grown-up checks this one. With the
+            microphone allowed, the trainer listens and checks by itself.
           </p>
         </>
       ) : (
@@ -275,6 +283,7 @@ export function WordQuestion({
           <p className="mt-4 text-stone-600">
             {st === "idle" && "Tap the microphone and say the word."}
             {st === "listening" && (speech.hearing ? "I hear you… 👂" : "Listening… say the word now, nice and clear.")}
+            {st === "checking" && "Checking…"}
             {st === "nothing" && "I didn't hear you. Tap the microphone and try again, a little louder."}
           </p>
           {(st === "idle" || st === "nothing" || (st === "wrong" && !finalWrong)) && (
@@ -306,11 +315,6 @@ export function WordQuestion({
           )}
           {st === "wrong" && (
             <div className="mt-4">
-              {speech.heard && (
-                <p className="text-sm text-stone-500">
-                  I heard: <span dir="rtl" lang="he" className="font-hebrew text-lg">{speech.heard}</span>
-                </p>
-              )}
               <p className="text-lg font-semibold text-rose-700">
                 {finalWrong ? "Not quite. Listen to the Hazzan, and you'll get it next time." : "Not quite. Listen to the Hazzan, then try again."}
               </p>

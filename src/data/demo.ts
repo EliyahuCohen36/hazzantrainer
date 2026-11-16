@@ -12,15 +12,18 @@ export const DEMO_TEAMIM = ["sof-pasuk", "atnah", "tarha"];
 
 /**
  * Beginner Keriah demo: a few "a" words (Qamats/Patah) for word practice. Only the
- * syllable clips these words need are in public/audio/beginner/ (14 short clips).
+ * syllable clips these words need (with all five vowels) are in public/audio/beginner/.
  */
 export const BEGINNER_DEMO_WORDS = beginnerDemo as PracticeWord[];
 const BEGINNER_DEMO_FILES = [
   ...new Set(
     BEGINNER_DEMO_WORDS.flatMap((w) =>
-      w.s.map((s) => {
+      w.s.flatMap((s) => {
         const [id, sound] = s.split(":");
-        return `/audio/beginner/${sound ? `${id}-${sound}` : `${id}-alone`}.mp3`;
+        // All five vowels on each letter, so the trainer can tell a right reading from a wrong vowel.
+        return sound
+          ? ["qamats", "sere", "hireq", "holem", "qibbus"].map((v) => `/audio/beginner/${id}-${v}.mp3`)
+          : [`/audio/beginner/${id}-alone.mp3`];
       }),
     ),
   ),
