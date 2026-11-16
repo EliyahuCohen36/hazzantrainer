@@ -166,8 +166,10 @@ kept in case the owner goes back to Netlify.
   see all), and a stage also needs its nekudot level opened by the teacher. A stage in
   progress is saved in the browser (stop and carry on). Question kinds (WordQuestion.tsx):
   listen (hear him, pick the written word of 3), sound (see the word, pick which of 3
-  sounds says it), say (say it aloud, optionally record yourself and compare with him;
-  a grown-up taps ✓/✗). Modes: Mixed practice (all three in turn; default, owner's
+  sounds says it), say (say it into the mic; checked automatically by the browser's Hebrew
+  speech recognition, src/lib/audio/speech-check.ts: letters compared leniently, two tries,
+  "didn't hear you" doesn't count; owner wants no grown-up grading. Only where the browser
+  can't listen (Firefox, mic blocked) does a grown-up tap ✓/✗). Modes: Mixed practice (all three in turn; default, owner's
   request), Listen and pick, Read aloud. Listen/sound need the word's syllables recorded. Score saved with
   recordPractice key beginner-stage:<id>; teachers see it.
   Words are played as ONE smooth word (owner's request): src/lib/audio/join-syllables.ts

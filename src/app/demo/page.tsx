@@ -19,7 +19,7 @@ export default function DemoPage() {
       <h2 className="text-2xl font-semibold text-stone-900">Beginner Keriah: read your first words</h2>
       <p className="mt-1 mb-4 text-stone-600">
         Words from the Torah with the &ldquo;a&rdquo; sound (Qamats and Patah). Hear the Hazzan and pick the word, see a
-        word and pick its sound, and say words out loud.
+        word and pick its sound, and say words into the microphone: the trainer listens and checks.
       </p>
       <BeginnerDemo />
 

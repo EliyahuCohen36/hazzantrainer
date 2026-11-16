@@ -5,13 +5,14 @@ import type { PracticeWord } from "@/data/beginner-words";
 import { syllableRecordings } from "@/data/beginner-recordings";
 import { joinedWordUrl } from "@/lib/audio/join-syllables";
 import { applySpeed, getSpeed } from "@/lib/audio/speed";
+import { canCheckSpeech, listenFor } from "@/lib/audio/speech-check";
 
 /**
  * The kinds of question in word practice:
  *  - listen: hear the Hazzan say a word, tap the written word
  *  - sound:  see a written word, tap the sound (of three) that says it
- *  - say:    see a word and say it; record yourself and compare with the Hazzan;
- *            a grown-up taps ✓ or ✗
+ *  - say:    see a word and say it; the browser's speech recognition checks it
+ *            (a grown-up marks it only where the browser can't listen)
  */
 export type QuestionType = "listen" | "sound" | "say";
 
@@ -68,32 +69,30 @@ const Word = ({ w, size }: { w: string; size: string }) => (
   </span>
 );
 
-/** Records the child for a few seconds so they can hear themselves next to the Hazzan. */
-function useRecorder() {
-  const [state, setState] = useState<"idle" | "recording" | "done" | "denied">("idle");
-  const [url, setUrl] = useState<string | null>(null);
-  const rec = useRef<MediaRecorder | null>(null);
-  const start = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const r = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-      r.ondataavailable = (e) => chunks.push(e.data);
-      r.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
-        setUrl(URL.createObjectURL(new Blob(chunks, { type: r.mimeType })));
-        setState("done");
-      };
-      rec.current = r;
-      r.start();
-      setState("recording");
-      setTimeout(() => r.state === "recording" && r.stop(), 4000);
-    } catch {
-      setState("denied");
+/** Listens for the word and checks it. Two tries; "didn't hear you" doesn't count as a try. */
+function useSpeechCheck(target: string) {
+  const [state, setState] = useState<"idle" | "listening" | "right" | "wrong" | "nothing" | "manual">(
+    canCheckSpeech() ? "idle" : "manual",
+  );
+  const [tries, setTries] = useState(0);
+  const [misses, setMisses] = useState(0);
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
+  const listen = async () => {
+    setState("listening");
+    const { done, stop } = listenFor(target);
+    stopRef.current = stop;
+    const r = await done;
+    if (r.ok === null) {
+      if (r.reason === "nothing") setMisses((m) => m + 1);
+      setState(r.reason === "nothing" ? "nothing" : "manual");
+    }
+    else {
+      setTries((t) => t + 1);
+      setState(r.ok ? "right" : "wrong");
     }
   };
-  const stop = () => rec.current?.state === "recording" && rec.current.stop();
-  return { state, url, start, stop };
+  return { state, tries, misses, listen, stop: () => stopRef.current() };
 }
 
 /**
@@ -114,7 +113,7 @@ export function WordQuestion({
   const { play, playing } = useWordPlayer();
   const [answer, setAnswer] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
-  const recorder = useRecorder();
+  const speech = useSpeechCheck(word.w);
   const choices = useMemo(
     () => (type === "say" ? [] : shuffle([word, ...distractors(word, pool, type === "sound")])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -230,70 +229,106 @@ export function WordQuestion({
   }
 
   // say
+  const st = speech.state;
+  const finalWrong = st === "wrong" && speech.tries >= 2;
   return (
     <div>
       <div className="mt-8">
         <Word w={word.w} size="text-7xl sm:text-8xl" />
       </div>
-      <p className="mt-4 text-stone-600">Say the word out loud.</p>
-      <div className="mt-4 flex flex-wrap justify-center gap-3">
-        {recorder.state !== "recording" ? (
-          <button
-            type="button"
-            onClick={recorder.start}
-            className="rounded-xl border-2 border-rose-200 bg-rose-50 px-4 py-2 font-semibold text-rose-800 hover:bg-rose-100"
-          >
-            🎤 {recorder.state === "done" ? "Record again" : "Record me"}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={recorder.stop}
-            className="animate-pulse rounded-xl border-2 border-rose-400 bg-rose-100 px-4 py-2 font-semibold text-rose-800"
-          >
-            ⏹ Stop
-          </button>
-        )}
-        {recorder.url && (
-          <button
-            type="button"
-            onClick={() => {
-              const a = new Audio(recorder.url!);
-              void a.play();
-            }}
-            className="rounded-xl border-2 border-stone-200 bg-white px-4 py-2 font-semibold text-stone-800 hover:bg-stone-50"
-          >
-            ▶ My voice
-          </button>
-        )}
-        {canHear && (
-          <button
-            type="button"
-            onClick={() => play(word)}
-            className="rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-2 font-semibold text-amber-900 hover:bg-amber-100"
-          >
-            🔊 The Hazzan
-          </button>
-        )}
-      </div>
-      {recorder.state === "denied" && <p className="mt-2 text-xs text-stone-500">The microphone isn&apos;t on. You can still say it out loud.</p>}
-      <div className="mt-6 flex justify-center gap-4">
-        <button
-          type="button"
-          onClick={() => onAnswer(false)}
-          className="rounded-2xl border-2 border-rose-300 bg-rose-50 px-6 py-4 text-lg font-semibold text-rose-800 hover:bg-rose-100"
-        >
-          ✗ Not yet
-        </button>
-        <button
-          type="button"
-          onClick={() => onAnswer(true)}
-          className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-6 py-4 text-lg font-semibold text-emerald-800 hover:bg-emerald-100"
-        >
-          ✓ Said it right
-        </button>
-      </div>
-      <p className="mt-3 text-xs text-stone-400">For the grown-up: tap ✓ if the child said the word correctly.</p>
+      {st === "manual" ? (
+        <>
+          <p className="mt-4 text-stone-600">Say the word out loud.</p>
+          {canHear && (
+            <button type="button" onClick={() => play(word)} className="mt-2 text-sm font-medium text-amber-800 underline">
+              🔊 Hear the Hazzan
+            </button>
+          )}
+          <div className="mt-6 flex justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => onAnswer(false)}
+              className="rounded-2xl border-2 border-rose-300 bg-rose-50 px-6 py-4 text-lg font-semibold text-rose-800 hover:bg-rose-100"
+            >
+              ✗ Not yet
+            </button>
+            <button
+              type="button"
+              onClick={() => onAnswer(true)}
+              className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-6 py-4 text-lg font-semibold text-emerald-800 hover:bg-emerald-100"
+            >
+              ✓ Said it right
+            </button>
+          </div>
+          <p className="mx-auto mt-3 max-w-md text-xs text-stone-500">
+            This browser can&apos;t listen (or the microphone is off), so a grown-up checks this one. In Chrome or Safari, with
+            the microphone allowed, the trainer listens and checks by itself.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mt-4 text-stone-600">
+            {st === "idle" && "Tap the microphone and say the word."}
+            {st === "listening" && "Listening… say the word now."}
+            {st === "nothing" && "I didn't hear you. Tap the microphone and try again, a little louder."}
+          </p>
+          {(st === "idle" || st === "nothing" || (st === "wrong" && !finalWrong)) && (
+            <button
+              type="button"
+              onClick={speech.listen}
+              className="mt-4 inline-flex size-20 items-center justify-center rounded-full bg-rose-600 text-4xl text-white shadow hover:bg-rose-700"
+              aria-label="Say the word"
+            >
+              🎤
+            </button>
+          )}
+          {st === "nothing" && speech.misses >= 2 && (
+            <div>
+              <button type="button" onClick={() => onAnswer(false)} className="mt-3 text-sm text-stone-500 underline">
+                Skip this word
+              </button>
+            </div>
+          )}
+          {st === "listening" && (
+            <button
+              type="button"
+              onClick={speech.stop}
+              className="mt-4 inline-flex size-20 animate-pulse items-center justify-center rounded-full bg-rose-500 text-4xl text-white shadow"
+              aria-label="Stop listening"
+            >
+              👂
+            </button>
+          )}
+          {st === "wrong" && (
+            <div className="mt-4">
+              <p className="text-lg font-semibold text-rose-700">
+                {finalWrong ? "Not quite. Listen to the Hazzan, and you'll get it next time." : "Not quite. Listen to the Hazzan, then try again."}
+              </p>
+              {canHear && (
+                <button
+                  type="button"
+                  onClick={() => play(word)}
+                  className="mt-2 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-2 font-semibold text-amber-900 hover:bg-amber-100"
+                >
+                  🔊 The Hazzan
+                </button>
+              )}
+            </div>
+          )}
+          {st === "right" && <p className="mt-4 text-lg font-semibold text-emerald-700">Right! You said it! 🎉</p>}
+          {(st === "right" || finalWrong) && (
+            <div>
+              <button
+                type="button"
+                onClick={() => onAnswer(st === "right")}
+                className="mt-4 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

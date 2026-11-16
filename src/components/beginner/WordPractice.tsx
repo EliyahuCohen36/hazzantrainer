@@ -62,7 +62,7 @@ function useBest() {
  * only after the one before it is passed (and the teacher has opened its nekudot).
  * Two graded ways to practise:
  *  - Listen and pick: the word is sounded out in the Hazzan's voice; the child taps it.
- *  - Read aloud: the child reads the word; a grown-up taps ✓ or ✗.
+ *  - Say it: the child says the word into the microphone; speech recognition checks it.
  */
 export function WordPractice() {
   const { beginnerLevel, profile } = useAuth();
@@ -218,7 +218,7 @@ export function WordPractice() {
           >
             <span className="text-3xl">🗣️</span>
             <span className="mt-2 block text-xl font-semibold text-stone-900">Read aloud</span>
-            <span className="mt-1 block text-stone-600">Read each word out loud to a grown-up. They tap ✓ or ✗.</span>
+            <span className="mt-1 block text-stone-600">Say each word into the microphone. The trainer listens and checks it.</span>
           </button>
         </div>
       )}
