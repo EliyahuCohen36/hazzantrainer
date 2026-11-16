@@ -1,98 +1,164 @@
 "use client";
 
 import { useState } from "react";
+import { asset } from "@/lib/base-path";
 import { recordingUrl } from "@/lib/recordings";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { playUrls, unlockAudio } from "@/lib/audio/player";
-import { canRecord, recordWord } from "@/lib/audio/word-check";
+import { audioContext } from "@/lib/audio/join-syllables";
+import { recordWord } from "@/lib/audio/word-check";
 
-/** Two tests: play one of the Hazzan's recordings, and record + play back the microphone. */
+type Step = { name: string; ok: boolean | null; detail: string };
+
+const errText = (e: unknown) => (e instanceof Error ? `${e.name}: ${e.message}` : String(e));
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const withTimeout = <T,>(p: Promise<T>, ms: number, what: string) =>
+  Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`${what} timed out`)), ms))]);
+
+/**
+ * Tests each part of sound and microphone on this device, shows the results, and
+ * saves them (for signed-in users) so the owner can see what fails on which device.
+ */
 export function SoundCheck() {
-  const [sound, setSound] = useState("");
-  const [mic, setMic] = useState("");
-  const [back, setBack] = useState<string | null>(null);
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [running, setRunning] = useState(false);
+  const [saved, setSaved] = useState("");
 
-  const testSound = async () => {
+  const run = async () => {
+    // Everything that needs the tap happens first, before any await.
     unlockAudio();
-    setSound("Playing…");
+    const ctx = audioContext();
+    const resumeP = ctx.resume();
+    setRunning(true);
+    setSaved("");
+    const out: Step[] = [];
+    const add = (s: Step) => {
+      out.push(s);
+      setSteps([...out]);
+    };
+    const demoClip = asset("/audio/beginner/alef-qamats.mp3");
+
+    add({ name: "Browser", ok: null, detail: navigator.userAgent });
     try {
-      const url = await recordingUrl("/audio/beginner/alef-qamats.mp3");
-      await playUrls([url]).done;
-      setSound("Did you hear the Hazzan say “a”? If not, check the volume and that the phone isn't on silent.");
+      await withTimeout(resumeP, 3000, "Starting audio");
+      add({ name: "Audio engine", ok: ctx.state === "running", detail: `${ctx.state}, ${ctx.sampleRate} Hz` });
     } catch (e) {
-      setSound(`Couldn't play: ${e instanceof Error ? e.message : String(e)}`);
+      add({ name: "Audio engine", ok: false, detail: errText(e) });
     }
-  };
 
-  const testMic = async () => {
-    unlockAudio();
-    setBack(null);
-    if (!canRecord()) return setMic("This browser can't use the microphone. Try Safari or Chrome.");
-    setMic("Getting the microphone ready…");
+    // 1. Play a sound with the page's player.
     try {
-      const { done } = recordWord(
-        4000,
-        () => setMic("I hear you! Keep talking…"),
-        () => setMic("Listening… say something."),
-      );
-      const rec = await done;
-      if (!rec) return setMic("I didn't hear anything. Check that the microphone is allowed for this site, then try again a little louder.");
-      // Play it back as a WAV.
-      const { samples, rate } = rec;
-      const buf = new DataView(new ArrayBuffer(44 + samples.length * 2));
-      const w = (o: number, s: string) => [...s].forEach((c, i) => buf.setUint8(o + i, c.charCodeAt(0)));
-      w(0, "RIFF");
-      buf.setUint32(4, 36 + samples.length * 2, true);
-      w(8, "WAVEfmt ");
-      buf.setUint32(16, 16, true);
-      buf.setUint16(20, 1, true);
-      buf.setUint16(22, 1, true);
-      buf.setUint32(24, rate, true);
-      buf.setUint32(28, rate * 2, true);
-      buf.setUint16(32, 2, true);
-      buf.setUint16(34, 16, true);
-      w(36, "data");
-      buf.setUint32(40, samples.length * 2, true);
-      samples.forEach((v, i) => buf.setInt16(44 + i * 2, Math.max(-1, Math.min(1, v)) * 0x7fff, true));
-      setBack(URL.createObjectURL(new Blob([buf], { type: "audio/wav" })));
-      setMic(`The microphone works (${(samples.length / rate).toFixed(1)} seconds recorded).`);
+      const t0 = performance.now();
+      await withTimeout(playUrls([demoClip]).done, 5000, "Playing");
+      add({ name: "Play a sound (player)", ok: performance.now() - t0 > 300, detail: `${Math.round(performance.now() - t0)} ms` });
     } catch (e) {
-      const name = e instanceof Error ? e.name : "";
-      setMic(
-        name === "NotAllowedError"
-          ? "The microphone isn't allowed. In Safari: Safari menu → Settings for this website → Microphone → Allow. On iPhone: Settings → Safari → Microphone → Allow."
-          : `Microphone problem: ${e instanceof Error ? `${e.name} ${e.message}` : String(e)}`,
-      );
+      add({ name: "Play a sound (player)", ok: false, detail: errText(e) });
+    }
+
+    // 2. Play a sound through the audio engine.
+    try {
+      const data = await (await fetch(demoClip)).arrayBuffer();
+      const buf = await ctx.decodeAudioData(data);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start();
+      await wait(buf.duration * 1000 + 100);
+      add({ name: "Play a sound (audio engine)", ok: true, detail: `${buf.duration.toFixed(2)} s decoded` });
+    } catch (e) {
+      add({ name: "Play a sound (audio engine)", ok: false, detail: errText(e) });
+    }
+
+    // 3. A private recording (needs the account).
+    try {
+      const url = await withTimeout(recordingUrl("/audio/beginner/bet-qamats.mp3"), 5000, "Getting the recording");
+      const r = await fetch(url);
+      add({ name: "The Hazzan's recordings", ok: r.ok, detail: `HTTP ${r.status}` });
+    } catch (e) {
+      add({ name: "The Hazzan's recordings", ok: false, detail: errText(e) });
+    }
+
+    // 4. The microphone.
+    if (!navigator.mediaDevices?.getUserMedia) {
+      add({ name: "Microphone", ok: false, detail: "This browser has no microphone access (getUserMedia missing)" });
+    } else {
+      try {
+        const s = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 15000, "Microphone permission");
+        const tr = s.getAudioTracks()[0];
+        add({ name: "Microphone permission", ok: true, detail: `${tr?.label || "microphone"} ${JSON.stringify(tr?.getSettings?.() ?? {})}` });
+        s.getTracks().forEach((t) => t.stop());
+      } catch (e) {
+        add({ name: "Microphone permission", ok: false, detail: errText(e) });
+      }
+      add({ name: "Say something now…", ok: null, detail: "recording for up to 4 seconds" });
+      try {
+        let ready = false;
+        let voice = false;
+        const { done } = recordWord(4000, () => (voice = true), () => (ready = true));
+        const rec = await withTimeout(done, 8000, "Recording");
+        let peak = 0;
+        rec?.samples.forEach((v) => (peak = Math.max(peak, Math.abs(v))));
+        add({
+          name: "Recording",
+          ok: !!rec,
+          detail: rec
+            ? `${(rec.samples.length / rec.rate).toFixed(1)} s at ${rec.rate} Hz, loudest ${peak.toFixed(3)}`
+            : `nothing recorded (mic started: ${ready}, voice heard: ${voice})`,
+        });
+      } catch (e) {
+        add({ name: "Recording", ok: false, detail: errText(e) });
+      }
+    }
+
+    setRunning(false);
+    if (supabaseConfigured) {
+      try {
+        const db = supabase();
+        const { data } = await db.auth.getUser();
+        if (data.user) {
+          const { error } = await db.from("diagnostics").insert({ report: { steps: out, at: new Date().toISOString() } });
+          setSaved(error ? "" : "These results were sent to the Hazzan so he can fix any problem.");
+        }
+      } catch {
+        // not saved: fine
+      }
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">1. Can you hear the Hazzan?</h2>
-        <button type="button" onClick={testSound} className="mt-3 rounded-xl bg-amber-700 px-5 py-2.5 font-semibold text-white hover:bg-amber-800">
-          🔊 Play a sound
+        <p className="text-stone-700">
+          Tap the button. You&apos;ll hear the Hazzan say &ldquo;a&rdquo; twice. Then, when it says <b>Say something now</b>,
+          say a word out loud.
+        </p>
+        <button
+          type="button"
+          onClick={run}
+          disabled={running}
+          className="mt-3 rounded-xl bg-amber-700 px-5 py-2.5 font-semibold text-white hover:bg-amber-800 disabled:opacity-60"
+        >
+          {running ? "Checking…" : "▶ Run the check"}
         </button>
-        {sound && <p className="mt-2 text-sm text-stone-700">{sound}</p>}
       </div>
-      <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">2. Can the trainer hear you?</h2>
-        <button type="button" onClick={testMic} className="mt-3 rounded-xl bg-rose-600 px-5 py-2.5 font-semibold text-white hover:bg-rose-700">
-          🎤 Test the microphone
-        </button>
-        {mic && <p className="mt-2 text-sm text-stone-700">{mic}</p>}
-        {back && (
-          <button
-            type="button"
-            onClick={() => {
-              unlockAudio();
-              void playUrls([back]).done;
-            }}
-            className="mt-2 rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-50"
-          >
-            ▶ Hear what was recorded
-          </button>
-        )}
-      </div>
+      {steps.length > 0 && (
+        <ul className="space-y-2 rounded-2xl border border-stone-200 bg-white p-5 text-sm shadow-sm">
+          {steps.map((s, i) => (
+            <li key={i} className="flex gap-2">
+              <span>{s.ok === null ? "•" : s.ok ? "✅" : "❌"}</span>
+              <span>
+                <b>{s.name}</b> <span className="break-all text-stone-500">{s.detail}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {saved && <p className="text-sm text-emerald-700">{saved}</p>}
+      <p className="text-xs text-stone-500">
+        If the microphone isn&apos;t allowed: in Safari on a Mac, Safari menu → Settings for This Website → Microphone →
+        Allow. On iPhone/iPad: Settings → Apps → Safari → Microphone → Allow. In Chrome: the icon left of the address →
+        Microphone → Allow.
+      </p>
     </div>
   );
 }

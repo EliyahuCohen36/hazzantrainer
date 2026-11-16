@@ -1,6 +1,7 @@
 "use client";
 
 import { applySpeed, getSpeed } from "./speed";
+import { audioContext } from "./join-syllables";
 
 /**
  * One shared audio player for tap-to-hear sounds.
@@ -28,6 +29,11 @@ function player(): HTMLAudioElement {
 /** Call at the very start of a tap handler, before any await. */
 export function unlockAudio() {
   const a = player();
+  try {
+    void audioContext().resume(); // the fallback player needs this during the tap too
+  } catch {
+    // no audio engine
+  }
   if (unlocked) return;
   unlocked = true;
   a.src = SILENT;
@@ -50,8 +56,17 @@ export function playUrls(urls: string[], gap = 0): { done: Promise<void>; stop: 
           resolve();
         };
         a.onended = end;
-        a.onerror = end;
-        a.play().catch(end);
+        a.onerror = () => {
+          a.onended = null;
+          a.onerror = null;
+          void engine(urls[i]).then(resolve);
+        };
+        // If the browser refuses the player, play it through the audio engine instead.
+        a.play().catch(() => {
+          a.onended = null;
+          a.onerror = null;
+          void engine(urls[i]).then(resolve);
+        });
       });
       if (gap && i < urls.length - 1 && !stopped) await new Promise((r) => setTimeout(r, gap * 1000));
     }
@@ -61,11 +76,43 @@ export function playUrls(urls: string[], gap = 0): { done: Promise<void>; stop: 
     stop: () => {
       stopped = true;
       a.pause();
+      try {
+        current?.stop();
+      } catch {
+        // already stopped
+      }
     },
   };
 }
 
+let current: AudioBufferSourceNode | null = null;
+/** Fallback: play through the Web Audio engine (resumed during the tap). */
+async function engine(url: string): Promise<void> {
+  try {
+    const ctx = audioContext();
+    if (ctx.state !== "running") await ctx.resume();
+    const buf = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = getSpeed();
+    src.connect(ctx.destination);
+    current?.stop();
+    current = src;
+    await new Promise<void>((r) => {
+      src.onended = () => r();
+      src.start();
+    });
+  } catch {
+    // nothing more we can do
+  }
+}
+
 export function stopAudio() {
+  try {
+    current?.stop();
+  } catch {
+    // already stopped
+  }
   el?.pause();
 }
 

@@ -192,8 +192,11 @@ kept in case the owner goes back to Netlify.
   only their letters' clips (all five vowels, for the say-it check) are public (public/audio/beginner/, in DEMO_FILES).
 - Tap-to-hear sounds (tiles, practice words) play through ONE shared player
   (src/lib/audio/player.ts) unlocked during a tap: Safari on the Mac blocked players started
-  after an await. /beginner/check/ (SoundCheck.tsx): test sound + microphone, with
-  how-to-allow instructions; linked from the practice words page.
+  after an await; if the player is refused it falls back to the Web Audio engine.
+  /beginner/check/ (SoundCheck.tsx): one-tap device check (audio engine, player, engine
+  playback, private recordings, mic permission, recording) shown as ✅/❌ and saved to the
+  diagnostics table (supabase/diagnostics.sql; admin-only read) so problems on a student's
+  device can be read from the admin account. Linked from the practice words page.
 - Local preview without Supabase settings opens every level (auth.tsx).
 
 ## Layout the owner asked for
