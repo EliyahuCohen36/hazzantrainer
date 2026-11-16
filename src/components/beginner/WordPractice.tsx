@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
 import { syllableRecordings } from "@/data/beginner-recordings";
-import { recordingUrl } from "@/lib/recordings";
+import { joinedWordUrl } from "@/lib/audio/join-syllables";
 import { applySpeed, getSpeed } from "@/lib/audio/speed";
 import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
@@ -54,35 +54,23 @@ function saveRun(user: string, stage: string, run: Run | null) {
   }
 }
 
-/** Plays a word, syllable by syllable, in the Hazzan's voice. */
+/** Plays a word in the Hazzan's voice: its syllables joined into one smooth word. */
 function usePlayer() {
-  const stop = useRef<() => void>(() => {});
+  const current = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
-  useEffect(() => () => stop.current(), []);
+  useEffect(() => () => current.current?.pause(), []);
   const play = async (paths: string[]) => {
-    stop.current();
-    let cancelled = false;
-    let current: HTMLAudioElement | null = null;
-    stop.current = () => {
-      cancelled = true;
-      current?.pause();
-      setPlaying(false);
-    };
+    current.current?.pause();
     setPlaying(true);
-    const urls = await Promise.all(paths.map((p) => recordingUrl(p)));
-    for (const u of urls) {
-      if (cancelled) return;
-      const a = new Audio(u);
-      current = a;
+    try {
+      const a = new Audio(await joinedWordUrl(paths));
+      current.current = a;
       applySpeed(a, getSpeed());
-      await new Promise<void>((done) => {
-        a.onended = () => done();
-        a.onerror = () => done();
-        void a.play().catch(() => done());
-      });
-      await new Promise((r) => setTimeout(r, 90));
+      a.onended = () => setPlaying(false);
+      await a.play();
+    } catch {
+      setPlaying(false);
     }
-    if (!cancelled) setPlaying(false);
   };
   return { play, playing };
 }
