@@ -15,7 +15,7 @@ const OVERLAP = 0.03; // seconds of cross-fade between syllables
 // understand); only very long ones are trimmed a little.
 const MAX_MIDDLE = 0.65; // a syllable in the middle of a word
 const MAX_LAST = 0.8; // the last syllable
-const MAX_ALONE = 0.45; // a letter with no nekuda (e.g. the ר at the end of דָּבָר)
+const MAX_ALONE = 0.6; // a letter with no nekuda (e.g. the ר at the end of דָּבָר)
 const cache = new Map<string, Promise<string>>();
 let ctx: AudioContext | null = null;
 

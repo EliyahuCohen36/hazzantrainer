@@ -46,7 +46,8 @@ def main():
     else:
         sys.exit(f"{src}: found {len(segs)} parts, expected {len(names)}")
     for (a, b), name in zip(segs, names):
-        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", src, "-ss", f"{max(0, a - 0.1):.3f}", "-to", f"{b + 0.12:.3f}",
+        # -ss/-to before -i: cut the input (after -i they would cut the padded output and lose the end).
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{max(0, a - 0.1):.3f}", "-to", f"{b + 0.12:.3f}", "-i", src,
                         "-af", "adelay=40,apad=pad_dur=0.1,loudnorm=I=-18:TP=-1.5", "-ar", "44100", "-ac", "1", "-b:a", "128k",
                         str(out / f"{name}.mp3")], check=True)
         print(f"{name}.mp3  {a:.2f}-{b:.2f}s")

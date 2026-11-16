@@ -154,6 +154,7 @@ kept in case the owner goes back to Netlify.
   Cut a letter recording with: python3 scripts/beginner-recordings/cut.py <file> <letterId> <outdir>,
   then add the names to BEGINNER_RECORDED and put the clips in his Downloads/torah-trainer/beginner-recordings/.
   Alef and He have no sound by themselves: the letters page says so (owner's request).
+  vet-alone.mp3 is stretched to ~1.9 s (owner wanted a longer "v"): rubberband tempo=0.6.
   Final letters use their regular letter's recordings (fileFor strips -sofit; owner's choice).
   To check a cut, vowel formants tell a/e/i/o/u apart (F1 high = a, F2 high = i, F1 low + F2 low = u).
 - Practice words: /beginner/words/ (WordPractice.tsx), real Torah words with no sheva, from
@@ -185,7 +186,7 @@ kept in case the owner goes back to Netlify.
   recordPractice key beginner-stage:<id>; teachers see it.
   Words are played as ONE smooth word (owner's request): src/lib/audio/join-syllables.ts
   decodes the syllable clips, trims silence, keeps each syllable whole (only very long
-  ones trimmed: middle 0.65 s, last 0.8 s, alone 0.45 s; owner found 0.32 s far too fast),
+  ones trimmed: middle 0.65 s, last 0.8 s, alone 0.6 s; owner found 0.32 s far too fast),
   cross-fades 30 ms, and plays the WAV
   with the speed control.
 - Demo (/demo/): BeginnerDemo.tsx, 6 mixed questions on 8 "a" words (src/data/beginner-demo.json);
