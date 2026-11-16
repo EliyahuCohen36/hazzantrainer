@@ -23,6 +23,8 @@ type Recognition = {
   onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
   onerror: ((e: { error: string }) => void) | null;
   onend: (() => void) | null;
+  onspeechend?: (() => void) | null;
+  onsoundstart?: (() => void) | null;
 };
 
 function ctor(): (new () => Recognition) | null {
@@ -86,43 +88,82 @@ export function heardWord(target: string, heard: string[]): boolean {
 
 export type ListenResult = { ok: boolean; heard: string[] } | { ok: null; reason: "nothing" | "denied" | "unsupported" };
 
-/** Listens for up to `ms` and says whether the word was said. */
-export function listenFor(target: string, ms = 5000): { done: Promise<ListenResult>; stop: () => void } {
+/**
+ * Listens for the word (up to `ms`) and says whether it was said.
+ * Uses every guess the recogniser makes, including its quick in-between guesses
+ * (short single words often never get a "final" guess, especially on iPhone),
+ * and keeps listening a moment after the child stops, so the end of the word isn't lost.
+ * `onSound` is called when the microphone first hears something.
+ */
+export function listenFor(target: string, ms = 7000, onSound?: () => void): { done: Promise<ListenResult>; stop: () => void } {
   const C = ctor();
   if (!C) return { done: Promise.resolve({ ok: null, reason: "unsupported" }), stop: () => {} };
   const r = new C();
   r.lang = "he-IL";
-  r.interimResults = false;
+  r.interimResults = true;
   r.maxAlternatives = 5;
-  r.continuous = false;
+  r.continuous = true;
   const heard: string[] = [];
   let settled = false;
   let denied = false;
+  let after: ReturnType<typeof setTimeout> | null = null;
   const done = new Promise<ListenResult>((resolve) => {
     const finish = () => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (denied) resolve({ ok: null, reason: "denied" });
+      if (after) clearTimeout(after);
+      if (heardWord(target, heard)) resolve({ ok: true, heard });
+      else if (denied) resolve({ ok: null, reason: "denied" });
       else if (!heard.length) resolve({ ok: null, reason: "nothing" });
-      else resolve({ ok: heardWord(target, heard), heard });
+      else resolve({ ok: false, heard });
+    };
+    const stopSoon = (wait: number) => {
+      if (after) clearTimeout(after);
+      after = setTimeout(() => {
+        try {
+          r.stop();
+        } catch {
+          finish();
+        }
+        // Some browsers never fire "end" after stop(); don't wait for ever.
+        setTimeout(finish, 1500);
+      }, wait);
     };
     r.onresult = (e) => {
       for (let i = 0; i < e.results.length; i++)
-        for (let k = 0; k < e.results[i].length; k++) heard.push(e.results[i][k].transcript);
-      if (heardWord(target, heard)) r.stop();
+        for (let k = 0; k < e.results[i].length; k++) {
+          const t = e.results[i][k].transcript.trim();
+          if (t) heard.push(t);
+        }
+      if (heardWord(target, heard)) stopSoon(0);
+      else stopSoon(1600); // wait for more after the last thing heard
     };
+    r.onsoundstart = () => onSound?.();
+    r.onspeechend = () => stopSoon(900);
     r.onerror = (e) => {
       // No microphone, no permission, or this browser can't do Hebrew: fall back to a grown-up.
       if (["not-allowed", "service-not-allowed", "audio-capture", "language-not-supported", "network"].includes(e.error)) denied = true;
     };
     r.onend = finish;
-    const timer = setTimeout(() => r.stop(), ms);
+    const timer = setTimeout(() => stopSoon(0), ms);
     try {
       r.start();
     } catch {
       finish();
     }
   });
-  return { done, stop: () => r.stop() };
+  return {
+    done,
+    stop: () => {
+      try {
+        r.stop();
+      } catch {
+        // already stopped
+      }
+      setTimeout(() => {
+        if (!settled) r.onend?.();
+      }, 1500);
+    },
+  };
 }

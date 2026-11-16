@@ -76,11 +76,15 @@ function useSpeechCheck(target: string) {
   );
   const [tries, setTries] = useState(0);
   const [misses, setMisses] = useState(0);
+  const [hearing, setHearing] = useState(false);
+  const [heard, setHeard] = useState<string | null>(null);
   const stopRef = useRef<() => void>(() => {});
   useEffect(() => () => stopRef.current(), []);
   const listen = async () => {
     setState("listening");
-    const { done, stop } = listenFor(target);
+    setHearing(false);
+    setHeard(null);
+    const { done, stop } = listenFor(target, 7000, () => setHearing(true));
     stopRef.current = stop;
     const r = await done;
     if (r.ok === null) {
@@ -89,10 +93,11 @@ function useSpeechCheck(target: string) {
     }
     else {
       setTries((t) => t + 1);
+      setHeard(r.heard[r.heard.length - 1] ?? null);
       setState(r.ok ? "right" : "wrong");
     }
   };
-  return { state, tries, misses, listen, stop: () => stopRef.current() };
+  return { state, tries, misses, hearing, heard, listen, stop: () => stopRef.current() };
 }
 
 /**
@@ -269,7 +274,7 @@ export function WordQuestion({
         <>
           <p className="mt-4 text-stone-600">
             {st === "idle" && "Tap the microphone and say the word."}
-            {st === "listening" && "Listening… say the word now."}
+            {st === "listening" && (speech.hearing ? "I hear you… 👂" : "Listening… say the word now, nice and clear.")}
             {st === "nothing" && "I didn't hear you. Tap the microphone and try again, a little louder."}
           </p>
           {(st === "idle" || st === "nothing" || (st === "wrong" && !finalWrong)) && (
@@ -293,14 +298,19 @@ export function WordQuestion({
             <button
               type="button"
               onClick={speech.stop}
-              className="mt-4 inline-flex size-20 animate-pulse items-center justify-center rounded-full bg-rose-500 text-4xl text-white shadow"
-              aria-label="Stop listening"
+              className={`mt-4 inline-flex size-20 items-center justify-center rounded-full text-4xl text-white shadow ${speech.hearing ? "animate-pulse bg-emerald-500" : "animate-pulse bg-rose-500"}`}
+              aria-label="Done speaking"
             >
               👂
             </button>
           )}
           {st === "wrong" && (
             <div className="mt-4">
+              {speech.heard && (
+                <p className="text-sm text-stone-500">
+                  I heard: <span dir="rtl" lang="he" className="font-hebrew text-lg">{speech.heard}</span>
+                </p>
+              )}
               <p className="text-lg font-semibold text-rose-700">
                 {finalWrong ? "Not quite. Listen to the Hazzan, and you'll get it next time." : "Not quite. Listen to the Hazzan, then try again."}
               </p>
