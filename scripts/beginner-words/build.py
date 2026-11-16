@@ -128,19 +128,27 @@ for b in BOOKS:
                         syl, used = analyze(w)
                         if not (1 <= len(syl) <= 4) or len(w.replace(DAGESH, "")) > 14:
                             raise Skip
-                        info[w] = (syl, max(LEVEL[u] for u in used))
+                        info[w] = (syl, used)
                     except Skip:
                         info[w] = None
                         continue
                 count[w] += 1
 
-by_level = collections.defaultdict(list)
+GROUP = {"qamats": "a", "patah": "a", "sere": "e", "segol": "e", "hireq": "i", "hireq-male": "i",
+         "holem": "o", "holem-male": "o", "qibbus": "u", "shuruq": "u",
+         "hataf-patah": "a", "hataf-segol": "e", "hataf-qamats": "o"}
+ORDER = "aeiou"
+# Keep the most frequent words for each sound mix (e.g. "a", "ae", "aei"), with and without a hataf.
+buckets = collections.defaultdict(list)
 for w, n in count.most_common():
-    syl, lvl = info[w]
-    if len(by_level[lvl]) < 120:
-        by_level[lvl].append({"w": w, "s": syl})
+    syl, used = info[w]
+    groups = "".join(g for g in ORDER if any(GROUP[u] == g for u in used))
+    hataf = any(u.startswith("hataf") for u in used)
+    key = groups + ("h" if hataf else "")
+    if len(buckets[key]) < 80:
+        buckets[key].append({"w": w, "s": syl, "g": groups, **({"h": 1} if hataf else {})})
 
-out = {str(k): by_level[k] for k in sorted(by_level)}
-(ROOT / "src/data/beginner-words.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
-for k, v in out.items():
-    print(k, len(v), " ".join(x["w"] for x in v[:15]))
+words = [x for k in sorted(buckets) for x in buckets[k]]
+(ROOT / "src/data/beginner-words.json").write_text(json.dumps(words, ensure_ascii=False, separators=(",", ":")))
+for k in sorted(buckets, key=lambda k: (len(k), k)):
+    print(k, len(buckets[k]), " ".join(x["w"] for x in buckets[k][:8]))

@@ -154,15 +154,18 @@ kept in case the owner goes back to Netlify.
   Cut a letter recording with: python3 scripts/beginner-recordings/cut.py <file> <letterId> <outdir>,
   then add the names to BEGINNER_RECORDED and put the clips in his Downloads/torah-trainer/beginner-recordings/.
   Alef and He have no sound by themselves: the letters page says so (owner's request).
-- Practice words: /beginner/words/ (WordPractice.tsx), real Torah words that use only
-  the nekudot learned so far (no sheva), from src/data/beginner-words.json, built by
-  scripts/beginner-words/build.py (filters: no sheva/qamats qatan/furtive patah/mappiq,
-  no names of Hashem; a yod after sere/segol is silent, also at the end: אֲחֵי = a-he; up to 120 most frequent words per level 5–10). A round is 10
-  words: 7 with the newest nekudot + 3 review. Two graded modes (owner chose both):
-  "Listen and pick" (the word is sounded out syllable by syllable from his
-  recordings, syllableRecordings(); child taps it among 3) — only words whose
-  syllables are all recorded; and "Read aloud" (a grown-up taps ✓/✗). Scores saved
-  with recordPractice key beginner-words:<level>:<listen|read>; teachers see them.
+- Practice words: /beginner/words/ (WordPractice.tsx), real Torah words with no sheva, from
+  src/data/beginner-words.json (each word: syllables + the sounds it uses, "a","e","ae"…; built by
+  scripts/beginner-words/build.py: no sheva/qamats qatan/furtive patah/mappiq/names of Hashem;
+  a yod after sere/segol is silent, also at the end: אֲחֵי = a-he). In STAGES (WORD_STAGES in
+  src/data/beginner-words.ts), owner's design: a only → e only → a+e together → i only →
+  i with a,e → o → o mixed → u → u mixed → hataf → all. Each stage is 50 questions; pass
+  = 40/50; the next stage stays locked until the one before is passed (teachers/admins
+  see all), and a stage also needs its nekudot level opened by the teacher. A stage in
+  progress is saved in the browser (stop and carry on). Two graded modes: "Listen and
+  pick" (word sounded out syllable by syllable from his recordings; only words whose
+  syllables are all recorded) and "Read aloud" (a grown-up taps ✓/✗). Score saved with
+  recordPractice key beginner-stage:<id>; teachers see it.
 - Local preview without Supabase settings opens every level (auth.tsx).
 
 ## Layout the owner asked for

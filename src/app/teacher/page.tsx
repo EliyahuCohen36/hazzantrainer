@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
 import { BEGINNER_LEVELS } from "@/data/beginner";
+import { WORD_STAGES } from "@/data/beginner-words";
 
 interface Klass {
   id: string;
@@ -39,11 +40,8 @@ interface Row {
 const NAME = new Map(PROSE_TEAMIM.map((t) => [t.id, t.syrian]));
 /** "/audio/teamim/torah/shofar-holekh_segolta.mp3" -> "Shofar Holekh + Segolta" */
 function practiceName(key: string) {
-  const bw = key.match(/^beginner-words:(\d+):(\w+)$/);
-  if (bw) {
-    const l = BEGINNER_LEVELS.find((x) => x.n === Number(bw[1]));
-    return `Words: ${l && l.n <= 10 ? l.title.replace(/:.*/, "") : "all nekudot"} (${bw[2] === "listen" ? "listen" : "read aloud"})`;
-  }
+  const st = key.match(/^beginner-stage:(\w+)$/);
+  if (st) return `Words: ${WORD_STAGES.find((x) => x.id === st[1])?.title ?? st[1]}`;
   const file = key.split("/").pop()?.replace(/\.\w+$/, "") ?? key;
   return file
     .split("_")

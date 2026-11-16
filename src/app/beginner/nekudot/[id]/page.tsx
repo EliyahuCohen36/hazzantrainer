@@ -68,7 +68,7 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
       )}
         {nekudaLevel(n.id) <= 10 && (
           <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center">
-            <Link href={`/beginner/words/?level=${nekudaLevel(n.id)}`} className="text-lg font-semibold text-amber-900 underline">
+            <Link href="/beginner/words/" className="text-lg font-semibold text-amber-900 underline">
               ⭐ Practice reading words with these nekudot
             </Link>
           </div>

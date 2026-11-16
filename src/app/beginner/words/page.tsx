@@ -18,8 +18,8 @@ export default function WordsPage() {
         </span>
       </div>
       <p className="mb-5 text-stone-600">
-        Real words from the Torah, using only the nekudot you have learned. Start with the newest nekudot: the words
-        mix in the ones you learned before, so you keep practising them too.
+        Real words from the Torah, step by step: first words with only one sound, then the next sound, then words
+        with both sounds together.
       </p>
       <BeginnerLock need={FIRST_WORD_LEVEL}>
         <WordPractice />
