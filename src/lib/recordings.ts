@@ -131,3 +131,26 @@ export function useExistingRecordings(paths: string[]): Set<string> | null {
   }, [key, bump]);
   return have;
 }
+
+/** Every recording in one bucket folder ("/audio/siddur/shaharit"), as full paths (null while checking). */
+export function useFolder(folder: string): Set<string> | null {
+  const [have, setHave] = useState<Set<string> | null>(null);
+  const [bump, setBump] = useState(0);
+  useEffect(() => {
+    const on = () => setBump((b) => b + 1);
+    window.addEventListener(RECORDINGS_CHANGED, on);
+    return () => window.removeEventListener(RECORDINGS_CHANGED, on);
+  }, []);
+  useEffect(() => {
+    let live = true;
+    const d = folder.replace(/\/$/, "");
+    listRecordings(d).then(
+      (names) => live && setHave(new Set([...names].map((n) => `${d}/${n}`))),
+      () => live && setHave(new Set()),
+    );
+    return () => {
+      live = false;
+    };
+  }, [folder, bump]);
+  return have;
+}

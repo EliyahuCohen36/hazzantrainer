@@ -6,3 +6,4 @@ certificates
 out
 scripts-tmp
 .env*.local
+__pycache__/

@@ -12,6 +12,7 @@
 @theme {
   --font-hebrew: "Noto Serif Hebrew", "SBL Hebrew", "Taamey Frank CLM", serif;
   --font-scroll: var(--font-stam), "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
+  --font-siddur: var(--font-taamey), "Noto Serif Hebrew", serif;
 }
 
 :root {

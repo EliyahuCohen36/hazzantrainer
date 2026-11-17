@@ -55,6 +55,49 @@ for i, l in enumerate(lines):
     if t:
         cur_sec["paras"].append(t)
 
+# ── The owner's corrections ─────────────────────────────────────────────
+def letters_only(h):
+    return re.sub(r"\s+", " ", re.sub("[\u0591-\u05C7]", "", re.sub("<[^>]+>", "", h))).strip()
+
+
+for p in parts:
+    for sec in p["sections"]:
+        paras = sec["paras"]
+        # A prayer printed small (Mimaamakim, the Kaddish…) is still said: unwrap it so it
+        # has its own recording slot. Its bold first word shows it's prayer text.
+        for k, h in enumerate(paras):
+            m = re.match(r"^\s*<small>(\s*<b>[\s\S]*)</small>\s*$", h)
+            if m and m.group(1).count("<small>") == m.group(1).count("</small>"):
+                paras[k] = m.group(1).strip()
+        # Ashre and Tehillah LeDavid: one part.
+        k = 0
+        while k < len(paras) - 1:
+            a, b = letters_only(paras[k]), letters_only(paras[k + 1])
+            if a.startswith("אשרי יושבי ביתך") and b.startswith("תהלה לדוד") and len(a) < 120:
+                paras[k] = paras[k] + "<br>" + paras.pop(k + 1)
+            k += 1
+        # Shabbat: כי ליהוה המלוכה and נשמת כל חי, one part (with the note between them).
+        if p["slug"] == "shaharit-shabbat":
+            for k in range(len(paras) - 2):
+                if letters_only(paras[k]).startswith("כי ליהוה המלוכה"):
+                    j = next((j for j in range(k + 1, min(k + 3, len(paras))) if letters_only(paras[j]).startswith("נשמת כל חי")), None)
+                    if j:
+                        paras[k] = "<br>".join(paras[k : j + 1])
+                        del paras[k + 1 : j + 1]
+                    break
+
+# Te'amim and ma'amids from the Tanach on every pasuk; ma'amids on mil'el words elsewhere.
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+import pesukim  # noqa: E402
+
+total = 0
+for p in parts:
+    for sec in p["sections"]:
+        for k, h in enumerate(sec["paras"]):
+            sec["paras"][k], n = pesukim.accent_paragraph(h)
+            total += n
+print("words given their pasuk's te'amim:", total)
+
 OUT.mkdir(parents=True, exist_ok=True)
 index = []
 for p in parts:

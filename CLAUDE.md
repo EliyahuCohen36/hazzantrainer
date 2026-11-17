@@ -185,6 +185,29 @@ kept in case the owner goes back to Netlify.
   (SegmentPlayer). A paragraph's own recording wins. Owner's Birkot HaShahar (Mode Ani → Birkot
   HaTorah, part "morning") and Korbanot (Vatitpalel Hana → "בלבב שלם", shaharit 4:1–6:30) were
   sent as MP3s to his Downloads/torah-trainer/siddur/ (Supabase free plan: files ≤ 50 MB).
+- Siddur text extras (scripts/siddur/build.py, after the Sefaria text): Ashre + Tehillah LeDavid are one
+  paragraph; in shaharit-shabbat כי ליהוה המלוכה + נשמת כל חי are one; Mimaamakim and Kaddish paragraphs that
+  were all <small> are unwrapped so they get recordings. Every pasuk quoted in the Siddur gets MAM's nikkud,
+  te'amim and ma'amid (scripts/siddur/pesukim.py: letters-only match, run of 5+ words or a whole pasuk of 3+;
+  Hashem's name keeps the Siddur spelling). Other words get a ma'amid only on reliable mil'el patterns
+  (segolates, -ַיִם, -נוּ, -ֶיךָ); tell the owner it's rule-based. Siddur font: Taamey David CLM
+  (src/fonts/taamey-david/, GPL + font exception, --font-taamey / class font-siddur).
+- Siddur maqam tunes only in the Shabbat/Yom Tov parts (TUNE_PARTS in src/data/siddur/index.ts); weekday parts
+  show a link to the Shabbat section. Several tunes per maqam: <s>-<p>@<maqam>-<n>.mp3 (n 1–6, MAX_TUNES).
+- Siddur translation (owner's request): the language flag picks English or Arabic; a toggle in the Siddur's
+  sticky bar switches "Hebrew only" / "<language> + Hebrew" (remembered per browser). Data:
+  src/data/siddur-tr/<en|ar|refs>/<part>.json {"s-p": text}, built by scripts/siddur/translate.py:
+  pesukim → JPS 1917 English (public domain; /tmp/jps.json from github.com/embabel-worlds/realm-tanakh),
+  every Kaddish from its parts, and our own translations in scripts/siddur/tr/<lang>/<part>.json (win).
+  Done by hand so far: morning (all), shaharit Shema & blessings, Amida, Ashre, Aleinu (en + ar). No free
+  Jewish Arabic Bible was found, so Arabic pesukim are only where written by hand. Add more paragraphs there
+  and re-run the script.
+- Bookmarks (src/lib/bookmarks.tsx): "Bookmark" beside each Tanakh section and Siddur section, up to 3 per
+  kind (oldest drops), kept in the browser; shown on the home page (MyBookmarks).
+- Translator: sounds in Latin letters ("ba", "bar-ne-a", "kh'") are shown in Hebrew or Arabic letters
+  (transliterate() in translate.ts); a sentence is never half-translated (left in English instead, so add it
+  to dict.ts). To find English left on pages: build without .env.local, serve out/, crawl with Playwright
+  (Chrome is at /usr/bin/google-chrome) in he/ar mode.
 - Aliyot are the common division (Hebcal). The owner wants the Edot HaMizrah
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts

@@ -17,6 +17,8 @@ import { SpeedControl } from "@/components/audio/SpeedControl";
 import { TaamPractice } from "./TaamPractice";
 import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
+import { BookmarkButton } from "@/lib/bookmarks";
+import { usePathname } from "next/navigation";
 import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
 export interface AliyahSection {
@@ -44,6 +46,8 @@ interface Props {
   weekdaySections?: AliyahSection[];
   /** The haftarah, shown after the aliyot. */
   haftarah?: AliyahSection;
+  /** The page's name, for bookmarks ("Noah", "Yehoshua 3"). */
+  title?: string;
   /** false = no Scroll Mode (Nevi'im and most of Ketuvim). */
   allowScroll?: boolean;
   scrollLabel?: string;
@@ -230,7 +234,9 @@ export function TorahText({
   nav,
   weekdaySections,
   haftarah,
+  title,
 }: Props) {
+  const pathname = usePathname();
   const [division, setDivision] = useState<"shabbat" | "weekday">("shabbat");
   const [focus, setFocus] = useState<string | null>(null);
   const items = (division === "weekday" ? nav?.weekday : nav?.shabbat) ?? [];
@@ -329,8 +335,9 @@ export function TorahText({
       {(scroll && scrollColumns?.length ? (focus === "haftarah" && haftarah ? [haftarah] : []) : sections).map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-20 sm:scroll-mt-36 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-100 pb-2">
-            <h3 className="text-base font-semibold text-stone-900">
-              {s.en} <span className="ms-2 text-sm font-normal tabular-nums text-stone-500">{s.range}</span>
+            <h3 className="flex flex-wrap items-baseline gap-2 text-base font-semibold text-stone-900">
+              {s.en} <span className="text-sm font-normal tabular-nums text-stone-500">{s.range}</span>
+              {title && <BookmarkButton kind="tanakh" href={`${pathname}#${s.id}`} label={`${title} · ${s.en}`} he={s.he} />}
             </h3>
             <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
               {s.he}

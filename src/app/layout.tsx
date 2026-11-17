@@ -16,6 +16,17 @@ const stam = localFont({
   display: "swap",
 });
 
+// The Siddur: Taamey David CLM (Culmus, GPL + font exception), a clear font made for
+// nikkud and te'amim, so the Siddur has its own look.
+const siddurFont = localFont({
+  src: [
+    { path: "../fonts/taamey-david/TaameyDavidCLM-Medium.ttf", weight: "400" },
+    { path: "../fonts/taamey-david/TaameyDavidCLM-Bold.ttf", weight: "700" },
+  ],
+  variable: "--font-taamey",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Kriah Trainer · Syrian Torah Reading",
   description: "Practise Torah reading with te'amim according to Syrian tradition.",
@@ -34,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // itself. The language buttons (Hebrew, Arabic) switch <html> to RTL and
   // translate the text (src/lib/i18n/); the layout uses logical properties.
   return (
-    <html lang="en" className={stam.variable}>
+    <html lang="en" className={`${stam.variable} ${siddurFont.variable}`}>
       <body className="min-h-dvh antialiased">
         <LanguageProvider>
           <AuthProvider>

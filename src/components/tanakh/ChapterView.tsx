@@ -75,7 +75,7 @@ export function ChapterView({ book, slug }: { book: TanakhBook; slug: string }) 
       </p>
 
       <div className="mt-4">
-        <TorahText sections={sections} practice={{}} allowScroll={megillah} scrollLabel="Megillah Scroll Mode" />
+        <TorahText sections={sections} practice={{}} allowScroll={megillah} scrollLabel="Megillah Scroll Mode" title={book.en} />
       </div>
 
       <div className="mt-6 flex justify-between gap-4 text-sm">

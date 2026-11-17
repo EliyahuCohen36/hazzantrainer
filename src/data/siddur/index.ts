@@ -5,7 +5,7 @@
  *
  * Recordings (uploaded by the admin right on the page, or at /admin/):
  *   siddur/<part>/<section>-<paragraph>.mp3          (1-based numbers)
- *   siddur/<part>/<section>-<paragraph>@<maqam>.mp3  (a tune in a maqam)
+ *   siddur/<part>/<section>-<paragraph>@<maqam>-<n>.mp3  (tune n in a maqam; Shabbat/Yom Tov parts)
  *   … and the same name with .json: the time each word starts (for highlighting).
  */
 import index from "./index.json";
@@ -22,8 +22,16 @@ export interface SiddurPart extends Omit<SiddurPartInfo, "sections"> {
 
 export const SIDDUR_PARTS = index as SiddurPartInfo[];
 
-export const siddurRecording = (part: string, s: number, p: number, maqam?: string) =>
-  `/audio/siddur/${part}/${s + 1}-${p + 1}${maqam ? `@${maqam}` : ""}.mp3`;
+/** A paragraph's recording; with a maqam, tune number `tune` (1, 2, …) in that maqam. */
+export const siddurRecording = (part: string, s: number, p: number, maqam?: string, tune = 1) =>
+  `/audio/siddur/${part}/${s + 1}-${p + 1}${maqam ? `@${maqam}-${tune}` : ""}.mp3`;
+
+/** How many tunes in one maqam a place can have. */
+export const MAX_TUNES = 6;
+
+/** The maqam tunes are learned in the Shabbat and Yom Tov parts only (owner). */
+export const TUNE_PARTS = new Set(["arvit-shabbat", "leil-shabbat", "shaharit-shabbat", "musaf-shabbat", "minha-shabbat", "regalim"]);
+export const tunesHere = (part: string) => TUNE_PARTS.has(part);
 
 /** The maqamot the Hazzan can record a tune in. */
 export const MAQAMOT: { id: string; en: string; he: string }[] = [

@@ -151,6 +151,7 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
           nav={nav}
           weekdaySections={weekdaySections}
           haftarah={haftarah}
+          title={p.en}
         />
       </div>
 
