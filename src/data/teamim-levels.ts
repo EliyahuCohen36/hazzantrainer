@@ -13,66 +13,305 @@ export interface TeamimLevel {
   /** One line for the child: what this level is about. */
   about: string;
   teamim: string[];
+  /** "stress": Mil'el and Milra (before the te'amim); "combo": two te'amim already learned, together. */
+  kind?: "stress" | "combo";
 }
 
+/**
+ * One ta'am per level (owner: master each one first), mafsik before the
+ * mesharet that leads into it, and the pairs that come together often only
+ * after both were learned. Level 1 is Mil'el and Milra.
+ */
 export const TEAMIM_LEVELS: TeamimLevel[] = [
   {
-    n: 1,
-    title: "Ma'arikh Tarha",
-    hebrew: "מאריך טרחא",
-    about: "The tune at the end of almost every pasuk: Ma'arikh, Tarha, and Sof Pasuk.",
-    teamim: ["maarikh", "tarha", "sof-pasuk"],
+    "n": 1,
+    "title": "Mil'el and Milra",
+    "hebrew": "מלעיל ומלרע",
+    "about": "Before the te'amim: where the stress (the ma'amid) goes in a word.",
+    "teamim": [],
+    "kind": "stress"
   },
   {
-    n: 2,
-    title: "Atnah",
-    hebrew: "אתנח",
-    about: "The middle of the pasuk, and the Shofar Holekh that comes before it.",
-    teamim: ["atnah", "shofar-holekh"],
+    "n": 2,
+    "title": "Sof Pasuk",
+    "hebrew": "סוף פסוק",
+    "about": "The end of every pasuk.",
+    "teamim": [
+      "sof-pasuk"
+    ]
   },
   {
-    n: 3,
-    title: "Tebir",
-    hebrew: "תביר",
-    about: "Tebir, with Darga and Ma'arikh leading into it.",
-    teamim: ["tebir", "darga"],
+    "n": 3,
+    "title": "Tarha",
+    "hebrew": "טרחא",
+    "about": "Tarha, which comes just before Sof Pasuk or Atnah.",
+    "teamim": [
+      "tarha"
+    ]
   },
   {
-    n: 4,
-    title: "Zakef",
-    hebrew: "זקף",
-    about: "Zakef Katon and Zakef Gadol, with Kadma and Shofar Mehuppakh.",
-    teamim: ["zakef-katon", "kadma", "shofar-mehuppakh", "zakef-gadol"],
+    "n": 4,
+    "title": "Ma'arikh",
+    "hebrew": "מאריך",
+    "about": "Ma'arikh, which leads into Tarha, Sof Pasuk and others.",
+    "teamim": [
+      "maarikh"
+    ]
   },
   {
-    n: 5,
-    title: "Rebia and Gerish",
-    hebrew: "רביע וגריש",
-    about: "Rebia, Gerish, Shene Gerishin, and Azla before Gerish.",
-    teamim: ["rebia", "gerish", "azla", "shene-gerishin"],
+    "n": 5,
+    "title": "Ma'arikh Tarha and Tarha Ma'arikh",
+    "hebrew": "מאריך טרחא וטרחא מאריך",
+    "about": "Together: which one comes first, and how each sounds first and second.",
+    "teamim": [],
+    "kind": "combo"
   },
   {
-    n: 6,
-    title: "Segolta and Zarka",
-    hebrew: "סגולתא וזרקא",
-    about: "Segolta and Zarka, Tere Kadmin and Yetib.",
-    teamim: ["segolta", "zarka", "tere-kadmin", "yetib"],
+    "n": 6,
+    "title": "Atnah",
+    "hebrew": "אתנח",
+    "about": "The middle of the pasuk.",
+    "teamim": [
+      "atnah"
+    ]
   },
   {
-    n: 7,
-    title: "Pazer and Talsha",
-    hebrew: "פזר ותלשא",
-    about: "Less common te'amim: Pazer Gadol, Talsha, Tilsa and Tere Ta'ame.",
-    teamim: ["pazer-gadol", "talsha", "tilsa", "tere-taame"],
+    "n": 7,
+    "title": "Shofar Holekh",
+    "hebrew": "שופר הולך",
+    "about": "Shofar Holekh changes its sound with the ta'am that comes after it.",
+    "teamim": [
+      "shofar-holekh"
+    ]
   },
   {
-    n: 8,
-    title: "The rare ones",
-    hebrew: "טעמים נדירים",
-    about: "Shalshelet, Karne Farah, and Shofar Holekh with Pesik.",
-    teamim: ["shalshelet", "karne-farah", "shofar-holekh-pesik"],
+    "n": 8,
+    "title": "Tebir",
+    "hebrew": "תביר",
+    "about": "Tebir.",
+    "teamim": [
+      "tebir"
+    ]
   },
+  {
+    "n": 9,
+    "title": "Darga",
+    "hebrew": "דרגא",
+    "about": "Darga, which leads into Tebir.",
+    "teamim": [
+      "darga"
+    ]
+  },
+  {
+    "n": 10,
+    "title": "Zakef Katon",
+    "hebrew": "זקף קטן",
+    "about": "Zakef Katon.",
+    "teamim": [
+      "zakef-katon"
+    ]
+  },
+  {
+    "n": 11,
+    "title": "Kadma",
+    "hebrew": "קדמא",
+    "about": "Kadma: at the end of the word it pauses; in the middle of the word it connects.",
+    "teamim": [
+      "kadma"
+    ]
+  },
+  {
+    "n": 12,
+    "title": "Shofar Mehuppakh",
+    "hebrew": "שופר מהופך",
+    "about": "Shofar Mehuppakh.",
+    "teamim": [
+      "shofar-mehuppakh"
+    ]
+  },
+  {
+    "n": 13,
+    "title": "Shofar Mehuppakh Kadma",
+    "hebrew": "שופר מהופך קדמא",
+    "about": "Together, as they so often come before Zakef.",
+    "teamim": [],
+    "kind": "combo"
+  },
+  {
+    "n": 14,
+    "title": "Zakef Gadol",
+    "hebrew": "זקף גדול",
+    "about": "Zakef Gadol.",
+    "teamim": [
+      "zakef-gadol"
+    ]
+  },
+  {
+    "n": 15,
+    "title": "Rebia",
+    "hebrew": "רביע",
+    "about": "Rebia.",
+    "teamim": [
+      "rebia"
+    ]
+  },
+  {
+    "n": 16,
+    "title": "Gerish",
+    "hebrew": "גריש",
+    "about": "Gerish.",
+    "teamim": [
+      "gerish"
+    ]
+  },
+  {
+    "n": 17,
+    "title": "Azla",
+    "hebrew": "אזלא",
+    "about": "Azla, which leads into Gerish.",
+    "teamim": [
+      "azla"
+    ]
+  },
+  {
+    "n": 18,
+    "title": "Shene Gerishin",
+    "hebrew": "שני גרישין",
+    "about": "Shene Gerishin.",
+    "teamim": [
+      "shene-gerishin"
+    ]
+  },
+  {
+    "n": 19,
+    "title": "Segolta",
+    "hebrew": "סגולתא",
+    "about": "Segolta.",
+    "teamim": [
+      "segolta"
+    ]
+  },
+  {
+    "n": 20,
+    "title": "Zarka",
+    "hebrew": "זרקא",
+    "about": "Zarka, which comes before Segolta.",
+    "teamim": [
+      "zarka"
+    ]
+  },
+  {
+    "n": 21,
+    "title": "Tere Kadmin",
+    "hebrew": "תרי קדמין",
+    "about": "Tere Kadmin.",
+    "teamim": [
+      "tere-kadmin"
+    ]
+  },
+  {
+    "n": 22,
+    "title": "Yetib",
+    "hebrew": "יתיב",
+    "about": "Yetib, written before the word.",
+    "teamim": [
+      "yetib"
+    ]
+  },
+  {
+    "n": 23,
+    "title": "Pazer Gadol",
+    "hebrew": "פזר גדול",
+    "about": "Pazer Gadol.",
+    "teamim": [
+      "pazer-gadol"
+    ]
+  },
+  {
+    "n": 24,
+    "title": "Talsha",
+    "hebrew": "תלשא",
+    "about": "Talsha, at the start of the word.",
+    "teamim": [
+      "talsha"
+    ]
+  },
+  {
+    "n": 25,
+    "title": "Tilsa",
+    "hebrew": "תילשא",
+    "about": "Tilsa, at the end of the word.",
+    "teamim": [
+      "tilsa"
+    ]
+  },
+  {
+    "n": 26,
+    "title": "Tere Ta'ame",
+    "hebrew": "תרי טעמי",
+    "about": "Tere Ta'ame.",
+    "teamim": [
+      "tere-taame"
+    ]
+  },
+  {
+    "n": 27,
+    "title": "Shalshelet",
+    "hebrew": "שלשלת",
+    "about": "Shalshelet: rare.",
+    "teamim": [
+      "shalshelet"
+    ]
+  },
+  {
+    "n": 28,
+    "title": "Karne Farah",
+    "hebrew": "קרני פרה",
+    "about": "Karne Farah: once in the Torah.",
+    "teamim": [
+      "karne-farah"
+    ]
+  },
+  {
+    "n": 29,
+    "title": "Shofar Holekh with Pesik",
+    "hebrew": "שופר הולך ופסיק",
+    "about": "When a pesik follows Shofar Holekh.",
+    "teamim": [
+      "shofar-holekh-pesik"
+    ]
+  }
 ];
+
+/** Extra teaching for some levels (shown at the top of the level). */
+export const LEVEL_LESSONS: Record<number, string[]> = {
+  5: [
+    "Ma'arikh and Tarha often come one after the other, and the order matters.",
+    "Ma'arikh Tarha: first the Ma'arikh (connecting), then the Tarha (pausing). The Ma'arikh leads up into the Tarha.",
+    "Tarha Ma'arikh: the Tarha comes first and pauses, then a Ma'arikh starts the next part, leading into Sof Pasuk or Atnah. Listen to how each one sounds when it comes first and when it comes second.",
+  ],
+  7: [
+    "Shofar Holekh is a connecting ta'am: it leads into the ta'am after it, so its tune changes with what comes next.",
+    "Listen to it before Atnah, before Segolta and before Zakef Katon (each pair opens once you've learned the second ta'am).",
+  ],
+  11: [
+    "Kadma written at the END of the word (after the last letter) is a pausing ta'am (mafsik). Its sound stops the phrase a little.",
+    "The same-looking sign written in the MIDDLE of the word, on the letter that takes the stress, is a connecting ta'am (mehabber): it runs straight on into the next word (on this site it's called Azla, and it leads into Gerish).",
+    "Look where the sign sits: end of the word = Kadma, pausing. Middle of the word = connecting.",
+  ],
+  13: [
+    "Shofar Mehuppakh and Kadma very often come one after the other, leading into Zakef Katon. Now that you know each one, sing them together.",
+  ],
+};
+
+/** Recordings for the "together" levels: [label, path]. */
+export const COMBO_RECORDINGS: Record<number, [string, string][]> = {
+  5: [
+    ["Ma'arikh Tarha", "/audio/teamim/torah/maarikh_tarha.mp3"],
+    ["Tarha Ma'arikh", "/audio/teamim/torah/tarha_maarikh.mp3"],
+  ],
+  13: [["Shofar Mehuppakh Kadma", "/audio/teamim/torah/shofar-mehuppakh_kadma.mp3"]],
+};
 
 export const MAX_LEVEL = TEAMIM_LEVELS.length;
 

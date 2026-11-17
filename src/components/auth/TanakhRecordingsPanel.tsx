@@ -7,6 +7,7 @@ import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import { bookParts } from "@/data/tanakh-chapters";
 import { aliyahRecording, chapterRecording, TUNE_SETS, tuneRecording } from "@/data/tanakh-recordings";
 import { listRecordings } from "@/lib/recordings";
+import { COMBO_RECORDINGS } from "@/data/teamim-levels";
 import { supabase } from "@/lib/supabase";
 import { Recording } from "@/components/audio/Recording";
 
@@ -102,17 +103,28 @@ export function TanakhRecordingsPanel() {
   const slots: Slot[] = useMemo(() => {
     if (kind === "teamim") {
       const t = TUNE_SETS.find((x) => x.id === tune)!;
-      return (t.system === "emet" ? EMET_TEAMIM : PROSE_TEAMIM)
-        .filter((x) => x.id)
-        .map((x) => ({ label: x.syrian, path: tuneRecording(tune, x.id!) }));
+      return [
+        { label: "★ All the te'amim (one review recording)", path: tuneRecording(tune, "all") },
+        ...(tune === "torah"
+          ? Object.values(COMBO_RECORDINGS)
+              .flat()
+              .map(([label, path]) => ({ label: `Together: ${label}`, path }))
+          : []),
+        ...(t.system === "emet" ? EMET_TEAMIM : PROSE_TEAMIM)
+          .filter((x) => x.id)
+          .map((x) => ({ label: x.syrian, path: tuneRecording(tune, x.id!) })),
+      ];
     }
     if (section === "torah") {
       const p = PARASHOT.find((x) => x.id === unit);
       if (!p) return [];
-      return p.aliyot.map((a) => ({
-        label: `${a.n === "M" ? "Maftir" : ALIYAH_NAMES[String(a.n)].en} (${a.from}–${a.to})`,
-        path: aliyahRecording(book, p.id, a.n),
-      }));
+      return [
+        ...p.aliyot.map((a) => ({
+          label: `${a.n === "M" ? "Maftir" : ALIYAH_NAMES[String(a.n)].en} (${a.from}–${a.to})`,
+          path: aliyahRecording(book, p.id, a.n),
+        })),
+        { label: "Haftarah", path: aliyahRecording(book, p.id, "H") },
+      ];
     }
     const part = bookParts(book)[Number(unit)];
     return (part?.chapters ?? []).map((c) => ({ label: `Chapter ${c.c}`, path: chapterRecording(book, c.slug) }));

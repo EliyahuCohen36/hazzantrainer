@@ -75,8 +75,13 @@ kept in case the owner goes back to Netlify.
 - Recordings other than the 3 demo ones are in the private "recordings" bucket
   and played through signed links (src/lib/recordings.ts). Never commit them to
   public/ (the repo is public). New recordings: upload from /admin/ → Recordings.
-- Te'amim levels: the trainer goes in 8 levels, easiest first (Level 1 = Ma'arikh
-  Tarha + Sof Pasuk), defined in src/data/teamim-levels.ts. Children only see the
+- Te'amim levels: 29 levels (src/data/teamim-levels.ts, owner's design Nov 2026): Level 1
+  Mil'el and Milra (MilelMilra.tsx, ~36 words with a ma'amid, src/data/stress-words.ts, quiz key
+  teamim-stress, pass 80%); then ONE ta'am per level (mafsik before the mesharet that leads into
+  it); "combo" levels for pairs after both are learned (5 Ma'arikh Tarha / Tarha Ma'arikh,
+  13 Shofar Mehuppakh Kadma; COMBO_RECORDINGS, LEVEL_LESSONS incl. the Kadma end-of-word = mafsik /
+  mid-word = connecting note at level 11). "All the te'amim" list + one review recording per tune
+  (teamim/<tune>/all.mp3) at the top of the trainer and on /teamim/ (AllTeamim.tsx). Children only see the
   levels their teacher opened (classes.unlocked_level, per-child override in
   class_members.unlocked_level; my_level() in supabase/levels.sql). Teachers set
   them in /teacher/. The quiz uses only open te'amim. Teachers/admins see all.
@@ -147,8 +152,31 @@ kept in case the owner goes back to Netlify.
   (exact text; {n} numbers, {*} any words) and names to Hebrew (names.ts); <html dir=rtl>
   for he/ar. To translate more, add lines to dict.ts. Elements with lang="he" or
   data-no-translate are left alone.
-- Nusach picker in the header (src/data/nusachim.ts): Syrian ready; Ashkenaz, Yerushalmi,
-  Egyptian, Moroccan "coming soon" until their Hazzanim record.
+- Nusach picker in the header (src/data/nusachim.ts): Syrian, Yerushalmi (all the Syrian content;
+  a recording uploaded under nusach/yerushalmi/<same path> replaces the Syrian one when Yerushalmi
+  is picked: recordingUrl() in src/lib/recordings.ts; the admin uploads them by picking Yerushalmi
+  and dropping files as usual), Ashkenaz "coming soon".
+- "Please do not use this app on Shabbat and Yamim Tovim." is under the header on every page.
+- Admin drag-and-drop: AdminDrop (src/components/admin/AdminDrop.tsx) sits beside every slot for
+  the admin only: aliyot/maftir/haftarah/chapter readings, te'amim cards, combos, review recording,
+  beginner tiles, every Siddur paragraph (and each maqam tune). recordingsChanged() refreshes pages.
+- Parasha pages (TorahText nav): All / Kohen…Shevi'i / Maftir / Haftarah, or Weekday aliyot
+  (Monday, Thursday, Shabbat Minha: Kohen, Levi, Yisrael) from src/data/parasha-extra.ts
+  (@hebcal/leyning; haftarah "syrian" = Sephardic, "ashkenaz" kept for later). In Torah Scroll Mode
+  the aliyah name sits above the exact first word of its pasuk; picking an aliyah shows only its
+  columns and fades every other word. Zoom in scroll mode scales the page as it is (CSS zoom).
+  Haftarah text from the Nevi'im data (versesRange), recording reading/<book>/<parasha>/haftarah.mp3.
+- Bold qamats katan / sheva na are a little smaller and move to the right side of the letter when
+  a ta'am or ma'amid is under the same letter (.vowel-shift).
+- Torah page: two tabs (TorahTabs.tsx): Tikkun (everything above) and Shnayim Mikra ve-Ehad Targum
+  (/tanakh/torah/shnayim-mikra/ with why + short halakhot, and /<parasha>/: each pasuk twice then
+  Onkelos; Targum Onkelos, Yemenite Taj vocalization, Hebrew Wikisource CC BY-SA, in
+  src/data/onkelos/, built by scripts/onkelos/build.py). Five book buttons above the parashiyot.
+- Siddur (/siddur/, /siddur/<part>/): nusach Edot HaMizrah, Torat Emet 357 via Sefaria
+  (scripts/siddur/build.py → src/data/siddur/). Recording per paragraph:
+  siddur/<part>/<section>-<paragraph>.mp3 (1-based), tunes <…>@<maqam>.mp3 for the owner's tune
+  places (TUNE_SPOTS, MAQAMOT in src/data/siddur/index.ts). Word highlighting: the admin presses
+  "Time the words" and taps each word while it plays; times saved as the same name .json.
 - Aliyot are the common division (Hebcal). The owner wants the Edot HaMizrah
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
@@ -167,8 +195,16 @@ kept in case the owner goes back to Netlify.
   section /beginner/sheva/ (Sheva Na vs Nach rules, examples drawn with WithMaamid,
   every letter with a sheva, ךְ), opened only after everything else (level 12).
   Hataf nekudot stay with the other nekudot.
-- Levels (12, BEGINNER_LEVELS in beginner.ts): 1–3 letters, 4 sofiyot, 5–10 nekudot by
-  sound, 11 full chart, 12 the Sheva. Teachers open them per class (classes.beginner_level) and per
+- Levels (BEGINNER_LEVELS in beginner.ts): 1–3 letters, 4 sofiyot, 5–10 nekudot by
+  sound, 11 full chart, 12+ the Sheva and Qamats Katan steps, one per level (SHEVA_STAGES in
+  src/data/sheva-stages.ts, owner's order: Nach after patah, segol, hiriq haser, qamats katan,
+  qibbus, then all; Na after qamats, tsere, hiriq male, holam, mid-word shuruq, then all; na or
+  nach; nach after initial וּ; end of word; na at the start; two in the middle; all; then Qamats
+  Katan: rule, same letters both ways (שָֽׁמְרָה/שָׁמְרָה, אָכְלָה, לָמְדָה), gadol or katan, before a
+  maqaf). /beginner/sheva/practice/ (ShevaTrainer.tsx): 50 words a step, pass 40, the child picks
+  the right reading of the highlighted sheva/qamats (Latin syllables), words from the Torah in
+  src/data/sheva-words.json (scripts/sheva-words/build.py; a qamats gadol before a sheva gets a
+  ma'amid; in the qamats steps the katan is shown as a plain qamats). Teachers open them per class (classes.beginner_level) and per
   child (class_members.beginner_level); my_beginner_level() in supabase/beginner.sql.
   Locks: src/components/beginner/Lock.tsx (BeginnerLock, LockTile, BeginnerLevelPath).
 - Recordings (his voice only) go in BEGINNER_RECORDINGS (src/data/beginner-recordings.ts):

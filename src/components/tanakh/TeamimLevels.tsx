@@ -4,7 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
-import { MAX_LEVEL, TEAMIM_LEVELS, levelOf, openTeamim } from "@/data/teamim-levels";
+import { COMBO_RECORDINGS, LEVEL_LESSONS, MAX_LEVEL, TEAMIM_LEVELS, levelOf, openTeamim } from "@/data/teamim-levels";
+import { STRESS_KEY } from "@/data/stress-words";
+import { MilelMilra } from "./MilelMilra";
+import { Recording } from "@/components/audio/Recording";
+import { TaamPractice } from "./TaamPractice";
+import { useExistingRecordings } from "@/lib/recordings";
+import { AdminDrop } from "@/components/admin/AdminDrop";
 import { loadProgress, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { TaamCard } from "./TorahTeamim";
 
@@ -51,10 +57,17 @@ export function TeamimLevels() {
     return () => window.removeEventListener("hashchange", go);
   }, [maxOpen]);
 
+  const comboPaths = useMemo(() => Object.values(COMBO_RECORDINGS).flat().map(([, p]) => p), []);
+  const haveCombo = useExistingRecordings(comboPaths);
   const stars = (l: number) => {
-    const ids = TEAMIM_LEVELS[l - 1].teamim.filter((id) => TORAH_TEAMIM_RECORDINGS[id]);
-    const done = ids.filter((id) => (best[TORAH_TEAMIM_RECORDINGS[id]] ?? 0) >= TWO_STARS).length;
-    return { done, total: ids.length };
+    const L = TEAMIM_LEVELS[l - 1];
+    if (L.kind === "stress") return { done: (best[STRESS_KEY] ?? 0) >= 80 ? 1 : 0, total: 1 };
+    const srcs =
+      L.kind === "combo"
+        ? (COMBO_RECORDINGS[l] ?? []).map(([, p]) => p).filter((p) => haveCombo?.has(p))
+        : L.teamim.map((id) => TORAH_TEAMIM_RECORDINGS[id]).filter(Boolean);
+    const done = srcs.filter((src) => (best[src] ?? 0) >= TWO_STARS).length;
+    return { done, total: srcs.length };
   };
 
   const lvl = TEAMIM_LEVELS[shown - 1];
@@ -107,8 +120,7 @@ export function TeamimLevels() {
       {/* A locked level doesn't say what's in it (owner's request). */}
       <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2 border-t border-stone-100 pt-4">
         <h3 className="text-lg font-semibold text-stone-900">
-          Level {lvl.n}
-          {!locked && `: ${lvl.title}`}
+          {locked ? `Level ${lvl.n}` : `Level ${lvl.n}: ${lvl.title}`}
         </h3>
         {!locked && (
           <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
@@ -145,6 +157,34 @@ export function TeamimLevels() {
             <p className="mt-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
               🎉 Great work! Show your teacher, and ask them to open Level {maxOpen + 1}.
             </p>
+          )}
+          {LEVEL_LESSONS[lvl.n] && (
+            <div className="mt-3 space-y-1.5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-stone-800">
+              {LEVEL_LESSONS[lvl.n].map((t) => (
+                <p key={t}>{t}</p>
+              ))}
+            </div>
+          )}
+          {lvl.kind === "stress" && <MilelMilra />}
+          {lvl.kind === "combo" && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {(COMBO_RECORDINGS[lvl.n] ?? []).map(([label, src]) => (
+                <div key={src} className="rounded-xl border border-amber-100 bg-amber-50/50 p-3">
+                  <div className="mb-1.5 font-medium text-stone-900">{label}</div>
+                  <AdminDrop path={src} compact />
+                  {haveCombo?.has(src) ? (
+                    <>
+                      <Recording src={src} />
+                      <div className="mt-2">
+                        <TaamPractice src={src} label={label} />
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-xs text-stone-500">♪ Recording coming soon</p>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
           <ul className="mt-2">
             {lvl.teamim.map((id) => {

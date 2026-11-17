@@ -67,6 +67,19 @@ export default function ShevaPage() {
           every Sheva Na is drawn <b>big and bold</b>, so you can see it.
         </p>
 
+        <Link
+          href="/beginner/sheva/practice/"
+          className="mb-5 flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 hover:bg-emerald-100"
+        >
+          <span>
+            <span className="block text-lg font-semibold text-stone-900">⭐ Practice the Sheva and the Qamats Katan, step by step</span>
+            <span className="block text-sm text-stone-600">
+              Nach after the short vowels, Na after the long vowels, the other rules, then the Qamats Katan.
+            </span>
+          </span>
+          <span className="font-semibold text-emerald-800">Start →</span>
+        </Link>
+
         <div className="grid gap-5">
           <Examples
             title={"Sheva Na: say a short \u201ce\u201d"}

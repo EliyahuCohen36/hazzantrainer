@@ -1,3 +1,4 @@
+import { SHEVA_STAGES } from "./sheva-stages";
 /**
  * Beginner Keriah (kindergarten / first-time readers): the letters of the
  * alef-bet with the sofiyot, then every letter with every nekuda.
@@ -135,7 +136,7 @@ export const BEGINNER_STEPS = [
   { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u.", emoji: "•" },
   { href: "/beginner/chart/", title: "Letters with Nekudot", he: "לוּחַ", text: "Every letter with every nekuda, to read one by one.", emoji: "📋" },
   { href: "/beginner/words/", title: "Practice words", he: "מִלִּים", text: "Read real Torah words with the nekudot you know, and get stars.", emoji: "⭐" },
-  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Na and Sheva Nach, once all the letters and nekudot are learned.", emoji: "⁚" },
+  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Na and Sheva Nach, then the Qamats Katan, step by step, once all the letters and nekudot are learned.", emoji: "⁚" },
 ];
 
 /** How a letter with a nekuda sounds, spelled simply: "ba", "kho", "a". */
@@ -176,7 +177,8 @@ export const BEGINNER_LEVELS: BeginnerLevel[] = [
   { n: 9, title: "Qibbus and Shuruq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shuruq"], href: "/beginner/nekudot/qibbus/" },
   { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/hataf-patah/" },
   { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/chart/" },
-  { n: 12, title: "The Sheva: Na and Nach", he: "שְׁוָא", href: "/beginner/sheva/" },
+  // The Sheva and Qamats Katan, one step per level (src/data/sheva-stages.ts).
+  ...SHEVA_STAGES.map((st) => ({ n: st.level, title: st.title, he: st.he, href: `/beginner/sheva/practice/#${st.id}` })),
 ];
 
 /** The Sheva section opens last, after all the letters and the other nekudot. */

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Recording } from "@/components/audio/Recording";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { tuneOf, tuneRecording } from "@/data/tanakh-recordings";
+import { AllTeamim } from "@/components/tanakh/AllTeamim";
 import { useExistingRecordings } from "@/lib/recordings";
 import {
   EMET_TEAMIM,
@@ -163,6 +164,7 @@ export function TeamimBrowser() {
         )}
 
         <div className="mt-5 space-y-6">
+          {tune && <AllTeamim tune={tune.id} emet={tune.system === "emet"} links={false} />}
           {!!have?.size && <SpeedControl compact />}
           <TaamTable title="Mafsikim" subtitle="(pausing te'amim)" rows={mafsikim} grouped audio={audio} />
           <TaamTable title="Mesharetim" subtitle="(connecting te'amim)" rows={mesharetim} audio={audio} />

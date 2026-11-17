@@ -1,9 +1,13 @@
+"use client";
+
 import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
 import { Recording } from "@/components/audio/Recording";
 import { WithMaamid } from "@/components/reader/Maamid";
 import { TaamPractice } from "./TaamPractice";
+import { AdminDrop } from "@/components/admin/AdminDrop";
+import { useExistingRecordings } from "@/lib/recordings";
 
 const LEVELS: Record<number, string> = {
   1: "Strongest pause",
@@ -63,7 +67,10 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
 export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: boolean; open?: Set<string> }) {
   const id = t.id ?? "";
   const examples = TORAH_EXAMPLES[id] ?? [];
-  const audio = TORAH_TEAMIM_RECORDINGS[id];
+  // A recording listed in the data, or one the admin uploaded since (teamim/torah/<id>.mp3).
+  const uploaded = `/audio/teamim/torah/${id}.mp3`;
+  const have = useExistingRecordings(demo || TORAH_TEAMIM_RECORDINGS[id] ? [] : [uploaded]);
+  const audio = TORAH_TEAMIM_RECORDINGS[id] ?? (have?.has(uploaded) ? uploaded : undefined);
   // The demo only has the solo recordings; pairs need a login.
   // With levels, a pair shows once both of its te'amim are open.
   const ok = (p: { first: string; second: string }) => !open || (open.has(p.first) && open.has(p.second));
@@ -85,6 +92,7 @@ export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: b
         </div>
       </div>
       <div className="space-y-2">
+        {id && <AdminDrop path={audio ?? `/audio/teamim/torah/${id}.mp3`} compact label={audio ? "Replace this recording" : "Drop the recording here"} />}
         {audio ? (
           <div className="space-y-2">
             <Recording src={audio} />

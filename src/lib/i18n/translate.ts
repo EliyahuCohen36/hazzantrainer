@@ -59,6 +59,8 @@ export function translateText(text: string, lang: Lang): string | null {
   for (const p of patterns![lang]) {
     const m = text.match(p.re);
     if (!m) continue;
+    // "Tebir." — only a name followed by a full stop.
+    if (p.out === "{*}." && !names!.has(m[1])) continue;
     let i = 1;
     return p.out.replace(/\{n\}|\{\*\}/g, () => {
       const v = m[i++] ?? "";

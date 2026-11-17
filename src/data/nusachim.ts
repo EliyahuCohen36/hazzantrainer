@@ -12,9 +12,9 @@ export interface Nusach {
 }
 
 export const NUSACHIM: Nusach[] = [
-  { id: "syrian", en: "Syrian (Aleppo)", he: "סורי (ארם צובא)", ready: true },
+  { id: "syrian", en: "Syrian", he: "סורי", ready: true },
+  // Same as Syrian except a few te'amim (Pazer Gadol, Tere Ta'ame) and the
+  // Nevi'im and megillot tunes: those recordings go under nusach/yerushalmi/.
+  { id: "yerushalmi", en: "Yerushalmi", he: "ירושלמי", ready: true },
   { id: "ashkenaz", en: "Ashkenaz", he: "אשכנז", ready: false },
-  { id: "yerushalmi", en: "Yerushalmi", he: "ירושלמי", ready: false },
-  { id: "egyptian", en: "Egyptian", he: "מצרי", ready: false },
-  { id: "moroccan", en: "Moroccan", he: "מרוקאי", ready: false },
 ];

@@ -28,6 +28,8 @@ export function NusachPicker() {
           } catch {
             // ignore
           }
+          // Recordings are picked per nusach: reload so every player uses the new one.
+          location.reload();
         }}
         className="max-w-[9.5rem] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-xs text-stone-700"
         aria-label="Nusach"

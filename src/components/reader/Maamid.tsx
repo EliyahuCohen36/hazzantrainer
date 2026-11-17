@@ -77,6 +77,9 @@ function Hints({ text, source }: { text: string; source?: string }) {
                 cls.push("maamid");
                 title.push("Ma'amid: the sound goes on this letter");
               }
+              // A ta'am under this letter too (or a ma'amid): draw the vowel beside it.
+              if ((c.qamatsKatan || c.shevaNa) && (c.meteg || /[\u0591\u0596\u059B\u05A2-\u05A7\u05AA]/.test(c.text)))
+                cls.push("vowel-shift");
               if (c.qamatsKatan) {
                 t = t.replace("ׇ", "");
                 cls.push("vowel-qamats-katan");

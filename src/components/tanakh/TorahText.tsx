@@ -16,6 +16,7 @@ import { Recording } from "@/components/audio/Recording";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { TaamPractice } from "./TaamPractice";
 import { useExistingRecordings } from "@/lib/recordings";
+import { AdminDrop } from "@/components/admin/AdminDrop";
 import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
 export interface AliyahSection {
@@ -37,6 +38,12 @@ interface Props {
   practice: Record<string, string>;
   /** The parasha's columns in the Sefer Torah, shown in Torah Scroll Mode. */
   scrollColumns?: ScrollColumn[];
+  /** Parasha pages: the aliyot to jump to, for Shabbat and for weekdays. */
+  nav?: { shabbat: NavItem[]; weekday?: NavItem[] };
+  /** The weekday reading as text sections (Kohen, Levi, Yisrael). */
+  weekdaySections?: AliyahSection[];
+  /** The haftarah, shown after the aliyot. */
+  haftarah?: AliyahSection;
   /** false = no Scroll Mode (Nevi'im and most of Ketuvim). */
   allowScroll?: boolean;
   scrollLabel?: string;
@@ -199,8 +206,49 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
   );
 }
 
+export interface NavItem {
+  /** Element id to jump to ("aliyah-3", "maftir", "haftarah"). */
+  id: string;
+  label: string;
+  /** First and last pasuk ("c:v"); none for the haftarah. */
+  from?: string;
+  to?: string;
+}
+
+const posOf = (cv: string) => {
+  const [c, v] = cv.split(":").map(Number);
+  return c * 1000 + v;
+};
+
 /** The text of a parasha, aliyah by aliyah, with the reader switches. */
-export function TorahText({ sections, practice, scrollColumns, allowScroll = true, scrollLabel }: Props) {
+export function TorahText({
+  sections: shabbatSections,
+  practice,
+  scrollColumns,
+  allowScroll = true,
+  scrollLabel,
+  nav,
+  weekdaySections,
+  haftarah,
+}: Props) {
+  const [division, setDivision] = useState<"shabbat" | "weekday">("shabbat");
+  const [focus, setFocus] = useState<string | null>(null);
+  const items = (division === "weekday" ? nav?.weekday : nav?.shabbat) ?? [];
+  const focusItem = items.find((x) => x.id === focus);
+  const sections =
+    division === "weekday" && weekdaySections ? weekdaySections : haftarah ? [...shabbatSections, haftarah] : shabbatSections;
+  const marks: [number, string][] = items.filter((x) => x.from).map((x) => [posOf(x.from!), x.label]);
+  const scrollFocus: [number, number] | null = focusItem?.from && focusItem.to ? [posOf(focusItem.from), posOf(focusItem.to)] : null;
+  const pick = (id: string | null) => {
+    setFocus(id);
+    const it = items.find((x) => x.id === id);
+    if (id)
+      setTimeout(() => {
+        const el =
+          (scroll && it?.from && document.querySelector(`[data-pos="${posOf(it.from)}"]`)) || document.getElementById(id);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 60);
+  };
   const [settings, setSettings] = useState<ReaderSettings>({
     scrollMode: false,
     showNikkud: true,
@@ -209,16 +257,61 @@ export function TorahText({ sections, practice, scrollColumns, allowScroll = tru
   });
   const scroll = settings.scrollMode;
   const [zoom, setZoom] = useZoom();
-  const wanted = sections.flatMap((x) => [x.recording, x.maftirRecording]).filter((p): p is string => !!p);
+  const wanted = [...shabbatSections, ...(weekdaySections ?? []), ...(haftarah ? [haftarah] : [])].flatMap((x) => [x.recording, x.maftirRecording]).filter((p): p is string => !!p);
   const have = useExistingRecordings(wanted);
 
   return (
-    <div className="space-y-4" style={zoomWidth(zoom)}>
+    <div className="space-y-4" style={scroll && scrollColumns?.length ? undefined : zoomWidth(zoom)}>
       <div className="sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
           <ZoomControl zoom={zoom} onChange={setZoom} />
         </div>
+        {nav && (
+          <div className="mt-3 border-t border-stone-100 pt-3">
+            {nav.weekday && (
+              <div className="mb-2 inline-flex rounded-lg border border-stone-300 p-0.5 text-xs" role="group" aria-label="Which aliyot">
+                {(
+                  [
+                    ["shabbat", "Shabbat aliyot"],
+                    ["weekday", "Weekday aliyot (Monday, Thursday, Shabbat Minha)"],
+                  ] as const
+                ).map(([d, l]) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => {
+                      setDivision(d);
+                      setFocus(null);
+                    }}
+                    className={`rounded-md px-2.5 py-1 font-medium ${division === d ? "bg-amber-700 text-white" : "text-stone-700"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            )}
+            <nav aria-label="Aliyot" className="flex flex-wrap gap-1.5 text-sm">
+              <button
+                type="button"
+                onClick={() => pick(null)}
+                className={`rounded-full px-3 py-1 shadow-sm ring-1 ${focus === null ? "bg-amber-700 text-white ring-amber-700" : "bg-white text-stone-700 ring-stone-200 hover:bg-amber-50"}`}
+              >
+                All
+              </button>
+              {items.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => pick(a.id)}
+                  className={`rounded-full px-3 py-1 shadow-sm ring-1 ${focus === a.id ? "bg-amber-700 text-white ring-amber-700" : "bg-white text-stone-700 ring-stone-200 hover:bg-amber-50"}`}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
         {settings.showTaamNames && !scroll && !sections.some((x) => x.verses.some((v) => v.e)) && (
           <p className="mt-2 text-xs text-stone-500">
             <span className="font-semibold text-amber-700">Shofar Holekh with Pesik:</span> when a pesik (׀) follows a word
@@ -228,9 +321,12 @@ export function TorahText({ sections, practice, scrollColumns, allowScroll = tru
         )}
       </div>
 
-      {scroll && scrollColumns?.length ? <ScrollPages columns={scrollColumns} zoom={zoom} /> : null}
+      {scroll && scrollColumns?.length && focus !== "haftarah" ? (
+        <ScrollPages columns={scrollColumns} zoom={zoom} marks={marks} focus={scrollFocus} />
+      ) : null}
 
-      {!(scroll && scrollColumns?.length) && sections.map((s) => (
+      {/* In scroll mode the haftarah (not in the Sefer Torah) is shown as text when it's picked. */}
+      {(scroll && scrollColumns?.length ? (focus === "haftarah" && haftarah ? [haftarah] : []) : sections).map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-20 sm:scroll-mt-36 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-100 pb-2">
             <h3 className="text-base font-semibold text-stone-900">
@@ -248,6 +344,12 @@ export function TorahText({ sections, practice, scrollColumns, allowScroll = tru
               ].filter((x): x is { src: string; label: string } => !!x.src && have.has(x.src))}
             />
           )}
+          {s.recording && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              <AdminDrop path={s.recording} compact label={`${s.en}: drop the Hazzan's reading here`} />
+              {s.maftirRecording && <AdminDrop path={s.maftirRecording} compact label="Maftir: drop the reading here" />}
+            </div>
+          )}
           <div
             dir="rtl"
             lang="he"
@@ -263,7 +365,11 @@ export function TorahText({ sections, practice, scrollColumns, allowScroll = tru
               return (
                 <Fragment key={key}>
                   {s.maftirFrom === key && (
-                    <span className="mx-1 inline-block rounded bg-stone-100 px-2 align-middle font-sans text-[0.4em] text-stone-600" dir="ltr">
+                    <span
+                      id="maftir"
+                      className="mx-1 inline-block scroll-mt-40 rounded bg-amber-100 px-2 align-middle font-sans text-[0.4em] font-semibold text-amber-900"
+                      dir="ltr"
+                    >
                       Maftir ↓
                     </span>
                   )}

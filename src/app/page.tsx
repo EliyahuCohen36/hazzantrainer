@@ -67,10 +67,25 @@ export default function Home() {
         </Link>
       </section>
 
-      <section className="mt-8 rounded-2xl border border-dashed border-stone-300 p-5">
-        <h2 className="text-lg font-semibold text-stone-700">Coming later</h2>
-        <p className="mt-1 text-sm text-stone-500">Tefillah and Mishnah.</p>
-      </section>
+      <Link
+        href="/siddur/"
+        className="mt-8 flex items-center gap-4 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-amber-50 p-5 shadow-sm transition-colors hover:border-sky-400"
+      >
+        <span className="text-4xl" aria-hidden>
+          📖
+        </span>
+        <span className="flex-1">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="text-lg font-semibold text-stone-900">Siddur</span>
+            <span dir="rtl" lang="he" className="font-hebrew text-xl text-sky-800">
+              סידור עדות המזרח
+            </span>
+          </span>
+          <span className="mt-1 block text-sm text-stone-600">
+            The whole Siddur, with the Hazzan&apos;s recordings beside each part, and tunes in the maqamot.
+          </span>
+        </span>
+      </Link>
     </main>
   );
 }

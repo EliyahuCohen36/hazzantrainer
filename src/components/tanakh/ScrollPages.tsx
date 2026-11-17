@@ -1,10 +1,21 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
-import type { ScrollColumn, ScrollLine, ScrollPiece } from "@/lib/torah/scroll-pages";
+import {
+  createContext,
+  Fragment,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import type {
+  ScrollColumn,
+  ScrollLine,
+  ScrollPiece,
+} from "@/lib/torah/scroll-pages";
 import { WithMaamid } from "@/components/reader/Maamid";
 
-const letterCount = (pieces: ScrollPiece[]) => pieces.reduce((n, p) => n + p.s.replace(/[{}[\]]/g, "").length, 0);
+const letterCount = (pieces: ScrollPiece[]) =>
+  pieces.reduce((n, p) => n + p.s.replace(/[{}[\]]/g, "").length, 0);
 /** Lines with many letters are drawn a little smaller so every line fits, as a sofer stretches or squeezes. */
 const FIT = 40;
 /** Both sides use the same line height, so a line of the scroll sits level with the same line with vowels. */
@@ -31,12 +42,38 @@ function Big({ text }: { text: string }) {
   );
 }
 
+/** Aliyah marks (pasuk → name) and the aliyah picked above (its first and last pasuk). */
+const Ctx = createContext<{
+  marks: Map<number, string>;
+  focus: [number, number] | null;
+}>({ marks: new Map(), focus: null });
+
 function Piece({ p, vowels }: { p: ScrollPiece; vowels: boolean }) {
-  const cls = p.in ? "" : "opacity-35";
-  if (!vowels) return <span className={cls}><Big text={p.s} /></span>;
+  const { marks, focus } = useContext(Ctx);
+  // Outside the parasha: pale. Outside the aliyah picked: paler still, so it doesn't get in the way.
+  const cls = !p.in
+    ? "opacity-35"
+    : focus && (p.pos < focus[0] || p.pos > focus[1])
+      ? "opacity-[0.12]"
+      : "";
+  const mark = p.first && p.in ? marks.get(p.pos) : undefined;
+  const text = vowels ? (
+    <WithMaamid text={p.v.replace(/[{}[\]]/g, "")} />
+  ) : (
+    <Big text={p.s} />
+  );
+  if (!mark) return <span className={cls}>{text}</span>;
+  // The aliyah starts at this very word: its name sits right above it.
   return (
-    <span className={cls}>
-      <WithMaamid text={p.v.replace(/[{}[\]]/g, "")} />
+    <span className={`relative ${cls}`} data-pos={vowels ? undefined : p.pos}>
+      <span
+        className="absolute -top-[1.05em] right-1/2 translate-x-1/2 whitespace-nowrap rounded bg-amber-200 px-1 font-sans font-semibold leading-tight text-amber-950 shadow-sm"
+        dir="ltr"
+        style={{ fontSize: "max(0.6rem, 0.3em)" }}
+      >
+        {mark} ↓
+      </span>
+      <span className="rounded-sm bg-amber-100/80">{text}</span>
     </span>
   );
 }
@@ -76,7 +113,10 @@ function Line({ line, vowels }: { line: ScrollLine; vowels: boolean }) {
     body = (
       <div className="flex justify-between gap-[2.2em]">
         {segs.map((s, i) => (
-          <div key={i} className={`flex gap-[0.32em] ${line.song ? "" : "grow justify-between"}`}>
+          <div
+            key={i}
+            className={`flex gap-[0.32em] ${line.song ? "" : "grow justify-between"}`}
+          >
             {words(s)}
           </div>
         ))}
@@ -84,15 +124,6 @@ function Line({ line, vowels }: { line: ScrollLine; vowels: boolean }) {
     );
   return (
     <div className="relative whitespace-nowrap" style={style}>
-      {line.mark && (
-        <span
-          className="absolute -top-[0.62em] left-0 rounded bg-amber-100 px-1 font-sans font-semibold leading-tight text-amber-900"
-          dir="ltr"
-          style={{ fontSize: "0.6rem" }}
-        >
-          {line.mark} ↓
-        </span>
-      )}
       {body}
     </div>
   );
@@ -124,45 +155,84 @@ function Column({ col, vowels }: { col: ScrollColumn; vowels: boolean }) {
  * 245-column, 42-line scroll, line for line. Like a tikkun, the same column can
  * be shown with vowels and te'amim beside it. Words outside the parasha are pale.
  */
-export function ScrollPages({ columns, zoom = 1 }: { columns: ScrollColumn[]; zoom?: number }) {
+export function ScrollPages({
+  columns,
+  zoom = 1,
+  marks = [],
+  focus = null,
+}: {
+  columns: ScrollColumn[];
+  zoom?: number;
+  /** Where each aliyah starts: [pasuk (c × 1000 + v), name]. */
+  marks?: [number, string][];
+  /** The aliyah picked: only its words are shown clearly. */
+  focus?: [number, number] | null;
+}) {
   // Side by side on wide screens; on a phone, the scroll alone (the vowels can be turned on).
   const [tikkun, setTikkun] = useState(true);
   useEffect(() => {
     if (window.matchMedia("(max-width: 767px)").matches) setTikkun(false);
   }, []);
   if (!columns.length) return null;
+  // Only the columns that hold the aliyah picked.
+  const shown = focus
+    ? columns.filter((c) =>
+        c.lines.some((l) =>
+          l.segs.some((sg) =>
+            sg.some((p) => p.in && p.pos >= focus[0] && p.pos <= focus[1]),
+          ),
+        ),
+      )
+    : columns;
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm shadow-sm">
-        <p className="text-stone-600">
-          Columns {columns[0].n}–{columns[columns.length - 1].n} of 245, line for line as in the Sefer Torah (42 lines a
-          column).
-        </p>
-        <label className="flex cursor-pointer items-center gap-2 font-medium text-stone-800">
-          <input type="checkbox" checked={tikkun} onChange={(e) => setTikkun(e.target.checked)} className="size-4 accent-amber-700" />
-          Vowels beside (tikkun)
-        </label>
-      </div>
-      {columns.map((c) => (
-        <section key={c.n} aria-label={`Column ${c.n}`}>
-          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-stone-400">Column {c.n}</div>
-          {/* Scroll letters are sized by the column's width, so a bigger zoom = a wider column. */}
-          <div className={tikkun ? "grid gap-3 md:grid-cols-2" : "mx-auto"} style={tikkun ? undefined : { maxWidth: `${36 * zoom}rem` }}>
-            {tikkun && (
-              <div className="md:order-2">
-                <Column col={c} vowels />
-              </div>
-            )}
-            <div className="md:order-1">
-              <Column col={c} vowels={false} />
+    <Ctx.Provider value={{ marks: new Map(marks), focus }}>
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm shadow-sm">
+          <p className="text-stone-600">
+            Columns {columns[0].n}–{columns[columns.length - 1].n} of 245, line
+            for line as in the Sefer Torah (42 lines a column).
+          </p>
+          <label className="flex cursor-pointer items-center gap-2 font-medium text-stone-800">
+            <input
+              type="checkbox"
+              checked={tikkun}
+              onChange={(e) => setTikkun(e.target.checked)}
+              className="size-4 accent-amber-700"
+            />
+            Vowels beside (tikkun)
+          </label>
+        </div>
+        {shown.map((c) => (
+          <section key={c.n} aria-label={`Column ${c.n}`}>
+            <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-stone-400">
+              Column {c.n}
             </div>
-          </div>
-        </section>
-      ))}
-      <p className="text-xs text-stone-400">
-        Column and line layout of the standard 245-column Sefer Torah from tikkun.io (MIT licence), set with our text and
-        the Sephardic scroll spellings.
-      </p>
-    </div>
+            {/* Zoom makes the whole page bigger, exactly as it is (scroll sideways if it gets wider than the screen). */}
+            <div className="overflow-x-auto pt-3">
+              <div
+                className={
+                  tikkun ? "grid gap-3 md:grid-cols-2" : "mx-auto max-w-xl"
+                }
+                style={zoom !== 1 ? { zoom } : undefined}
+              >
+                {tikkun && (
+                  <div className="md:order-2">
+                    <Column col={c} vowels />
+                  </div>
+                )}
+                <div className="md:order-1">
+                  <Column col={c} vowels={false} />
+                </div>
+              </div>
+            </div>
+          </section>
+        ))}
+        <p className="text-xs text-stone-400">
+          Column and line layout of the standard 245-column Sefer Torah from
+          tikkun.io (MIT licence), set with our text and the Sephardic scroll
+          spellings.
+        </p>
+      </div>
+    </Ctx.Provider>
   );
 }

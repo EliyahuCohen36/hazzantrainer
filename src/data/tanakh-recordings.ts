@@ -3,7 +3,7 @@
  * The admin uploads them at /admin/ → Tanakh recordings; pages find them by
  * listing the folder, so nothing has to be added to the code.
  *
- *   reading/<book>/<parasha>/aliyah-<1..7>.mp3, maftir.mp3   (Torah, one file per aliyah)
+ *   reading/<book>/<parasha>/aliyah-<1..7>.mp3, maftir.mp3, haftarah.mp3
  *   reading/<book>/<chapter>.mp3                            (Nevi'im / Ketuvim, one per chapter)
  *   teamim/<tune>/<taamId>.mp3                              (te'amim of each tune)
  *
@@ -11,8 +11,8 @@
  */
 import { TANAKH, type TanakhBook } from "./teamim-reference";
 
-export const aliyahRecording = (book: string, parasha: string, n: number | "M") =>
-  `/audio/reading/${book}/${parasha}/${n === "M" ? "maftir" : `aliyah-${n}`}.mp3`;
+export const aliyahRecording = (book: string, parasha: string, n: number | "M" | "H") =>
+  `/audio/reading/${book}/${parasha}/${n === "M" ? "maftir" : n === "H" ? "haftarah" : `aliyah-${n}`}.mp3`;
 
 export const chapterRecording = (book: string, chapterSlug: string) => `/audio/reading/${book}/${chapterSlug}.mp3`;
 

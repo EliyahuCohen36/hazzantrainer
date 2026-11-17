@@ -61,6 +61,9 @@ function SiteHeader() {
           <LanguageSwitcher />
         </div>
       </div>
+      <p className="border-t border-amber-200 bg-amber-50 px-4 py-1 text-center text-xs font-semibold text-amber-900">
+        Please do not use this app on Shabbat and Yamim Tovim.
+      </p>
     </header>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamimLevels } from "@/components/tanakh/TeamimLevels";
 import { SpeedControl } from "@/components/audio/SpeedControl";
+import { AllTeamim } from "@/components/tanakh/AllTeamim";
 
 export const metadata: Metadata = { title: "Te'amim trainer · Torah · Kriah Trainer" };
 
@@ -30,6 +31,7 @@ export default function TorahTeamimPage() {
           טעמי המקרא
         </span>
       </div>
+      <AllTeamim />
       <div className="mb-5 grid gap-3 sm:grid-cols-2">
         <Link
           href="/tanakh/torah/teamim/quiz/"

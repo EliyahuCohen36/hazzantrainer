@@ -8,7 +8,7 @@
  * te'amim (Ta'amei Emet), as in the Aleppo Codex tradition MAM follows.
  */
 import type { TorahVerse } from "@/data/torah";
-import { allChapters, bookParts, MEGILLOT, partName, type ChapterRef, type BookPart } from "@/data/tanakh-chapters";
+import { allChapters, bookParts, MEGILLOT, PART_NAMES, partName, type ChapterRef, type BookPart } from "@/data/tanakh-chapters";
 import yehoshua from "./yehoshua.json";
 import shofetim from "./shofetim.json";
 import shemuel from "./shemuel.json";
@@ -52,3 +52,15 @@ export function chapterVerses(book: string, ref: ChapterRef): TorahVerse[] {
 
 
 export { allChapters, bookParts, MEGILLOT, partName, type ChapterRef, type BookPart };
+
+/** The pesukim from..to ("c:v") of a Nevi'im book (in one part of a combined book: "alef", "yonah"…). */
+export function versesRange(book: string, part: string | null, from: string, to: string): TorahVerse[] {
+  const pi = part ? (PART_NAMES[book]?.findIndex((p) => p.slug === part) ?? 0) : 0;
+  const n = (cv: string) => {
+    const [c, v] = cv.split(":").map(Number);
+    return c * 1000 + v;
+  };
+  const a = n(from);
+  const b = n(to);
+  return (TEXT[book] ?? []).filter((x) => (x.s ?? 0) === pi && x.c * 1000 + x.v >= a && x.c * 1000 + x.v <= b);
+}

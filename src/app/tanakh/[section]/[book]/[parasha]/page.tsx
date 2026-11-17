@@ -8,7 +8,9 @@ import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import { curriculum } from "@/lib/curriculum/repository";
 import { TorahText, type AliyahSection } from "@/components/tanakh/TorahText";
 import { scrollColumnsFor } from "@/lib/torah/scroll-pages";
-import { allChapters, partName } from "@/data/tanakh";
+import { allChapters, partName, versesRange } from "@/data/tanakh";
+import { PART_NAMES } from "@/data/tanakh-chapters";
+import { PARASHA_EXTRA } from "@/data/parasha-extra";
 import { ChapterView } from "@/components/tanakh/ChapterView";
 import { aliyahRecording } from "@/data/tanakh-recordings";
 
@@ -62,10 +64,46 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
   });
 
   // The parasha as it stands in the Sefer Torah (Torah Scroll Mode).
-  const marks: Record<string, string> = {};
-  for (const a of main) if (a.n !== 1) marks[a.from] = ALIYAH_NAMES[String(a.n)].en;
-  if (maftir) marks[maftir.from] = "Maftir";
-  const scrollColumns = scrollColumnsFor(p.book, main[0].from, main[main.length - 1].to, marks);
+  const scrollColumns = scrollColumnsFor(p.book, main[0].from, main[main.length - 1].to);
+
+  // Weekday reading (Monday, Thursday, Shabbat Minha) and the haftarah.
+  const extra = PARASHA_EXTRA[p.num];
+  const WEEKDAY = [
+    { en: "Kohen", he: "כהן" },
+    { en: "Levi", he: "לוי" },
+    { en: "Yisrael", he: "ישראל" },
+  ];
+  const weekdaySections: AliyahSection[] = (extra?.weekday ?? []).map((r, i) => ({
+    id: `weekday-${i + 1}`,
+    en: WEEKDAY[i].en,
+    he: WEEKDAY[i].he,
+    range: `${r.from} – ${r.to}`,
+    verses: versesBetween(p.book, r.from, r.to),
+  }));
+  const hParts = extra?.syrian ?? [];
+  const haftarahVerses = hParts.flatMap((h) => versesRange(h.book, h.part, h.from, h.to));
+  const hName = (h: (typeof hParts)[number]) => {
+    const b = TANAKH.find((x) => x.id === h.book);
+    return `${PART_NAMES[h.book]?.find((x) => x.slug === h.part)?.en ?? b?.en} ${h.from}–${h.to}`;
+  };
+  const haftarah: AliyahSection | undefined = haftarahVerses.length
+    ? {
+        id: "haftarah",
+        en: "Haftarah",
+        he: "הפטרה",
+        range: hParts.map(hName).join(", "),
+        verses: haftarahVerses,
+        recording: aliyahRecording(p.book, p.id, "H"),
+      }
+    : undefined;
+  const nav = {
+    shabbat: [
+      ...main.map((a) => ({ id: `aliyah-${a.n}`, label: ALIYAH_NAMES[String(a.n)].en, from: a.from, to: a.to })),
+      ...(maftir ? [{ id: "maftir", label: "Maftir", from: maftir.from, to: maftir.to }] : []),
+      ...(haftarah ? [{ id: "haftarah", label: "Haftarah" }] : []),
+    ],
+    weekday: extra?.weekday?.map((r, i) => ({ id: `weekday-${i + 1}`, label: WEEKDAY[i].en, from: r.from, to: r.to })),
+  };
 
   // Pesukim that have a trainer lesson.
   const practice: Record<string, string> = {};
@@ -101,23 +139,19 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
       </div>
       <p className="mt-1 text-sm text-stone-600">
         {book.en} {main[0].from} – {main[main.length - 1].to}
-        {p.haftarah && <span className="text-stone-400"> · Haftarah (Sephardic): {p.haftarah}</span>}
+        {haftarah && <span className="text-stone-400"> · Haftarah: {haftarah.range}</span>}
       </p>
 
-      <nav aria-label="Aliyot" className="mt-3 flex flex-wrap gap-1.5 text-sm">
-        {main.map((a) => (
-          <a
-            key={String(a.n)}
-            href={`#aliyah-${a.n}`}
-            className="rounded-full bg-white px-3 py-1 text-stone-700 shadow-sm ring-1 ring-stone-200 hover:bg-amber-50"
-          >
-            {ALIYAH_NAMES[String(a.n)].en}
-          </a>
-        ))}
-      </nav>
 
       <div className="mt-4">
-        <TorahText sections={sections} practice={practice} scrollColumns={scrollColumns} />
+        <TorahText
+          sections={sections}
+          practice={practice}
+          scrollColumns={scrollColumns}
+          nav={nav}
+          weekdaySections={weekdaySections}
+          haftarah={haftarah}
+        />
       </div>
 
       <div className="mt-6 flex justify-between gap-4 text-sm">

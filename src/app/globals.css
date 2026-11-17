@@ -60,13 +60,13 @@ body {
   position: absolute;
   left: 50%;
   bottom: var(--vowel-bottom, 0.02em);
-  width: 0.5em;
-  height: 0.3em;
+  width: 0.42em;
+  height: 0.26em;
   transform: translateX(-50%);
   /* A qamats is a T: a bar with a short stem below it. */
   background:
-    linear-gradient(currentColor, currentColor) top / 100% 0.11em no-repeat,
-    linear-gradient(currentColor, currentColor) center top / 0.11em 100% no-repeat;
+    linear-gradient(currentColor, currentColor) top / 100% 0.095em no-repeat,
+    linear-gradient(currentColor, currentColor) center top / 0.095em 100% no-repeat;
   pointer-events: none;
 }
 .vowel-sheva-na::before {
@@ -74,14 +74,21 @@ body {
   position: absolute;
   left: 50%;
   bottom: var(--vowel-bottom, 0.02em);
-  width: 0.16em;
-  height: 0.34em;
+  width: 0.14em;
+  height: 0.3em;
   transform: translateX(-50%);
   /* Two big dots, one above the other. */
   background:
-    radial-gradient(circle, currentColor 0 0.075em, transparent 0.08em) top / 0.16em 0.16em no-repeat,
-    radial-gradient(circle, currentColor 0 0.075em, transparent 0.08em) bottom / 0.16em 0.16em no-repeat;
+    radial-gradient(circle, currentColor 0 0.064em, transparent 0.07em) top / 0.14em 0.14em no-repeat,
+    radial-gradient(circle, currentColor 0 0.064em, transparent 0.07em) bottom / 0.14em 0.14em no-repeat;
   pointer-events: none;
+}
+
+/* A ta'am or ma'amid under the same letter: the big vowel moves to the
+   right-hand side of the letter so it never covers it. */
+.vowel-shift.vowel-qamats-katan::before,
+.vowel-shift.vowel-sheva-na::before {
+  left: 78%;
 }
 
 /* Yetib drawn before its word, on the right (Maamid.tsx YetibFirst). */

@@ -1,5 +1,6 @@
 "use client";
 
+import { SHEVA_STAGES } from "@/data/sheva-stages";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -49,6 +50,9 @@ function practiceName(key: string) {
   if (lt) return `Letter trainer (to ${LETTERS[Math.min(Number(lt[1]), LETTERS.length) - 1]?.name})`;
   const st = key.match(/^beginner-stage:(\w+)$/);
   if (st) return `Words: ${WORD_STAGES.find((x) => x.id === st[1])?.title ?? st[1]}`;
+  const sh = key.match(/^beginner-sheva:([\w-]+)$/);
+  if (sh) return `Sheva / Qamats Katan: ${SHEVA_STAGES.find((x) => x.id === sh[1])?.title ?? sh[1]}`;
+  if (key === "teamim-stress") return "Te'amim: Mil'el and Milra";
   const file = key.split("/").pop()?.replace(/\.\w+$/, "") ?? key;
   return file
     .split("_")

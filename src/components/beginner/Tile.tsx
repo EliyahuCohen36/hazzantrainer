@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { beginnerPlaylist } from "@/data/beginner-recordings";
 import { recordingUrl } from "@/lib/recordings";
 import { playUrls, unlockAudio } from "@/lib/audio/player";
+import { useAuth } from "@/lib/auth";
+import { AdminDrop } from "@/components/admin/AdminDrop";
 
 const COLORS: Record<string, string> = {
   amber: "border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-950",
@@ -58,8 +60,9 @@ export function Tile({
     }
   };
 
+  const { profile } = useAuth();
   const Tag = still ? "div" : "button";
-  return (
+  const tile = (
     <Tag
       {...(still ? {} : { type: "button" as const, onClick: play, disabled: !src })}
       className={`group relative flex flex-col items-center justify-center rounded-2xl border-2 p-3 shadow-sm transition-transform disabled:cursor-default ${
@@ -78,5 +81,15 @@ export function Tile({
       {sub && <span className="text-xs opacity-70">{sub}</span>}
       {src && <span className="absolute top-1.5 right-2 text-sm opacity-60 group-hover:opacity-100">🔊</span>}
     </Tag>
+  );
+  // The admin can replace any of this tile's recordings by dropping a file on it.
+  if (profile?.role !== "admin" || !list.length) return tile;
+  return (
+    <div className="flex flex-col gap-1">
+      {tile}
+      {list.map((p) => (
+        <AdminDrop key={p} path={p} compact label={p.split("/").pop()} />
+      ))}
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SECTION_TITLES, TANAKH, type TanakhSection } from "@/data/teamim-reference";
 import { curriculum } from "@/lib/curriculum/repository";
 import { PARASHOT } from "@/data/parashot";
+import { TorahTabs } from "@/components/tanakh/TorahTabs";
 
 const SECTIONS: TanakhSection[] = ["torah", "neviim", "ketuvim"];
 
@@ -53,6 +54,23 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
         </span>
       </div>
 
+      {s === "torah" && <TorahTabs current="tikkun" />}
+      {s === "torah" && (
+        <nav className="mt-4 flex flex-wrap gap-2" aria-label="Books of the Torah">
+          {books.map(({ book }) => (
+            <Link
+              key={book.id}
+              href={`/tanakh/torah/${book.id}/`}
+              className="flex items-baseline gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 shadow-sm hover:border-amber-400 hover:bg-amber-50"
+            >
+              <span className="font-semibold text-stone-900">{book.en}</span>
+              <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                {book.he}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      )}
       {s === "torah" && (
         <div className="mt-5 space-y-5">
           {/* Te'amim trainer: its own page, one click from here. */}

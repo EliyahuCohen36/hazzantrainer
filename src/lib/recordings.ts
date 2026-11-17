@@ -21,22 +21,42 @@ export function isPublicRecording(path: string) {
   return DEMO_FILES.has(path) || !supabaseConfigured;
 }
 
+/** The nusach the reader picked (header). Yerushalmi uses the Syrian recordings
+ *  except where a Yerushalmi one was uploaded (nusach/yerushalmi/<same path>). */
+export function currentNusach(): string {
+  try {
+    return localStorage.getItem("kriah-nusach") || "syrian";
+  } catch {
+    return "syrian";
+  }
+}
+
+async function bucketPathFor(path: string): Promise<string> {
+  const p = path.replace(/^\/audio\//, "");
+  const n = currentNusach();
+  if (n === "syrian") return p;
+  const alt = `nusach/${n}/${p}`;
+  const dir = alt.slice(0, alt.lastIndexOf("/"));
+  const names = await listRecordings(dir).catch(() => new Set<string>());
+  return names.has(alt.slice(alt.lastIndexOf("/") + 1)) ? alt : p;
+}
+
 export function recordingUrl(path: string): Promise<string> {
   if (isPublicRecording(path)) return Promise.resolve(asset(path));
-  if (!cache.has(path)) {
-    const p = supabase()
-      .storage.from("recordings")
-      .createSignedUrl(path.replace(/^\/audio\//, ""), HOUR)
+  const key = `${currentNusach()}:${path}`;
+  if (!cache.has(key)) {
+    const p = bucketPathFor(path)
+      .then((bp) => supabase().storage.from("recordings").createSignedUrl(bp, HOUR))
       .then(({ data, error }) => {
         if (error || !data) throw new Error("This recording is for signed-in students.");
         return data.signedUrl;
       });
-    p.catch(() => cache.delete(path));
-    cache.set(path, p);
+    p.catch(() => cache.delete(key));
+    cache.set(key, p);
     // Links expire after an hour; ask for a fresh one a little before that.
-    setTimeout(() => cache.delete(path), (HOUR - 300) * 1000);
+    setTimeout(() => cache.delete(key), (HOUR - 300) * 1000);
   }
-  return cache.get(path)!;
+  return cache.get(key)!;
 }
 
 /** The playable URL of a recording, or null while it's being fetched / if not allowed. */
@@ -77,10 +97,26 @@ export function listRecordings(folder: string, fresh = false): Promise<Set<strin
   return folders.get(f)!;
 }
 
+export const RECORDINGS_CHANGED = "kriah-recordings-changed";
+
+/** After the admin uploads or deletes a recording: forget what was cached so every page looks again. */
+export function recordingsChanged(path: string) {
+  const f = path.replace(/^\/audio\//, "");
+  folders.delete(f.slice(0, f.lastIndexOf("/")));
+  for (const k of [...cache.keys()]) if (k.endsWith(`:${path}`) || k.endsWith(`:/audio/${f}`)) cache.delete(k);
+  window.dispatchEvent(new Event(RECORDINGS_CHANGED));
+}
+
 /** Which of these recordings exist (null while checking). */
 export function useExistingRecordings(paths: string[]): Set<string> | null {
   const key = paths.join("|");
   const [have, setHave] = useState<Set<string> | null>(null);
+  const [bump, setBump] = useState(0);
+  useEffect(() => {
+    const on = () => setBump((b) => b + 1);
+    window.addEventListener(RECORDINGS_CHANGED, on);
+    return () => window.removeEventListener(RECORDINGS_CHANGED, on);
+  }, []);
   useEffect(() => {
     let live = true;
     const dirs = [...new Set(paths.map((p) => p.slice(0, p.lastIndexOf("/"))))];
@@ -92,6 +128,6 @@ export function useExistingRecordings(paths: string[]): Set<string> | null {
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, bump]);
   return have;
 }

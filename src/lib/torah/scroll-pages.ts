@@ -29,6 +29,10 @@ export interface ScrollPiece {
   s: string;
   /** In the parasha being shown. */
   in: boolean;
+  /** Its pasuk, as chapter × 1000 + verse. */
+  pos: number;
+  /** The first word of its pasuk (where an aliyah mark goes). */
+  first?: 1;
 }
 export interface ScrollLine {
   segs: ScrollPiece[][];
@@ -65,6 +69,12 @@ function piecesOf(t: TorahToken): { v: string; s: string }[] {
     // If the qere splits differently from the ketiv, show it all on the first piece.
     v: qp.length === kp.length ? qp[i] : i === 0 ? qp.join(" ") : "",
   }));
+}
+
+/** Index of the first real word of a pasuk. */
+function firstWord(toks: TorahToken[]): number {
+  const i = toks.findIndex((t) => !(typeof t === "string" && ["|", "_", "¶p", "¶s"].includes(t)));
+  return i < 0 ? 0 : i;
 }
 
 /**
@@ -126,7 +136,9 @@ export function scrollColumnsFor(book: string, from: string, to: string, marks: 
           const pos = verse.c * 1000 + verse.v;
           // Shirat HaYam (Shemot 15:1–19) and Haazinu (Devarim 32:1–43) are laid out as songs.
           if ((sb === 1 && pos >= 15001 && pos <= 15019) || (sb === 4 && pos >= 32001 && pos <= 32043)) inSong = true;
-          res.push({ ...ps[p], in: sb === bi && pos >= a && pos <= b });
+          const piece: ScrollPiece = { ...ps[p], in: sb === bi && pos >= a && pos <= b, pos: sb === bi ? pos : -1 };
+          if (t === firstWord(verse.t) && p === 0) piece.first = 1;
+          res.push(piece);
           p++;
         }
         return res;
