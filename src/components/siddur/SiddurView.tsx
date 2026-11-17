@@ -9,6 +9,7 @@ import { useZoom, ZoomControl, zoomWidth } from "@/components/reader/Zoom";
 import { recordingUrl, recordingsChanged, useExistingRecordings } from "@/lib/recordings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { LONG_SLOTS, LongRecordingsAdmin, SegmentPlayer, longJson, longPath, useSegments, type Segment, type SpokenPara } from "./LongRecordings";
 
 interface Tok {
   w: string;
@@ -139,6 +140,7 @@ function Paragraph({
   sectionHe,
   have,
   admin,
+  segment,
 }: {
   part: string;
   s: number;
@@ -147,6 +149,8 @@ function Paragraph({
   sectionHe: string;
   have: Set<string> | null;
   admin: boolean;
+  /** Its part of a long recording, if it was marked there. */
+  segment?: Segment;
 }) {
   const toks = useMemo(() => tokens(html), [html]);
   const spoken = toks.filter((t) => t.i !== null).length;
@@ -188,7 +192,7 @@ function Paragraph({
           ),
         )}
       </p>
-      {(exists || spot || admin) && (
+      {(exists || spot || admin || segment) && (
         <div className="mt-1 flex flex-wrap items-center gap-2" dir="ltr">
           {spot && (
             <label className="flex items-center gap-1 text-xs text-stone-600">
@@ -203,6 +207,7 @@ function Paragraph({
               </select>
             </label>
           )}
+          {!exists && !maqam && segment && <SegmentPlayer seg={segment} />}
           {exists && (
             <Recording
               key={src}
@@ -245,9 +250,22 @@ export function SiddurView({ part }: { part: SiddurPart }) {
         }
       }),
     );
+    for (let n = 1; n <= LONG_SLOTS; n++) out.push(longPath(part.slug, n), longJson(part.slug, n));
     return out;
   }, [part]);
   const have = useExistingRecordings(paths);
+  const segments = useSegments(part.slug, have);
+  const spoken: SpokenPara[] = useMemo(
+    () =>
+      part.sections.flatMap((sec, s) =>
+        sec.paras.flatMap((html, p) => {
+          const words = tokens(html).filter((t) => t.i !== null).map((t) => t.w);
+          if (!words.length) return [];
+          return [{ s, p, head: `${sec.he}: ${words.slice(0, 6).join(" ")}…`, len: words.join(" ").replace(/[\u0591-\u05C7]/g, "").length }];
+        }),
+      ),
+    [part],
+  );
   return (
     <div className="space-y-4" style={zoomWidth(zoom)}>
       <div className="sticky top-0 z-10 sm:top-[5rem] space-y-2 rounded-xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
@@ -263,6 +281,7 @@ export function SiddurView({ part }: { part: SiddurPart }) {
         </div>
         <SpeedControl compact />
       </div>
+      {admin && <LongRecordingsAdmin part={part.slug} have={have} paras={spoken} />}
       {part.sections.map((sec, s) => (
         <section key={s} id={`s-${s + 1}`} className="scroll-mt-40 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <h2 dir="rtl" lang="he" className="mb-2 border-b border-stone-100 pb-2 font-hebrew text-2xl font-semibold text-amber-800">
@@ -270,7 +289,17 @@ export function SiddurView({ part }: { part: SiddurPart }) {
           </h2>
           <div dir="rtl" lang="he" style={{ fontSize: `${1.35 * zoom}rem` }}>
             {sec.paras.map((html, p) => (
-              <Paragraph key={p} part={part.slug} s={s} p={p} html={html} sectionHe={sec.he} have={have} admin={admin} />
+              <Paragraph
+                key={p}
+                part={part.slug}
+                s={s}
+                p={p}
+                html={html}
+                sectionHe={sec.he}
+                have={have}
+                admin={admin}
+                segment={segments.get(`${s}-${p}`)}
+              />
             ))}
           </div>
         </section>

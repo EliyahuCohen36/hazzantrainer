@@ -14,8 +14,8 @@ export const INDIVIDUAL_PERIOD = "month";
 export const YEARLY_PRICE = "$100";
 /** What the yearly plan saves against 12 months. */
 export const YEARLY_SAVING = "save $44";
-export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cIfZh1CL6J0d8KczT0VO00";
-export const STRIPE_YEARLY_LINK = "";
+export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/7sYbJ10yH5EW2u6fM50VO01";
+export const STRIPE_YEARLY_LINK = "https://buy.stripe.com/eVq00jdlt0kC3ya7fz0VO02";
 export const STRIPE_PORTAL_LINK = "https://billing.stripe.com/p/login/3cIfZh1CL6J0d8KczT0VO00";
 
 /** Everything in the monthly subscription, in two groups (shown on the welcome, sign-in and subscribe pages). */

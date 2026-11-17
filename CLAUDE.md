@@ -93,7 +93,8 @@ kept in case the owner goes back to Netlify.
   paid_until (supabase/payments.sql adds profiles.stripe_customer_id). Until
   STRIPE_PAYMENT_LINK is set, /subscribe/ says payments open soon.
   Stripe account "Keriah Trainer" (live): product "Kriah Trainer – Individual"
-  $10/month, Managed Payments on (owner's choice), payment link redirects to
+  with prices $12/month and $100/year (Nov 17, 2026; the old $10 link is deactivated, the $10 price
+  kept for anyone already on it), Managed Payments on (owner's choice), payment link redirects to
   /subscribe/?paid=1; customer portal on (cancel at period end); webhook
   destination "Kriah Trainer access" → functions/v1/stripe-webhook (JWT check off),
   events checkout.session.completed + invoice.paid. Only secret needed:
@@ -177,6 +178,13 @@ kept in case the owner goes back to Netlify.
   siddur/<part>/<section>-<paragraph>.mp3 (1-based), tunes <…>@<maqam>.mp3 for the owner's tune
   places (TUNE_SPOTS, MAQAMOT in src/data/siddur/index.ts). Word highlighting: the admin presses
   "Time the words" and taps each word while it plays; times saved as the same name .json.
+  Long recordings covering many paragraphs (LongRecordings.tsx): siddur/<part>/long-<n>.mp3 (n 1–9),
+  dropped in the admin box at the top of a part; the admin marks where each paragraph starts
+  (estimate from letter counts, "Jump near it", "Not in the recording"); marks saved in
+  long-<n>.json {marks:[{s,p,t}]} (0-based); each marked paragraph plays its own stretch
+  (SegmentPlayer). A paragraph's own recording wins. Owner's Birkot HaShahar (Mode Ani → Birkot
+  HaTorah, part "morning") and Korbanot (Vatitpalel Hana → "בלבב שלם", shaharit 4:1–6:30) were
+  sent as MP3s to his Downloads/torah-trainer/siddur/ (Supabase free plan: files ≤ 50 MB).
 - Aliyot are the common division (Hebcal). The owner wants the Edot HaMizrah
   division: still to do, once there's a reliable source (their chumash / Hazzan).
 - Practice lessons (pesukim, master recordings, word timings): src/data/sample-curriculum.ts
