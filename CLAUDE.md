@@ -192,7 +192,8 @@ kept in case the owner goes back to Netlify.
   te'amim and ma'amid (scripts/siddur/pesukim.py: letters-only match, run of 5+ words or a whole pasuk of 3+;
   Hashem's name keeps the Siddur spelling). Other words get a ma'amid only on reliable mil'el patterns
   (segolates, -ַיִם, -נוּ, -ֶיךָ); tell the owner it's rule-based. Siddur font: Taamey David CLM
-  (src/fonts/taamey-david/, GPL + font exception, --font-taamey / class font-siddur).
+  (src/fonts/taamey-david/, GPL + font exception, --font-taamey / class font-siddur). Only the Medium file is loaded:
+  the Taamey Bold files have transparent te'amim, so bold first words lost them (browser makes the bold).
 - Siddur maqam tunes only in the Shabbat/Yom Tov parts (TUNE_PARTS in src/data/siddur/index.ts); weekday parts
   show a link to the Shabbat section. Several tunes per maqam: <s>-<p>@<maqam>-<n>.mp3 (n 1–6, MAX_TUNES).
 - Siddur translation (owner's request): the language flag picks English or Arabic; a toggle in the Siddur's
@@ -340,7 +341,8 @@ kept in case the owner goes back to Netlify.
   Hebrew; Siddur pesukim also get the Van Dyck Arabic (translate.py).
 - Shnayim Mikra: the haftarah of the week (once, no Targum) after the parasha, with the halakha.
 - Scroll mode: zoom resizes the columns by width (not CSS zoom); aliyah marks in the reader's language.
-- Accounts (supabase/accounts.sql must be run by the owner): Google sign-in (GoogleButton in forms.tsx; Supabase →
+- Accounts (supabase/accounts.sql, run Nov 18; Google sign-in live: Google Cloud project "Keriah Trainer" on the
+  owner's account, in production, privacy page /privacy/; admin page has an On/Off switch per school = paid_until): Google sign-in (GoogleButton in forms.tsx; Supabase →
   Authentication → Providers → Google must be on); schools.domain → a Google user with that email domain joins the
   school as a student (claim_school_domain) and the teacher puts them in a class ("Students from your school…");
   school code (admin) and class codes (teacher) can be changed, unique across both (set_school_code/set_class_code);
