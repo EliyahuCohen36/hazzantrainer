@@ -1,4 +1,4 @@
-# Kriah Trainer (hazzantrainer)
+# Keriah Trainer (hazzantrainer)
 
 Torah reading trainer in the Syrian (Aleppo) tradition, live at
 **https://eliyahucohen36.github.io/hazzantrainer/** (GitHub Pages, free).
@@ -12,7 +12,8 @@ no longer update: that account's free build credits ran out. netlify.toml is
 kept in case the owner goes back to Netlify.
 
 ## The owner's preferences
-- Always spell it **Hazzan** (never "Chazzan"); this is the Syrian spelling.
+- Always spell it **Hazzan** (never "Chazzan"); this is the Syrian spelling. The site is **Keriah** Trainer
+  (never Kriah/Kriya), and it's "practice" (never "practise").
 - Te'amim names follow the Syrian tradition as given by the Sephardic
   Pizmonim Project (pizmonim.org/taamim.php), e.g. Kadma = Ashkenazi Pashta,
   Azla = Ashkenazi Kadma, Talsha (תלשׁא, ֠) = Telisha Gedola,
@@ -314,6 +315,39 @@ kept in case the owner goes back to Netlify.
   diagnostics table (supabase/diagnostics.sql; admin-only read) so problems on a student's
   device can be read from the admin account. Linked from the practice words page.
 - Local preview without Supabase settings opens every level (auth.tsx).
+
+## Added Nov 18, 2026 (owner's list)
+- Letters: /beginner/letters/ = LetterLessons.tsx: tab "All letters" + one tab per letter/final letter in order
+  (LETTER_LESSONS in src/data/letter-lessons.ts) + look-alike lessons after the second of each pair (Vav/Zayin,
+  Bet/Kaf, Dalet/Khaf Sofit, Gimel/Nun) + "Script letters" (school students only, teacher opens it:
+  classes.script_open; font Gveret Levin, OFL, src/fonts/gveret-levin, class font-script). Each letter: learn
+  (tile + stroke animation) → trace → draw alone → 5 questions; pass 80% (learnKey beginner-learn:<id>) opens the
+  next. Strokes: src/data/letter-strokes.ts (100×100 box; checkDrawing coverage/accuracy, free drawing is fitted).
+- Microphone off in Beginner Keriah (MIC_ON = false in WordQuestion.tsx): listening exercises only.
+- Beginner steps 6–10 (BEGINNER_STEPS): 6 Sheva (/beginner/sheva/practice/, ShevaTabs.tsx: tabs Nach / Na, the
+  תנועות קטנות / גדולות boxes, "same sound, different nekuda"), 7 /beginner/qamats-katan/, 8 /beginner/patah-genuva/,
+  9 /beginner/dagesh/, 10 /beginner/he/. All run on ShevaTrainer (parts prop); stages in src/data/sheva-stages.ts
+  (part, ask "choice" + CHOICE_LABELS, wrong readings x/y); words from scripts/sheva-words/build.py (na-dagesh,
+  genuva-w/y, dagesh-kal/hazaq, he-yediah/sheelah/megamah/mappiq; He HaShe'elah and HaMegamah are hand-checked lists).
+- Te'amim: a doubled Talsha/Tilsa/Zarqa/Teri Kadma gets its sound letter in bold (.taam-sound, Maamid.tsx); Tehillim
+  "Azla Legarmeh" (id emet-kadma-legarmeh); the pesik (׀) is kept after pesukim words in the Siddur (pesukim.py).
+- Te'amim trainers per melody: /teamim/<tune>/ (TuneTrainer.tsx, every TUNE_SET except torah; Nevi'im is one
+  trainer). One ta'am per level, opens after 2 stars on the one before; levels without a recording don't block;
+  shows "coming soon" until the first recording is in teamim/<tune>/. Linked from the Nevi'im/Ketuvim pages.
+- Translations of all of Tanakh under each pasuk (not in scroll mode), toggle "Hebrew only / <language> + Hebrew":
+  src/data/tanakh-tr/en (JPS 1917) and /ar (Smith–Van Dyck 1865, public domain, a Protestant translation; mapped from
+  KJV numbering with the JPS kjvRefs; from github.com/midvash/bible-data). Siddur: the translation is under the
+  Hebrew; Siddur pesukim also get the Van Dyck Arabic (translate.py).
+- Shnayim Mikra: the haftarah of the week (once, no Targum) after the parasha, with the halakha.
+- Scroll mode: zoom resizes the columns by width (not CSS zoom); aliyah marks in the reader's language.
+- Accounts (supabase/accounts.sql must be run by the owner): Google sign-in (GoogleButton in forms.tsx; Supabase →
+  Authentication → Providers → Google must be on); schools.domain → a Google user with that email domain joins the
+  school as a student (claim_school_domain) and the teacher puts them in a class ("Students from your school…");
+  school code (admin) and class codes (teacher) can be changed, unique across both (set_school_code/set_class_code);
+  free testers: admin page "Free access" (admin_grant_free, role family + free_access); classes.sections = which
+  parts a class may use (AuthGate CLASS_SECTIONS, IfOpen on the home page). Personal subscribers / testers (role
+  family) are self-paced: levels open by finishing the one before (src/lib/self-paced.ts; TeamimLevels saves
+  teamim-level:<n>). Teachers: "Grades" per class (Gradebook.tsx, automatic, CSV). /schools/ = the pitch page.
 
 ## Layout the owner asked for
 - Torah page: a short link card to the te'amim trainer first, then the five books

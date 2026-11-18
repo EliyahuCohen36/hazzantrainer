@@ -11,7 +11,7 @@ import { Recording } from "@/components/audio/Recording";
 import { TaamPractice } from "./TaamPractice";
 import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
-import { loadProgress, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
+import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { TaamCard } from "./TorahTeamim";
 
 const BY_ID = new Map(PROSE_TEAMIM.map((t) => [t.id, t]));
@@ -69,6 +69,18 @@ export function TeamimLevels() {
     const done = srcs.filter((src) => (best[src] ?? 0) >= TWO_STARS).length;
     return { done, total: srcs.length };
   };
+
+  // A finished level is saved (teamim-level:<n>), so personal subscribers' next level opens by itself.
+  // A level with no recordings uploaded yet doesn't hold anyone back.
+  useEffect(() => {
+    if (haveCombo === null) return;
+    for (let n = 1; n <= maxOpen; n++) {
+      const st = stars(n);
+      const finished = st.total === 0 ? TEAMIM_LEVELS[n - 1].kind !== "stress" : st.done === st.total;
+      if (finished && (best[`teamim-level:${n}`] ?? 0) < 100) recordPractice(`teamim-level:${n}`, 100);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [best, haveCombo, maxOpen]);
 
   const lvl = TEAMIM_LEVELS[shown - 1];
   const locked = shown > maxOpen;

@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { supabaseConfigured } from "@/lib/supabase";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { OPEN_PAGES } from "@/data/demo";
 import { INDIVIDUAL_PRICE, YEARLY_PRICE } from "@/data/pricing";
 import { LoginForm, RedeemForm } from "./forms";
@@ -41,6 +42,7 @@ function SiteHeader() {
         </Link>
         <NavLink href="/">Home</NavLink>
         <NavLink href="/about/">About</NavLink>
+        {!session && <NavLink href="/schools/">For schools</NavLink>}
         {!session && <NavLink href="/demo/">Try the demo</NavLink>}
         <div className="ms-auto flex flex-wrap items-center gap-x-2">
           {profile?.role === "admin" && <NavLink href="/admin/">Admin</NavLink>}
@@ -68,6 +70,24 @@ function SiteHeader() {
   );
 }
 
+/** The parts of the site a teacher can open or close for a class (classes.sections). */
+export const CLASS_SECTIONS = [
+  { id: "beginner", en: "Beginner Keriah" },
+  { id: "teamim", en: "Te'amim trainers" },
+  { id: "tanakh", en: "Torah and Tanakh reading" },
+  { id: "shnayim", en: "Shnayim Mikra" },
+  { id: "siddur", en: "Siddur" },
+] as const;
+
+function sectionOf(path: string): string | null {
+  if (path.startsWith("/beginner/")) return "beginner";
+  if (path.startsWith("/tanakh/torah/shnayim-mikra/")) return "shnayim";
+  if (path.startsWith("/tanakh/torah/teamim/") || path.startsWith("/teamim/")) return "teamim";
+  if (path.startsWith("/tanakh/") || path.startsWith("/practice/")) return "tanakh";
+  if (path.startsWith("/siddur/")) return "siddur";
+  return null;
+}
+
 /**
  * The site is for paying schools: every page needs a signed-in account whose
  * school licence is current, except the home page (which shows a welcome page
@@ -76,7 +96,18 @@ function SiteHeader() {
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "/";
   const normalized = path.endsWith("/") ? path : `${path}/`;
-  const { loading, session, profile, access } = useAuth();
+  const { loading, session, profile, access, refresh, sections } = useAuth();
+  // Signed in with a school Google account: join the school by its email domain (supabase/accounts.sql).
+  const claimed = useRef(false);
+  useEffect(() => {
+    if (!session || claimed.current || profile?.role !== "none") return;
+    claimed.current = true;
+    supabase()
+      .rpc("claim_school_domain")
+      .then(({ data }) => {
+        if (data === "student") void refresh();
+      });
+  }, [session, profile, refresh]);
 
   // Before accounts are connected, the site works as before.
   if (!supabaseConfigured)
@@ -93,11 +124,20 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (open) body = children;
   else if (loading) body = <p className="py-24 text-center text-stone-400">Loading…</p>;
   else if (!session) body = normalized === "/" ? <Landing /> : <Card title="Please sign in">{<LoginForm />}</Card>;
+  else if (access && profile?.role === "student" && sections && sectionOf(normalized) && !sections.includes(sectionOf(normalized)!))
+    body = (
+      <Card title="Not open yet">
+        <p className="text-stone-600">Your teacher hasn&apos;t opened this part of Keriah Trainer for your class yet.</p>
+        <Link href="/" className="mt-4 block rounded-lg bg-amber-700 px-4 py-2.5 text-center font-semibold text-white hover:bg-amber-800">
+          Back to the home page
+        </Link>
+      </Card>
+    );
   else if (access) body = children;
   else if (!profile || profile.role === "none")
     body = (
       <Card title="One more step">
-        <RedeemForm intro="Learning through a school? Enter the class code from your teacher (or the teacher code from your school)." />
+        <RedeemForm intro="Learning through a school? Enter the class code from your teacher (teachers: the school code)." />
         <div className="mt-5 border-t border-stone-100 pt-4 text-center">
           <p className="text-sm text-stone-600">On your own?</p>
           <Link

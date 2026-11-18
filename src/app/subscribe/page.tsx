@@ -16,6 +16,7 @@ import {
   YEARLY_SAVING,
 } from "@/data/pricing";
 import { ContactBox } from "@/components/ContactBox";
+import { GoogleButton } from "@/components/auth/forms";
 
 const input =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200";
@@ -46,6 +47,8 @@ function CreateAccount() {
   return (
     <form onSubmit={submit} className="space-y-3">
       <p className="text-sm font-semibold text-stone-900">1. Create your account</p>
+      <GoogleButton back="/subscribe/" />
+      <p className="text-center text-xs text-stone-400">or with an email and password:</p>
       <label className="block">
         <span className="text-sm font-medium text-stone-700">Your name</span>
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} required />

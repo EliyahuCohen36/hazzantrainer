@@ -35,7 +35,7 @@ export const DEMO_FILES = new Set([
 ]);
 
 /** Pages anyone can open without signing in (paths without the base path, with trailing slash). */
-export const OPEN_PAGES = ["/", "/login/", "/join/", "/demo/", "/about/", "/subscribe/"];
+export const OPEN_PAGES = ["/", "/login/", "/join/", "/demo/", "/about/", "/subscribe/", "/schools/"];
 
 /** Where schools and students send inquiries (owner's public contact address). */
 export const CONTACT_EMAIL = "eliyahucohen36@gmail.com";

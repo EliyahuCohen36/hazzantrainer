@@ -267,10 +267,13 @@ export function Landing() {
                   </li>
                 ))}
               </ul>
+              <Link href="/schools/" className="mt-7 block rounded-xl bg-amber-700 px-5 py-3 text-center font-semibold text-white hover:bg-amber-800">
+                Why schools use it →
+              </Link>
               {CONTACT_EMAIL ? (
                 <a
                   href={`mailto:${CONTACT_EMAIL}?subject=Keriah%20Trainer%20for%20our%20school`}
-                  className="mt-7 block rounded-xl border border-stone-300 bg-white px-5 py-3 text-center font-semibold text-stone-800 hover:bg-stone-100"
+                  className="mt-3 block rounded-xl border border-stone-300 bg-white px-5 py-3 text-center font-semibold text-stone-800 hover:bg-stone-100"
                 >
                   Bring it to your school
                 </a>

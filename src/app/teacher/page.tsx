@@ -9,6 +9,8 @@ import { TEAMIM_LEVELS } from "@/data/teamim-levels";
 import { BEGINNER_LEVELS, LETTERS, NEKUDOT } from "@/data/beginner";
 import { WORD_STAGES } from "@/data/beginner-words";
 import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
+import { Gradebook } from "@/components/teacher/Gradebook";
+import { CLASS_SECTIONS } from "@/components/auth/AuthGate";
 
 interface Klass {
   id: string;
@@ -18,6 +20,9 @@ interface Klass {
   unlocked_level: number;
   beginner_level: number;
   letters_open: number;
+  /** supabase/accounts.sql: */
+  script_open?: boolean;
+  sections?: string[] | null;
 }
 interface Member {
   class_id: string;
@@ -235,16 +240,26 @@ export default function TeacherPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [unassigned, setUnassigned] = useState<{ id: string; display_name: string | null; email: string }[]>([]);
+  const [grades, setGrades] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!profile) return;
     const db = supabase();
-    let q = db.from("classes").select("id, name, code, teacher_id, unlocked_level, beginner_level, letters_open").order("created_at");
-    if (profile.role !== "admin") q = q.eq("teacher_id", profile.id);
-    const { data: cls, error } = await q;
+    const pick = (cols: string) => {
+      let q = db.from("classes").select(cols).order("created_at");
+      if (profile.role !== "admin") q = q.eq("teacher_id", profile.id);
+      return q;
+    };
+    const base = "id, name, code, teacher_id, unlocked_level, beginner_level, letters_open";
+    let { data: cls, error } = await pick(`${base}, script_open, sections`);
+    // Before supabase/accounts.sql is run, those two columns don't exist yet.
+    if (error) ({ data: cls, error } = await pick(base));
     if (error) return setError(error.message);
-    setClasses((cls as Klass[]) ?? []);
-    const ids = (cls ?? []).map((c) => c.id);
+    setClasses((cls as unknown as Klass[]) ?? []);
+    const { data: un } = await db.rpc("school_unassigned_students");
+    setUnassigned((un as { id: string; display_name: string | null; email: string }[]) ?? []);
+    const ids = ((cls as unknown as Klass[]) ?? []).map((c) => c.id);
     if (!ids.length) return;
     const { data: mem } = await db.from("class_members").select("class_id, student_id, unlocked_level, beginner_level, letters_open").in("class_id", ids);
     setMembers((mem as Member[]) ?? []);
@@ -318,6 +333,26 @@ export default function TeacherPage() {
     if (error) setError(error.message);
   };
 
+  const patchClass = async (id: string, patch: Partial<Klass>) => {
+    setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, ...patch } : c)));
+    const { error } = await supabase().from("classes").update(patch).eq("id", id);
+    if (error) setError(/column/i.test(error.message) ? "Ask the site owner to run supabase/accounts.sql first." : error.message);
+  };
+
+  const changeCode = async (c: Klass) => {
+    const code = window.prompt("New class code (at least 4 letters or numbers):", c.code);
+    if (!code || code.toUpperCase() === c.code) return;
+    const { data, error } = await supabase().rpc("set_class_code", { p_class: c.id, p_code: code });
+    if (error) setError(error.message);
+    else setClasses((cs) => cs.map((x) => (x.id === c.id ? { ...x, code: String(data) } : x)));
+  };
+
+  const addStudent = async (classId: string, studentId: string) => {
+    const { error } = await supabase().rpc("teacher_add_student", { p_class: classId, p_student: studentId });
+    if (error) setError(error.message);
+    else load();
+  };
+
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.school_id) {
@@ -355,6 +390,33 @@ export default function TeacherPage() {
         </label>
         <button className="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800">Make class</button>
       </form>
+
+      {unassigned.length > 0 && classes.length > 0 && (
+        <section className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-4">
+          <h2 className="font-semibold text-stone-900">Students from your school who aren&apos;t in a class yet</h2>
+          <p className="text-sm text-stone-600">They signed in with their school Google account. Put each one in a class.</p>
+          <ul className="mt-2 space-y-1.5">
+            {unassigned.map((u) => (
+              <li key={u.id} className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-medium">{u.display_name || u.email}</span>
+                <span className="text-stone-500">{u.email}</span>
+                <select
+                  className="rounded border border-stone-300 bg-white px-2 py-1"
+                  defaultValue=""
+                  onChange={(e) => e.target.value && addStudent(e.target.value, u.id)}
+                >
+                  <option value="">Add to class…</option>
+                  {classes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-6 space-y-5">
         {classes.map((c) => {
@@ -411,8 +473,58 @@ export default function TeacherPage() {
                 </label>
                 <span className="text-sm text-stone-600">
                   Class code <span className="ms-1 rounded bg-amber-100 px-2 py-0.5 font-mono text-base tracking-widest text-amber-900">{c.code}</span>
+                  <button type="button" onClick={() => changeCode(c)} className="ms-2 text-xs text-amber-800 underline">
+                    Change
+                  </button>
                 </span>
               </div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-stone-50 px-3 py-2 text-sm">
+                <span className="font-medium text-stone-700">What this class can use:</span>
+                {CLASS_SECTIONS.map((sec) => {
+                  const on = !c.sections || c.sections.includes(sec.id);
+                  return (
+                    <label key={sec.id} className="flex items-center gap-1.5">
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        className="accent-amber-700"
+                        onChange={(e) => {
+                          const now = c.sections ?? CLASS_SECTIONS.map((x) => x.id as string);
+                          const next = e.target.checked ? [...new Set([...now, sec.id])] : now.filter((x) => x !== sec.id);
+                          patchClass(c.id, { sections: next.length === CLASS_SECTIONS.length ? null : next });
+                        }}
+                      />
+                      {sec.en}
+                    </label>
+                  );
+                })}
+                <label className="flex items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    checked={!!c.script_open}
+                    className="accent-amber-700"
+                    onChange={(e) => patchClass(c.id, { script_open: e.target.checked })}
+                  />
+                  Script letters ✍️
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setGrades(grades === c.id ? null : c.id)}
+                  className="ms-auto rounded-lg bg-amber-700 px-3 py-1 text-sm font-semibold text-white"
+                >
+                  {grades === c.id ? "Hide grades" : "Grades"}
+                </button>
+              </div>
+              {grades === c.id && (
+                <Gradebook
+                  className={c.name}
+                  kids={members
+                    .filter((m) => m.class_id === c.id)
+                    .map((m) => students.find((s) => s.id === m.student_id))
+                    .filter((s): s is Student => Boolean(s))}
+                  rows={rows}
+                />
+              )}
               {kids.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-500">No students yet. Give them the class code.</p>
               ) : (

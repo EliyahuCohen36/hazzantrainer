@@ -1,5 +1,6 @@
 import { MyBookmarks } from "@/lib/bookmarks";
 import Link from "next/link";
+import { IfOpen } from "@/components/auth/IfOpen";
 import { SECTION_TITLES, TANAKH, type TanakhSection } from "@/data/teamim-reference";
 
 const SECTIONS: Array<{ id: TanakhSection; blurb: string }> = [
@@ -15,6 +16,7 @@ export default function Home() {
       <h1 className="text-3xl font-semibold text-stone-900">Keriah Trainer</h1>
       <p className="mt-1 text-stone-600">Reading practice in the Syrian tradition.</p>
 
+      <IfOpen section="beginner">
       <Link
         href="/beginner/"
         className="mt-8 flex items-center gap-4 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 p-5 shadow-sm transition-colors hover:border-amber-400"
@@ -34,7 +36,9 @@ export default function Home() {
           </span>
         </span>
       </Link>
+      </IfOpen>
 
+      <IfOpen section="tanakh">
       <section id="tanakh" className="mt-8">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xl font-semibold text-stone-900">Tanakh</h2>
@@ -68,7 +72,9 @@ export default function Home() {
           Te&apos;amim of every book of Tanakh →
         </Link>
       </section>
+      </IfOpen>
 
+      <IfOpen section="siddur">
       <Link
         href="/siddur/"
         className="mt-8 flex items-center gap-4 rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-amber-50 p-5 shadow-sm transition-colors hover:border-sky-400"
@@ -88,6 +94,7 @@ export default function Home() {
           </span>
         </span>
       </Link>
+      </IfOpen>
     </main>
   );
 }

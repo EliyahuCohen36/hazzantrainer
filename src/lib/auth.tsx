@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, supabaseConfigured } from "./supabase";
-import { forgetUser, pullProgress } from "./audio/taam-practice";
+import { forgetUser, loadProgress, pullProgress, PROGRESS_EVENT } from "./audio/taam-practice";
+import { selfPacedLevels } from "./self-paced";
 
 export type Role = "admin" | "teacher" | "student" | "family" | "none";
 
@@ -114,6 +115,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, [load]);
 
+  // Personal subscribers: levels open by finishing the one before (recomputed as progress changes).
+  const [paced, setPaced] = useState<ReturnType<typeof selfPacedLevels> | null>(null);
+  useEffect(() => {
+    if (profile?.role !== "family") {
+      setPaced(null);
+      return;
+    }
+    const read = () => setPaced(selfPacedLevels(loadProgress().practice));
+    read();
+    window.addEventListener(PROGRESS_EVENT, read);
+    return () => window.removeEventListener(PROGRESS_EVENT, read);
+  }, [profile]);
+
   const refresh = useCallback(async () => {
     const { data } = await supabase().auth.getSession();
     await load(data.session);
@@ -124,7 +138,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loading, session, profile, access, level, beginnerLevel, lettersOpen, scriptOpen, sections, selfPaced: profile?.role === "family", refresh, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{
+        loading,
+        session,
+        profile,
+        access,
+        level: paced?.level ?? level,
+        beginnerLevel: paced?.beginnerLevel ?? beginnerLevel,
+        lettersOpen: paced?.lettersOpen ?? lettersOpen,
+        scriptOpen,
+        sections,
+        selfPaced: profile?.role === "family",
+        refresh,
+        signOut,
+      }}>{children}</AuthContext.Provider>
   );
 }
 
