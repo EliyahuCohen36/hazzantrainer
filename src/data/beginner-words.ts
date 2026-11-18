@@ -56,6 +56,6 @@ export const WORD_STAGES: WordStage[] = [
 
 export const FIRST_WORD_LEVEL = WORD_STAGES[0].level;
 export const stageKey = (id: string) => `beginner-stage:${id}`;
-/** Saying words aloud: right/total per step, and per word (for "words to practise"). */
+/** Saying words aloud: right/total per step, and per word (for "words to practice"). */
 export const sayKey = (stageId: string) => `beginner-say:${stageId}`;
 export const sayWordKey = (word: string) => `beginner-word:${word}`;

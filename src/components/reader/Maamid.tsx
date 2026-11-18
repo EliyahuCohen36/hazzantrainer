@@ -45,8 +45,16 @@ function YetibFirst({ text, source }: { text: string; source?: string }) {
   );
 }
 
+// Te'amim written twice on one word (Talsha ֠, Tilsa ֩, Zarqa ֮, Teri Kadma ֙): the sign at the
+// word's edge only shows which ta'am it is; the other one is on the letter that takes the sound.
+const DOUBLED = ["\u05A0", "\u05A9", "\u05AE", "\u0599"];
+const PREPOSITIVE = "\u05A0";
+function doubledOf(word: string) {
+  return DOUBLED.find((m) => word.split(m).length > 2);
+}
+
 function Hints({ text, source }: { text: string; source?: string }) {
-  if (!HINT_MARKS.test(text)) return <>{text}</>;
+  if (!HINT_MARKS.test(text) && !DOUBLED.some((m) => text.split(m).length > 2)) return <>{text}</>;
   // Words are split at spaces and maqafs (each part of a maqaf pair is its own word for the rules).
   const SPLIT = /(\s+|־)/;
   const parts = text.split(SPLIT);
@@ -56,7 +64,8 @@ function Hints({ text, source }: { text: string; source?: string }) {
   return (
     <>
       {parts.map((part, pi) => {
-        if (!part || /^\s+$|^־$/.test(part) || !HINT_MARKS.test(part)) return <Fragment key={pi}>{part}</Fragment>;
+        const twice = part ? doubledOf(part) : undefined;
+        if (!part || /^\s+$|^־$/.test(part) || (!HINT_MARKS.test(part) && !twice)) return <Fragment key={pi}>{part}</Fragment>;
         const shown = analyzeWord(part);
         const full = aligned ? analyzeWord(srcParts![pi]) : null;
         const lead = shown.lead;
@@ -64,14 +73,25 @@ function Hints({ text, source }: { text: string; source?: string }) {
           full && full.clusters.length === shown.clusters.length
             ? shown.clusters.map((c, i) => ({ ...c, shevaNa: full.clusters[i].shevaNa && c.text.includes("ְ") }))
             : shown.clusters;
+        // The letter that takes the sound of a doubled ta'am.
+        let soundAt = -1;
+        if (twice) {
+          const at = clusters.map((c, i) => (c.text.includes(twice) ? i : -1)).filter((i) => i >= 0);
+          soundAt = twice === PREPOSITIVE ? at[at.length - 1] : at[0];
+        }
         return (
           <Fragment key={pi}>
             {lead}
             {clusters.map((c, ci) => {
-              if (!c.meteg && !c.qamatsKatan && !c.shevaNa) return <Fragment key={ci}>{c.text}</Fragment>;
+              const sound = ci === soundAt;
+              if (!c.meteg && !c.qamatsKatan && !c.shevaNa && !sound) return <Fragment key={ci}>{c.text}</Fragment>;
               let t = c.text;
               const cls: string[] = [];
               const title: string[] = [];
+              if (sound) {
+                cls.push("taam-sound");
+                title.push("The ta'am's sound goes on this letter");
+              }
               if (c.meteg) {
                 t = t.replace("ֽ", "");
                 cls.push("maamid");

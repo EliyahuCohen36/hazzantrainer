@@ -30,10 +30,10 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
     const b = TANAKH.find((x) => x.id === book);
     const ref = allChapters(book).find((c) => c.slug === parasha);
     const name = ref ? (partName(book, ref.part)?.en ?? b?.en) : b?.en;
-    return { title: ref ? `${name} ${ref.c} · Kriah Trainer` : "Kriah Trainer" };
+    return { title: ref ? `${name} ${ref.c} · Keriah Trainer` : "Keriah Trainer" };
   }
   const p = PARASHOT.find((x) => x.id === parasha);
-  return { title: p ? `Parashat ${p.en} · Kriah Trainer` : "Kriah Trainer" };
+  return { title: p ? `Parashat ${p.en} · Keriah Trainer` : "Keriah Trainer" };
 }
 
 export default async function ParashaPage({ params }: { params: Promise<{ section: string; book: string; parasha: string }> }) {
@@ -118,7 +118,7 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href="/tanakh/torah/" className="hover:underline">

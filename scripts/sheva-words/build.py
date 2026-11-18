@@ -108,7 +108,7 @@ def sheva_na(cl, v, k, stress, last):
     return v[pk] in LONG
 
 
-def translit(cl, v, stress, flip=None):
+def translit(cl, v, stress, flip=None, double=None, glide=None, naive_end=False):
     """The word in simple Latin syllables ("nash-ke-nu"); flip = index whose sheva/qamats reading is swapped."""
     n = len(cl)
     last = n - 1
@@ -123,6 +123,7 @@ def translit(cl, v, stress, flip=None):
         else:
             c = CONS.get(l, "")
         if l == "ה" and k == last and v[k] == "none" and DAGESH not in m: c = ""
+        if l == "ה" and k == last and DAGESH in m: c = "h"
         if k == 0 and v[k] == "shuruk": c = ""  # וּ at the start of a word is just "u"
         vw = v[k]
         if vw == "hataf":
@@ -139,7 +140,13 @@ def translit(cl, v, stress, flip=None):
             if flip == k and vw in ("qamats", "katan"): sound = "o" if sound == "a" else "a"
         else:
             sound = None
-        if k == last and vw == "patah" and l in "חע": syl.append(("a" + c, True)); continue  # furtive patah
+        if double == k and syl and sound is not None:
+            syl[-1] = (syl[-1][0] + c, None)  # dagesh hazaq: the letter is said twice ("hash-sha")
+        genuva = k == last and vw == "patah" and (l in "חע" or (l == "ה" and DAGESH in m))
+        if genuva and naive_end:
+            syl.append((c + "a", True)); continue  # the wrong way: the Patah read after the letter
+        if genuva:
+            syl.append(((glide or "") + "a" + c, True)); continue  # Patah Genuva: said before the letter
         if sound is None:
             if syl: syl[-1] = (syl[-1][0] + c, None)
             else: syl.append((c, None))
@@ -189,7 +196,10 @@ for b in BOOKS:
                     items["end"].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": k, "a": "nach", "k": "end"}); continue
                 if k == 0:
                     items["na-start"].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": k, "a": "na", "k": "na-start"}); continue
-                if DAGESH in m: continue  # dagesh: na (not taught separately)
+                if DAGESH in m:
+                    # A Sheva on a letter with a dagesh is always Na (not on the last letters: those are Nach).
+                    items["na-dagesh"].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": k, "a": "na", "k": "na-dagesh"})
+                    continue
                 pk = k - 1 if v[k - 1] != "mater" else k - 2
                 pv = v[pk]
                 if pk == stress: continue  # closes the stressed syllable: nach by the stress rule
@@ -200,6 +210,92 @@ for b in BOOKS:
                        "holam": "na-holam", "shuruk-mid": "na-shuruk"}.get(pv)
                 if not cat: continue
                 items[cat].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": k, "a": cat.split("-")[0], "k": cat})
+
+
+# ── Patah Genuva, Dagesh Kal / Hazaq, the four kinds of He (steps 8–10) ──────────────────
+SHORT = {"patah", "segol", "hiriq", "qibbus", "katan"}
+W_BEFORE = {"holam", "shuruk-mid", "qibbus", "katan", "shuruk"}
+Y_BEFORE = {"tsere", "segol", "hiriq", "hiriq-male"}
+BGDKPT = "בגדכפת"
+GUTTURAL = "אהחער"
+# He HaShe'elah: checked by hand (a הֲ that is part of a hif'il verb or a name is left out).
+SHEELAH = set("""הידוע התשחית השמע היד הלוא היקרך הרפה הזה הבת הגוי היכל הנהיה המלך הגם הישכם הבוא הכי
+הטרם השלום השמר הצאן הרק היפלא הטובה הלא השפט הנשמע התחת הנמצא היש המן הילך התשמר המבלי הנסה התלכי""".split())
+SHEELAH_NOT = {"המון", "הדר", "הלך", "הרג", "הרס", "הרה", "הגר", "הלם", "הדם", "הדרם", "הרגו", "הרגני", "הריה", "הרת", "הלבן"}
+genuva, extra = collections.defaultdict(dict), collections.defaultdict(dict)
+for b in BOOKS:
+    for verse in json.load(open(ROOT / "src/data/torah" / f"{b}.json")):
+        for tok in verse["t"]:
+            if not isinstance(tok, str) or tok in ("|", "_") or tok.startswith("¶"): continue
+            pieces = tok.split("־")
+            for pidx, piece in enumerate(pieces):
+                w = re.sub("[׃{}\\[\\]<>׀]", "", piece)
+                letters_only = re.sub("[^א-ת]", "", w)
+                if not w or "יהוה" in letters_only: continue
+                cl, v = analyse(w)
+                n = len(cl)
+                if n < 2: continue
+                stress = stress_index(cl)
+                last = n - 1
+                while last > 0 and v[last] == "mater": last -= 1
+                D = display(cl, keep_katan=True)
+                no_sheva = not any(x == "sheva" for x in v)  # Patah Genuva / Dagesh: no Sheva question in the way
+                # Patah Genuva
+                l, m = cl[-1]
+                if no_sheva and v[-1] == "patah" and (l in "חע" or (l == "ה" and DAGESH in m)) and n >= 2:
+                    pk = n - 2 if v[n - 2] != "mater" else n - 3
+                    if pk >= 0:
+                        g = "w" if v[pk] in W_BEFORE else "y" if v[pk] in Y_BEFORE else None
+                        if g:
+                            cat = f"genuva-{g}"
+                            genuva[cat].setdefault(letters_only, {"_src": (cl, v, stress), "w": D, "i": n - 1, "a": g, "k": cat})
+                # Dagesh Kal: a בגדכפת at the start of the word with a dagesh
+                if no_sheva and cl[0][0] in BGDKPT and DAGESH in cl[0][1] and pidx == 0:
+                    extra["dagesh-kal"].setdefault(letters_only, {"_src": (cl, v, stress), "w": D, "i": 0, "a": "kal", "k": "dagesh-kal"})
+                # Dagesh Hazaq: a dagesh right after a short vowel
+                for k in range(1, last + 1 if no_sheva else 0):
+                    lk, mk = cl[k]
+                    if DAGESH not in mk or v[k] in ("shuruk", "shuruk-mid", "mater") or (lk == "ה" and k == last): continue
+                    if v[k - 1] in SHORT:
+                        extra["dagesh-hazaq"].setdefault(letters_only, {"_src": (cl, v, stress), "w": D, "i": k, "a": "hazaq", "k": "dagesh-hazaq"})
+                        break
+                # The four kinds of He
+                f0, m0 = cl[0]
+                if f0 == "ה" and pidx == 0 and n >= 3:
+                    if PATAH in m0 and DAGESH in cl[1][1] and cl[1][0] not in GUTTURAL:
+                        extra["he-yediah"].setdefault(letters_only, {"w": D, "i": 0, "a": "yediah", "k": "he-yediah"})
+                    elif QAMATS in m0 and cl[1][0] in "אער" and v[0] == "qamats":
+                        extra["he-yediah"].setdefault(letters_only, {"w": D, "i": 0, "a": "yediah", "k": "he-yediah"})
+                    elif "ֲ" in m0 and letters_only in SHEELAH:
+                        extra["he-sheelah"].setdefault(letters_only, {"w": D, "i": 0, "a": "sheelah", "k": "he-sheelah"})
+                if l == "ה" and DAGESH in m and QAMATS in cl[-2][1] and v[-1] == "none":
+                    extra["he-mappiq"].setdefault(letters_only, {"w": D, "i": n - 1, "a": "mappiq", "k": "he-mappiq"})
+                if l == "ה" and v[-1] == "mater" and QAMATS in cl[-2][1] and 0 <= stress < n - 2:
+                    extra["he-megamah-cand"].setdefault(letters_only, {"w": D, "i": n - 1, "a": "megamah", "k": "he-megamah"})
+
+# He HaMegamah: only words that mean "towards" (checked by hand from the Torah's mil'el -ָה words).
+MEGAMAH = ["מצרימה", "ארצה", "השמימה", "הביתה", "צפנה", "נגבה", "קדמה", "ימה", "שמה", "ההרה", "חרנה", "שעירה",
+           "כנען", "ארצהכנען", "מדברה", "המדברה", "השדה", "השדהה", "האהלה", "הפתחה", "החוצה", "חוצה", "תימנה",
+           "ירדנה", "הירדנה", "צען", "גררה", "פדנהארם", "פדנה", "סדמה", "חברונה", "מזרחה", "שכמה", "אפרתה",
+           "אהלה", "הארצה", "עירה", "העירה", "ביתה", "גשנה", "בבלה", "ההרהה", "סיני", "שערה", "דתינה", "תמנתה",
+           "קדמהמזרחה", "השערה", "אשורה", "מצפה", "צפונה", "מעלה", "למעלה", "מטה", "למטה", "אחורנית"]
+for p_, x in extra.pop("he-megamah-cand").items():
+    if p_ in MEGAMAH:
+        extra["he-megamah"][p_] = dict(x, k="he-megamah")
+
+for cat, d in list(genuva.items()) + list(extra.items()):
+    for x in d.values():
+        src = x.pop("_src", None)
+        if src is None: continue
+        cl, v, stress = src
+        if cat.startswith("genuva"):
+            x["r"] = translit(cl, v, stress, glide=x["a"])
+            x["x"] = translit(cl, v, stress, glide="y" if x["a"] == "w" else "w")
+            x["y"] = translit(cl, v, stress, naive_end=True)
+        elif cat == "dagesh-hazaq":
+            x["r"] = translit(cl, v, stress, double=x["i"])
+            x["x"] = translit(cl, v, stress)
+    items[cat] = d
 
 # Same letters read both ways (שָֽׁמְרָה / שָׁמְרָה): a qamats with a ma'amid = "a", without = "o".
 both = []

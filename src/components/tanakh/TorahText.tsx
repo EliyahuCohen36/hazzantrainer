@@ -18,6 +18,7 @@ import { TaamPractice } from "./TaamPractice";
 import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { BookmarkButton } from "@/lib/bookmarks";
+import { useLang } from "@/lib/i18n/Translator";
 import { usePathname } from "next/navigation";
 import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
@@ -52,6 +53,18 @@ interface Props {
   allowScroll?: boolean;
   scrollLabel?: string;
 }
+
+const ALIYAH_LABELS: Record<string, [string, string]> = {
+  Kohen: ["כהן", "كوهين"],
+  Levi: ["לוי", "ليڤي"],
+  Yisrael: ["ישראל", "يسرائيل"],
+  Shelishi: ["שלישי", "شليشي"],
+  "Revi'i": ["רביעי", "ربيعي"],
+  Hamishi: ["חמישי", "حميشي"],
+  Shishi: ["שישי", "شيشي"],
+  "Shevi'i": ["שביעי", "شبيعي"],
+  Maftir: ["מפטיר", "مفطير"],
+};
 
 /** Draw {large} and [small] letters, then strip marks per the settings. */
 function Letters({ text, opts }: { text: string; opts: { showNikkud: boolean; showTeamim: boolean } }) {
@@ -243,8 +256,18 @@ export function TorahText({
   const focusItem = items.find((x) => x.id === focus);
   const sections =
     division === "weekday" && weekdaySections ? weekdaySections : haftarah ? [...shabbatSections, haftarah] : shabbatSections;
-  const marks: [number, string][] = items.filter((x) => x.from).map((x) => [posOf(x.from!), x.label]);
-  const scrollFocus: [number, number] | null = focusItem?.from && focusItem.to ? [posOf(focusItem.from), posOf(focusItem.to)] : null;
+  const { lang } = useLang();
+  // The aliyah names written in the scroll, in the reader's language.
+  const marks: [number, string][] = items
+    .filter((x) => x.from)
+    .map((x) => [posOf(x.from!), lang === "en" ? x.label : (ALIYAH_LABELS[x.label]?.[lang === "he" ? 0 : 1] ?? x.label)]);
+  // Weekday reading with "All": only the weekday reading stands out, the rest of the parasha is faded.
+  const weekdayAll =
+    division === "weekday" && !focusItem && items.length && items[0].from && items[items.length - 1].to
+      ? ([posOf(items[0].from!), posOf(items[items.length - 1].to!)] as [number, number])
+      : null;
+  const scrollFocus: [number, number] | null =
+    focusItem?.from && focusItem.to ? [posOf(focusItem.from), posOf(focusItem.to)] : weekdayAll;
   const pick = (id: string | null) => {
     setFocus(id);
     const it = items.find((x) => x.id === id);

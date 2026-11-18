@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import words from "@/data/sheva-words.json";
-import { PART_TITLES, SHEVA_PASS, SHEVA_QUESTIONS, SHEVA_STAGES, shevaStageKey, type ShevaStage } from "@/data/sheva-stages";
+import { CHOICE_LABELS, PART_TITLES, SHEVA_PASS, SHEVA_QUESTIONS, SHEVA_STAGES, shevaStageKey, type ShevaStage, type StagePart } from "@/data/sheva-stages";
 import { loadProgress, recordPractice, recordQuiz, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { shuffleArray as shuffle } from "@/lib/audio/shuffle";
 
@@ -11,11 +11,12 @@ interface Item {
   w: string;
   /** Index of the letter to look at. */
   i: number;
-  a: "na" | "nach" | "a" | "o";
+  a: string;
   k: string;
-  /** The right reading and the wrong one, in Latin syllables. */
-  r: string;
-  x: string;
+  /** The right reading and the wrong ones, in Latin syllables (not on "choice" items). */
+  r?: string;
+  x?: string;
+  y?: string;
 }
 const WORDS = words as unknown as Record<string, Item[]>;
 const PASS_PCT = Math.round((100 * SHEVA_PASS) / SHEVA_QUESTIONS);
@@ -70,7 +71,35 @@ const REASON: Record<string, string> = {
   "katan-sheva": "no ma'amid, before a Sheva: Qamats Katan, \"o\"",
   "gadol-sheva": "a ma'amid under it: Qamats Gadol, \"a\"",
   "katan-maqaf": "before a Maqaf: Qamats Katan, \"o\"",
+  "na-dagesh": "a Sheva with a Dagesh: Na",
+  "genuva-w": "after \"o\" or \"u\": a \"w\" sound",
+  "genuva-y": "after \"e\" or \"i\": a \"y\" sound",
+  "dagesh-kal": "at the start of the word: Dagesh Kal",
+  "dagesh-hazaq": "after a short vowel: Dagesh Hazaq",
+  "he-yediah": "\"the\": He HaYedi'ah",
+  "he-sheelah": "a question: He HaShe'elah",
+  "he-megamah": "\"towards\": He HaMegamah",
+  "he-mappiq": "a dot in the He, \"her\": Mappiq He",
 };
+
+/** What the child is asked, by step. */
+const PROMPT: Partial<Record<StagePart, string>> = {
+  katan: "Look at the highlighted Qamats. How do you read the word?",
+  genuva: "Look at the last letter. How do you read the word?",
+  dagesh: "Look at the highlighted letter.",
+  he: "Look at the highlighted ה. Which He is it?",
+};
+
+/** The answer, said in words after the child picks. */
+function answerName(stage: ShevaStage, q: Item) {
+  if (q.a === "na") return "Sheva Na";
+  if (q.a === "nach") return "Sheva Nach";
+  if (q.a === "o") return "Qamats Katan";
+  if (q.a === "a") return "Qamats Gadol";
+  if (q.a === "w" || q.a === "y") return "Patah Genuva";
+  if (CHOICE_LABELS[q.a]) return CHOICE_LABELS[q.a].en;
+  return "";
+}
 
 function makeQuestions(stage: ShevaStage): Item[] {
   const pool = stage.from.flatMap((k) => WORDS[k] ?? []);
@@ -79,8 +108,11 @@ function makeQuestions(stage: ShevaStage): Item[] {
   return out.slice(0, SHEVA_QUESTIONS);
 }
 
-/** Sheva and Qamats Katan practice: 50 words a step, pass 40 to open the next step. */
-export function ShevaTrainer() {
+/**
+ * Reading-rule practice (Sheva, Qamats Katan, Patah Genuva, Dagesh, the four He): 50 words a step,
+ * pass 40 to open the next step. `parts` picks which steps this page shows.
+ */
+export function ShevaTrainer({ parts }: { parts?: StagePart[] }) {
   const { beginnerLevel, profile } = useAuth();
   const free = profile?.role === "teacher" || profile?.role === "admin";
   const best = useBest();
@@ -94,7 +126,13 @@ export function ShevaTrainer() {
   const [picked, setPicked] = useState<string | null>(null);
   const [done, setDone] = useState<number | null>(null);
   const q = qs[i];
-  const options = useMemo(() => (q ? shuffle([q.r, q.x]) : []), [q]);
+  const options = useMemo(() => {
+    if (!q || !stage) return [];
+    if (stage.ask === "choice") return stage.choices ?? [];
+    const wrong = (stage.wrong ?? ["x"]).map((k) => q[k]).filter((x): x is string => !!x && x !== q.r);
+    return shuffle([q.r!, ...Array.from(new Set(wrong))]);
+  }, [q, stage]);
+  const rightAnswer = stage?.ask === "choice" ? q?.a : q?.r;
 
   useEffect(() => {
     const id = decodeURIComponent(location.hash.slice(1));
@@ -133,7 +171,8 @@ export function ShevaTrainer() {
 
   if (stage && q) {
     const isSheva = q.a === "na" || q.a === "nach";
-    const correct = picked === q.r;
+    const correct = picked === rightAnswer;
+    const choice = stage.ask === "choice";
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between text-sm text-stone-500">
@@ -147,12 +186,12 @@ export function ShevaTrainer() {
         <p className="mt-2 text-center text-sm font-medium text-stone-700">
           {isSheva
             ? "Look at the highlighted Sheva. How do you read the word?"
-            : "Look at the highlighted Qamats. How do you read the word?"}
+            : (PROMPT[stage.part] ?? "Look at the highlighted Qamats. How do you read the word?")}
         </p>
         <div className="my-3 text-center">
           <ShevaWord item={q} />
         </div>
-        <div className="mx-auto grid max-w-md gap-2 sm:grid-cols-2">
+        <div className={`mx-auto grid max-w-md gap-2 ${options.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
           {options.map((o) => (
             <button
               key={o}
@@ -160,27 +199,36 @@ export function ShevaTrainer() {
               disabled={!!picked}
               onClick={() => {
                 setPicked(o);
-                const ok = o === q.r;
+                const ok = o === rightAnswer;
                 if (ok) setRight((r) => r + 1);
                 recordQuiz(`beginner-sheva-rule:${q.k}`, ok);
               }}
-              className={`rounded-xl border-2 px-4 py-3 text-xl font-semibold tracking-wide ${
-                picked && o === q.r
+              className={`rounded-xl border-2 px-4 py-3 font-semibold ${choice ? "text-base" : "text-xl tracking-wide"} ${
+                picked && o === rightAnswer
                   ? "border-emerald-500 bg-emerald-50 text-emerald-800"
                   : picked === o
                     ? "border-rose-400 bg-rose-50 text-rose-800"
                     : "border-stone-300 bg-white text-stone-800 hover:border-amber-400"
               }`}
-              dir="ltr"
+              dir={choice ? undefined : "ltr"}
             >
-              {o}
+              {choice ? (
+                <>
+                  <span className="block">{CHOICE_LABELS[o]?.en ?? o}</span>
+                  <span dir="rtl" lang="he" className="block font-hebrew text-lg text-amber-800">
+                    {CHOICE_LABELS[o]?.he}
+                  </span>
+                </>
+              ) : (
+                o
+              )}
             </button>
           ))}
         </div>
         {picked && (
           <div className="mt-4 text-center">
             <p className={correct ? "font-semibold text-emerald-700" : "font-semibold text-rose-700"}>
-              {correct ? "Right!" : "Not quite."} {isSheva ? (q.a === "na" ? "Sheva Na" : "Sheva Nach") : q.a === "o" ? "Qamats Katan" : "Qamats Gadol"}
+              {correct ? "Right!" : "Not quite."} {answerName(stage, q)}
               {REASON[q.k] ? ` (${REASON[q.k]})` : ""}
             </p>
             <button
@@ -213,6 +261,8 @@ export function ShevaTrainer() {
       </p>
       <ol className="grid gap-3">
         {SHEVA_STAGES.map((s, k) => {
+          if (parts && !parts.includes(s.part)) return null;
+          const num = SHEVA_STAGES.slice(0, k + 1).filter((x) => !parts || parts.includes(x.part)).length;
           const ok = isOpen(k);
           const b = best[shevaStageKey(s.id)];
           const head = s.part !== lastPart;
@@ -224,7 +274,7 @@ export function ShevaTrainer() {
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className={`font-semibold ${ok ? "text-stone-900" : "text-stone-400"}`}>
                     {!ok && "🔒 "}
-                    {k + 1}. {ok ? s.title : `Step ${k + 1}`}
+                    {num}. {ok ? s.title : `Step ${num}`}
                   </h3>
                   {ok && (
                     <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">

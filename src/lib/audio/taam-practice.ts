@@ -3,7 +3,7 @@ import { contourFromHz, type PitchContour } from "./contour";
 import { foldOctave, pointScore } from "./pitch-math";
 
 /**
- * Child-friendly feedback for practising one ta'am against the Hazzan's
+ * Child-friendly feedback for practicing one ta'am against the Hazzan's
  * recording: stars, a short message, and what to fix (start / middle / end
  * too high or too low).
  */

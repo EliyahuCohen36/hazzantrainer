@@ -4,7 +4,7 @@ import { PARASHOT } from "@/data/parashot";
 import { TANAKH } from "@/data/teamim-reference";
 import { TorahTabs } from "@/components/tanakh/TorahTabs";
 
-export const metadata: Metadata = { title: "Shnayim Mikra ve-Ehad Targum · Kriah Trainer" };
+export const metadata: Metadata = { title: "Shnayim Mikra ve-Ehad Targum · Keriah Trainer" };
 
 export function generateStaticParams() {
   return [{ section: "torah" }];
@@ -17,7 +17,7 @@ export default function ShnayimMikraPage() {
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href="/tanakh/torah/" className="hover:underline">

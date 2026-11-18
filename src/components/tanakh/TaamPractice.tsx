@@ -30,7 +30,7 @@ function loadMaster(src: string) {
 type Phase = "closed" | "ready" | "recording" | "scoring" | "done";
 
 interface Props {
-  /** Recording to practise against (site path). */
+  /** Recording to practice against (site path). */
   src: string;
   /** What the child is singing, e.g. "Tarha" or "Shofar Holekh before Atnah". */
   label: string;

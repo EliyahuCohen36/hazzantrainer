@@ -4,7 +4,7 @@ import { BEGINNER_STEPS } from "@/data/beginner";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { BeginnerLevelPath } from "@/components/beginner/Lock";
 
-export const metadata: Metadata = { title: "Beginner Keriah · Kriah Trainer" };
+export const metadata: Metadata = { title: "Beginner Keriah · Keriah Trainer" };
 
 /** Beginner Keriah: the alef-bet, the sofiyot and the nekudot, for first-time readers. */
 export default function BeginnerPage() {

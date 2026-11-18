@@ -16,6 +16,12 @@ import { canRecord, candidates, matchesWord, recordWord } from "@/lib/audio/word
  */
 export type QuestionType = "listen" | "sound" | "say";
 
+/**
+ * The microphone ("say it") is switched off for now (owner, Nov 18: children's recordings didn't work
+ * reliably). Beginner Keriah is listening exercises only; set this to true to bring it back.
+ */
+export const MIC_ON = false;
+
 export const QUESTION_LABEL: Record<QuestionType, string> = {
   listen: "Listen and pick the word",
   sound: "Pick the sound for the word",
@@ -161,12 +167,22 @@ export function WordQuestion({
         <p className={`text-lg font-semibold ${right ? "text-emerald-700" : "text-rose-700"}`}>
           {right ? "Right! 🎉" : type === "sound" ? "Not quite. Listen to the green one: that's the word." : "Not quite. The green one is the word."}
         </p>
-        <div className="mx-auto mt-4 max-w-md rounded-2xl border border-rose-100 bg-rose-50/50 p-3">
-          <p className="font-semibold text-stone-800">
-            Now you say it: <Word w={word.w} size="text-3xl" />
-          </p>
-          <SayIt word={word} pool={pool} onDone={(said) => onAnswer(right, said)} showDebug={showDebug} />
-        </div>
+        {MIC_ON ? (
+          <div className="mx-auto mt-4 max-w-md rounded-2xl border border-rose-100 bg-rose-50/50 p-3">
+            <p className="font-semibold text-stone-800">
+              Now you say it: <Word w={word.w} size="text-3xl" />
+            </p>
+            <SayIt word={word} pool={pool} onDone={(said) => onAnswer(right, said)} showDebug={showDebug} />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onAnswer(right)}
+            className="mt-4 rounded-full bg-amber-700 px-6 py-2.5 text-lg font-semibold text-white hover:bg-amber-800"
+          >
+            Next →
+          </button>
+        )}
       </div>
     ) : null;
 
@@ -395,13 +411,13 @@ function SayIt({
  */
 export function mixedTypes(words: PracticeWord[], pool: PracticeWord[]): QuestionType[] {
   const enoughSounds = pool.filter(hasSound).length >= 3;
-  const kinds: QuestionType[] = ["listen", "sound", "say"];
+  const kinds: QuestionType[] = MIC_ON ? ["listen", "sound", "say"] : ["listen", "sound"];
   const out: QuestionType[] = [];
   words.forEach((w) => {
     let t: QuestionType;
-    do t = kinds[Math.floor(Math.random() * 3)];
+    do t = kinds[Math.floor(Math.random() * kinds.length)];
     while (out.length >= 2 && out[out.length - 1] === t && out[out.length - 2] === t);
-    if (t !== "say" && (!hasSound(w) || !enoughSounds)) t = "say";
+    if (MIC_ON && t !== "say" && (!hasSound(w) || !enoughSounds)) t = "say";
     out.push(t);
   });
   return out;

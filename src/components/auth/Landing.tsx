@@ -56,7 +56,7 @@ const STEPS = [
     alt: "Bereshit with the name of each ta'am under its word",
   },
   {
-    title: "Practise from a real Sefer Torah page",
+    title: "Practice from a real Sefer Torah page",
     text: "Torah Scroll Mode shows each column of the scroll line for line, in Sephardic scroll letters with their crowns, with the vowelled column beside it like a tikkun.",
     img: "/images/tikkun.webp",
     alt: "Column 1 of the Sefer Torah beside the same column with vowels",
@@ -110,7 +110,7 @@ export function Landing() {
             </h1>
             <p className="mt-4 text-lg text-stone-700">
               From a child&apos;s very first letter to reading the parasha with te&apos;amim, all in the Hazzan&apos;s own voice.
-              Children listen, read and sing it back, and get stars every time they practise, one level at a time.
+              Children listen, read and sing it back, and get stars every time they practice, one level at a time.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
@@ -269,14 +269,14 @@ export function Landing() {
               </ul>
               {CONTACT_EMAIL ? (
                 <a
-                  href={`mailto:${CONTACT_EMAIL}?subject=Kriah%20Trainer%20for%20our%20school`}
+                  href={`mailto:${CONTACT_EMAIL}?subject=Keriah%20Trainer%20for%20our%20school`}
                   className="mt-7 block rounded-xl border border-stone-300 bg-white px-5 py-3 text-center font-semibold text-stone-800 hover:bg-stone-100"
                 >
                   Bring it to your school
                 </a>
               ) : (
                 <p className="mt-7 rounded-xl border border-stone-200 bg-white px-5 py-3 text-center text-sm text-stone-600">
-                  Ask your school about Kriah Trainer. Students sign up with the code from their teacher.
+                  Ask your school about Keriah Trainer. Students sign up with the code from their teacher.
                 </p>
               )}
             </div>
@@ -292,7 +292,7 @@ export function Landing() {
 
       <footer className="border-t border-stone-200 py-8 text-center text-sm text-stone-500">
         <Link href="/about/" className="hover:underline">
-          About Kriah Trainer
+          About Keriah Trainer
         </Link>
         <span className="mx-2">·</span>
         <Link href="/demo/" className="hover:underline">

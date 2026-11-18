@@ -136,7 +136,11 @@ export const BEGINNER_STEPS = [
   { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u.", emoji: "•" },
   { href: "/beginner/chart/", title: "Letters with Nekudot", he: "לוּחַ", text: "Every letter with every nekuda, to read one by one.", emoji: "📋" },
   { href: "/beginner/words/", title: "Practice words", he: "מִלִּים", text: "Read real Torah words with the nekudot you know, and get stars.", emoji: "⭐" },
-  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Na and Sheva Nach, then the Qamats Katan, step by step, once all the letters and nekudot are learned.", emoji: "⁚" },
+  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Nach and Sheva Na: two tabs, one for each, once all the letters and nekudot are learned.", emoji: "⁚" },
+  { href: "/beginner/qamats-katan/", title: "Qamats Katan", he: "קָמָץ קָטָן", text: "When the Qamats says \"o\".", emoji: "ׇ" },
+  { href: "/beginner/patah-genuva/", title: "Patah Genuva", he: "פַּתַח גְּנוּבָה", text: "A Patah at the end of a word that is said before its letter.", emoji: "ַ" },
+  { href: "/beginner/dagesh/", title: "Dagesh Kal and Dagesh Hazaq", he: "דָּגֵשׁ", text: "The soft dot and the strong dot.", emoji: "ּ" },
+  { href: "/beginner/he/", title: "The four kinds of He", he: "ה״א", text: "\"The\", a question, towards, and hers.", emoji: "ה" },
 ];
 
 /** How a letter with a nekuda sounds, spelled simply: "ba", "kho", "a". */

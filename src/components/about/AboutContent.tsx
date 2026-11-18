@@ -32,7 +32,7 @@ interface Text {
 const T: Record<Lang, Text> = {
   en: {
     kicker: "קריאת התורה · מנהג ארם צובא",
-    title: "About Kriah Trainer",
+    title: "About Keriah Trainer",
     intro:
       "A Torah reading trainer made in and for the Syrian community, so every child can learn to read the Torah the way it's read in our synagogues.",
     meet: "Meet Eliyahu Cohen",
@@ -57,8 +57,8 @@ const T: Record<Lang, Text> = {
     ],
     startedTitle: "How it started",
     started: [
-      "Children learning to read the Torah in our tradition, the tradition of Aram Tsoba (Aleppo), had very little to practise with at home. Most of the apps and recordings out there teach the Ashkenazi tunes, and even call the te'amim by other names: what we call Kadma, they call Pashta.",
-      "So Eliyahu recorded every ta'am himself, in the Syrian melody, and built a trainer around those recordings. Children hear each ta'am exactly the way it's sung in shul, practise it into the microphone, and get stars and a tip every time. Then they read real pesukim, then whole aliyot, and finally a page of the Sefer Torah itself.",
+      "Children learning to read the Torah in our tradition, the tradition of Aram Tsoba (Aleppo), had very little to practice with at home. Most of the apps and recordings out there teach the Ashkenazi tunes, and even call the te'amim by other names: what we call Kadma, they call Pashta.",
+      "So Eliyahu recorded every ta'am himself, in the Syrian melody, and built a trainer around those recordings. Children hear each ta'am exactly the way it's sung in shul, practice it into the microphone, and get stars and a tip every time. Then they read real pesukim, then whole aliyot, and finally a page of the Sefer Torah itself.",
     ],
     diffTitle: "What makes it different",
     diff: [

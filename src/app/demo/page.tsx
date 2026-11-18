@@ -5,13 +5,13 @@ import { DEMO_TEAMIM } from "@/data/demo";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { BeginnerDemo } from "@/components/beginner/BeginnerDemo";
 
-export const metadata: Metadata = { title: "Free demo · Kriah Trainer" };
+export const metadata: Metadata = { title: "Free demo · Keriah Trainer" };
 
 /** Open to everyone: a few te'amim with the Hazzan's recordings and Practice. */
 export default function DemoPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
-      <h1 className="text-3xl font-semibold text-stone-900">Try Kriah Trainer</h1>
+      <h1 className="text-3xl font-semibold text-stone-900">Try Keriah Trainer</h1>
       <div className="mb-4 mt-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
         <SpeedControl />
       </div>

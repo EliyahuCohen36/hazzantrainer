@@ -311,7 +311,7 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-        <span className="text-sm text-stone-600">Practising:</span>
+        <span className="text-sm text-stone-600">Practicing:</span>
         <span dir="rtl" lang="he" className="font-hebrew text-3xl text-stone-900">
           {mine.map((n) => withNekuda(letters.find((l) => withNekuda(l, n)) ?? letters[0], n)).join("  ")}
         </span>

@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ parasha: string }> }): Promise<Metadata> {
   const { parasha } = await params;
   const p = PARASHOT.find((x) => x.id === parasha);
-  return { title: p ? `Shnayim Mikra: ${p.en} · Kriah Trainer` : "Kriah Trainer" };
+  return { title: p ? `Shnayim Mikra: ${p.en} · Keriah Trainer` : "Keriah Trainer" };
 }
 
 /** The pasuk as read: the qere for ketiv/qere words, without the scroll's gap signs. */

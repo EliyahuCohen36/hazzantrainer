@@ -90,7 +90,7 @@ export function PracticeScreen({ context }: Props) {
       <header className="mb-6">
         <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
           <Link href="/" className="hover:underline">
-            Kriah Trainer
+            Keriah Trainer
           </Link>
           <span className="mx-1.5">/</span>
           {subject.kind === "torah" ? (

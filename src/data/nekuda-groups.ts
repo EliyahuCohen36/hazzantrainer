@@ -1,6 +1,6 @@
 import { NEKUDOT, nekudaLevel } from "./beginner";
 
-/** The nekudot practice pages (/beginner/nekudot/practice/<id>/): nekudot that sound alike, practised together. */
+/** The nekudot practice pages (/beginner/nekudot/practice/<id>/): nekudot that sound alike, practiced together. */
 export interface NekudaGroup {
   id: string;
   title: string;

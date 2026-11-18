@@ -22,7 +22,7 @@ function verdict(score: number, notesMisplaced: boolean): { text: string; tone: 
   if (score >= 90) return { text: "Excellent! Ready for the bimah.", tone: "text-emerald-700" };
   if (score >= 75) return { text: "Very good. A few things to polish.", tone: "text-emerald-700" };
   if (score >= 55) return { text: "Getting there. Listen again at 0.75× and follow the tips below.", tone: "text-amber-600" };
-  return { text: "Keep practising. Try one word at a time with the master.", tone: "text-rose-600" };
+  return { text: "Keep practicing. Try one word at a time with the master.", tone: "text-rose-600" };
 }
 
 const tone = (s: number) => (s >= 80 ? "bg-emerald-600" : s >= 55 ? "bg-amber-500" : "bg-rose-500");

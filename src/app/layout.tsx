@@ -27,11 +27,18 @@ const siddurFont = localFont({
   display: "swap",
 });
 
+// Hebrew script (handwriting) letters for Beginner Keriah: Gveret Levin (SIL Open Font License).
+const scriptFont = localFont({
+  src: "../fonts/gveret-levin/gveret-levin-hebrew-400-normal.woff2",
+  variable: "--font-gveret",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Kriah Trainer · Syrian Torah Reading",
-  description: "Practise Torah reading with te'amim according to Syrian tradition.",
-  applicationName: "Kriah Trainer",
-  appleWebApp: { capable: true, title: "Kriah", statusBarStyle: "default" },
+  title: "Keriah Trainer · Syrian Torah Reading",
+  description: "Practice Torah reading with te'amim according to Syrian tradition.",
+  applicationName: "Keriah Trainer",
+  appleWebApp: { capable: true, title: "Keriah", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -45,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // itself. The language buttons (Hebrew, Arabic) switch <html> to RTL and
   // translate the text (src/lib/i18n/); the layout uses logical properties.
   return (
-    <html lang="en" className={`${stam.variable} ${siddurFont.variable}`}>
+    <html lang="en" className={`${stam.variable} ${siddurFont.variable} ${scriptFont.variable}`}>
       <body className="min-h-dvh antialiased">
         <LanguageProvider>
           <AuthProvider>

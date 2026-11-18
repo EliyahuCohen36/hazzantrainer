@@ -51,7 +51,7 @@ function practiceName(key: string) {
   const st = key.match(/^beginner-stage:(\w+)$/);
   if (st) return `Words: ${WORD_STAGES.find((x) => x.id === st[1])?.title ?? st[1]}`;
   const sh = key.match(/^beginner-sheva:([\w-]+)$/);
-  if (sh) return `Sheva / Qamats Katan: ${SHEVA_STAGES.find((x) => x.id === sh[1])?.title ?? sh[1]}`;
+  if (sh) return `Reading rules: ${SHEVA_STAGES.find((x) => x.id === sh[1])?.title ?? sh[1]}`;
   if (key === "teamim-stress") return "Te'amim: Mil'el and Milra";
   const file = key.split("/").pop()?.replace(/\.\w+$/, "") ?? key;
   return file
@@ -100,7 +100,7 @@ function StudentRow({
     .filter((r) => r.kind === "quiz" && r.key.startsWith("beginner-nekuda:") && r.total_n >= 3 && r.right_n / r.total_n < 0.7)
     .map((r) => NEKUDOT.find((n) => n.id === r.key.slice("beginner-nekuda:".length))?.name)
     .filter(Boolean);
-  const toPractise = sayWords
+  const toPractice = sayWords
     .filter((r) => r.right_n < r.total_n && r.right_n / r.total_n < 0.6)
     .sort((a, b) => b.total_n - b.right_n - (a.total_n - a.right_n))
     .slice(0, 20);
@@ -171,10 +171,10 @@ function StudentRow({
       {open && (
         <tr>
           <td colSpan={10} className="bg-stone-50 px-3 py-3">
-            {weakNekudot.length > 0 && <p className="mb-2 text-sm text-rose-700">Nekudot to practise: {weakNekudot.join(", ")}</p>}
+            {weakNekudot.length > 0 && <p className="mb-2 text-sm text-rose-700">Nekudot to practice: {weakNekudot.join(", ")}</p>}
             {weakLetters.length > 0 && (
               <p className="mb-2 text-sm text-rose-700">
-                Letters to practise:{" "}
+                Letters to practice:{" "}
                 {weakLetters.map((l) => (
                   <span key={l.id} className="me-2">
                     <span className="font-hebrew text-lg">{l.char}</span> {l.name}
@@ -195,11 +195,11 @@ function StudentRow({
                     </span>
                   ))}
                 </div>
-                {toPractise.length > 0 && (
+                {toPractice.length > 0 && (
                   <p className="mt-2 text-xs text-rose-700">
-                    Words to practise:{" "}
+                    Words to practice:{" "}
                     <span dir="rtl" lang="he" className="font-hebrew text-base">
-                      {toPractise.map((r) => r.key.slice("beginner-word:".length)).join(" · ")}
+                      {toPractice.map((r) => r.key.slice("beginner-word:".length)).join(" · ")}
                     </span>
                   </p>
                 )}
@@ -339,7 +339,7 @@ export default function TeacherPage() {
       <h1 className="text-3xl font-semibold text-stone-900">My classes</h1>
       <p className="mt-1 text-stone-600">
         Make a class, then give its <b>class code</b> to your students. They go to <b>Create account</b>, choose a username
-        and password, and type the code. Choose how many <b>te&apos;amim levels</b>, <b>Beginner Keriah levels</b> and <b>letters</b> (one at a time, from Alef) are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practised.
+        and password, and type the code. Choose how many <b>te&apos;amim levels</b>, <b>Beginner Keriah levels</b> and <b>letters</b> (one at a time, from Alef) are open for each class: children can&apos;t go past them. To move one child ahead or back, change their own level. Click a student to see each ta&apos;am they&apos;ve practiced.
       </p>
       {error && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
@@ -424,7 +424,7 @@ export default function TeacherPage() {
                         <th className="pb-1 pe-3 font-medium">Te&apos;amim</th>
                         <th className="pb-1 pe-3 font-medium">Beginner</th>
                         <th className="pb-1 pe-3 font-medium">Letters</th>
-                        <th className="pb-1 pe-3 font-medium">Practised</th>
+                        <th className="pb-1 pe-3 font-medium">Practiced</th>
                         <th className="pb-1 pe-3 font-medium">2+ stars</th>
                         <th className="pb-1 pe-3 font-medium">Quiz right</th>
                         <th className="pb-1 pe-3 font-medium" title="Beginner Keriah words the child said into the microphone">Said aloud</th>

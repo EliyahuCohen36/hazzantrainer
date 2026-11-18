@@ -90,7 +90,7 @@ export const EMET_TEAMIM: TaamReference[] = [
   { id: "emet-rebia-katon", syrian: "Rebia Katon", hebrew: "רביע קטן", ashkenazi: "Revia Katon", sample: `${A}֗`, role: "mafsik", level: 3, note: "Right before Oleh ve-Yored." },
   { id: "emet-pazer-gadol", syrian: "Pazer Gadol", hebrew: "פזר גדול", ashkenazi: "Pazer", sample: `${A}֡`, role: "mafsik", level: 3 },
   { id: "emet-shalshelet-gedola", syrian: "Shalshelet Gedola", hebrew: "שלשלת גדולה", ashkenazi: "Shalshelet Gedola", sample: `${A}֓ ׀`, role: "mafsik", level: 3, note: "Followed by a Pesik." },
-  { id: "emet-kadma-legarmeh", syrian: "Kadma Legarmeh", hebrew: "קדמא לגרמיה", ashkenazi: "Azla Legarmeh", sample: `${A}֨ ׀`, role: "mafsik", level: 3, note: "Followed by a Pesik." },
+  { id: "emet-kadma-legarmeh", syrian: "Azla Legarmeh", hebrew: "אזלא לגרמיה", ashkenazi: "Azla Legarmeh", sample: `${A}֨ ׀`, role: "mafsik", level: 3, note: "Followed by a Pesik." },
   { id: "emet-mehuppakh-legarmeh", syrian: "Mehuppakh Legarmeh", hebrew: "מהופך לגרמיה", ashkenazi: "Mahpach Legarmeh", sample: `${A}֤ ׀`, role: "mafsik", level: 3, note: "Followed by a Pesik." },
   // Conjunctives (textbook names)
   { id: "emet-ma-arikh", syrian: "Ma'arikh", hebrew: "מאריך", ashkenazi: "Mercha", sample: `${A}֥`, role: "mesharet" },

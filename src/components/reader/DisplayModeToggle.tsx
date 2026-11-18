@@ -52,7 +52,7 @@ function Switch({
 /**
  * "Torah Scroll Mode" is the main switch. When it's on, every mark is hidden
  * and the scroll typeface is used. When it's off, nikkud and te'amim can be
- * toggled separately (for example, te'amim only, to practise the tune without vowels).
+ * toggled separately (for example, te'amim only, to practice the tune without vowels).
  */
 export function DisplayModeToggle({ value, onChange, noScroll, scrollLabel = "Torah Scroll Mode" }: Props) {
   const set = (patch: Partial<ReaderSettings>) => onChange({ ...value, ...patch });

@@ -1,4 +1,4 @@
-# Kriah Trainer: Phase 1 Prototype
+# Keriah Trainer: Phase 1 Prototype
 
 Student practice screen for Torah reading with te'amim in the Syrian tradition.
 Next.js (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Web Audio API · Pitchfinder (YIN).

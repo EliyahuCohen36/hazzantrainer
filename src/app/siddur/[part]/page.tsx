@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ part: string }> }): Promise<Metadata> {
   const { part } = await params;
   const p = SIDDUR_PARTS.find((x) => x.slug === part);
-  return { title: p ? `${p.en} · Siddur · Kriah Trainer` : "Kriah Trainer" };
+  return { title: p ? `${p.en} · Siddur · Keriah Trainer` : "Keriah Trainer" };
 }
 
 export default async function SiddurPartPage({ params }: { params: Promise<{ part: string }> }) {

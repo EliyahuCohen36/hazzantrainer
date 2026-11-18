@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { BEGINNER_DEMO_WORDS } from "@/data/demo";
 import { releaseMic } from "@/lib/audio/word-check";
 import { useAuth } from "@/lib/auth";
-import { WordQuestion, QUESTION_LABEL, shuffle, type QuestionType } from "./WordQuestion";
+import { WordQuestion, QUESTION_LABEL, MIC_ON, shuffle, type QuestionType } from "./WordQuestion";
 
-const TYPES: QuestionType[] = ["listen", "sound", "say", "listen", "sound", "say"];
+const TYPES: QuestionType[] = MIC_ON
+  ? ["listen", "sound", "say", "listen", "sound", "say"]
+  : ["listen", "sound", "listen", "sound", "listen", "sound"];
 
 /** A short taste of Beginner Keriah word practice for the free demo (not saved). */
 export function BeginnerDemo() {

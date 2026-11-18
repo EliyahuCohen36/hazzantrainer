@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, sayKey, sayWordKey, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
-import { WordQuestion, QUESTION_LABEL, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
+import { WordQuestion, QUESTION_LABEL, MIC_ON, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
 import { loadProgress, recordPractice, recordQuiz, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { releaseMic } from "@/lib/audio/word-check";
@@ -61,7 +61,7 @@ function useBest() {
  * Word practice for Beginner Keriah, in stages of 50 questions: one sound alone,
  * then the next sound alone, then the two together, and so on. A stage opens
  * only after the one before it is passed (and the teacher has opened its nekudot).
- * Two graded ways to practise:
+ * Two graded ways to practice:
  *  - Listen and pick: the word is sounded out in the Hazzan's voice; the child taps it.
  *  - Say it: the child says the word into the microphone; speech recognition checks it.
  */
@@ -86,7 +86,8 @@ export function WordPractice() {
 
   const open = (s: WordStage) => {
     setStageId(s.id);
-    setRun(loadRun(user, s.id));
+    const saved = loadRun(user, s.id);
+    setRun(!MIC_ON && saved?.mode === "read" ? null : saved);
     setDone(null);
   };
   const start = (m: Mode) => {
@@ -101,11 +102,12 @@ export function WordPractice() {
   };
 
   const word = run && stage ? byWord.get(run.q[run.i]) : undefined;
-  const qType: QuestionType = run?.t?.[run.i] ?? (run?.mode === "read" ? "say" : "listen");
+  const savedType: QuestionType = run?.t?.[run.i] ?? (run?.mode === "read" ? "say" : "listen");
+  const qType: QuestionType = !MIC_ON && savedType === "say" ? (run && run.i % 2 ? "sound" : "listen") : savedType;
 
   const next = (ok: boolean, said?: boolean) => {
     if (!run || !stage) return;
-    // Track every word the child said: per step (for the teacher's table) and per word (words to practise).
+    // Track every word the child said: per step (for the teacher's table) and per word (words to practice).
     if (said !== undefined && word) {
       recordQuiz(sayKey(stage.id), said);
       recordQuiz(sayWordKey(word.w), said);
@@ -201,7 +203,9 @@ export function WordPractice() {
             <span className="text-3xl">⭐</span>
             <span className="mt-2 block text-xl font-semibold text-stone-900">Mixed practice (best)</span>
             <span className="mt-1 block text-stone-600">
-              A bit of everything: hear the Hazzan and pick the word, see a word and pick its sound, and say words out loud.
+              {MIC_ON
+                ? "A bit of everything: hear the Hazzan and pick the word, see a word and pick its sound, and say words out loud."
+                : "A bit of everything: hear the Hazzan and pick the word, and see a word and pick its sound."}
             </span>
           </button>
           <button
@@ -215,10 +219,10 @@ export function WordPractice() {
             <span className="mt-1 block text-stone-600">
               {canListen
                 ? "Listen to the Hazzan say a word, then tap the word you heard."
-                : "Starts once the Hazzan's recordings for these letters are added. Try Read aloud for now."}
+                : "Starts once the Hazzan's recordings for these letters are added."}
             </span>
           </button>
-          <button
+          {MIC_ON && <button
             type="button"
             onClick={() => start("read")}
             className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-5 text-left transition-colors hover:bg-sky-100"
@@ -226,7 +230,7 @@ export function WordPractice() {
             <span className="text-3xl">🗣️</span>
             <span className="mt-2 block text-xl font-semibold text-stone-900">Read aloud</span>
             <span className="mt-1 block text-stone-600">Say each word into the microphone. The trainer listens and checks it.</span>
-          </button>
+          </button>}
         </div>
       )}
 
@@ -279,7 +283,7 @@ export function WordPractice() {
           <p className="mt-1 text-stone-700">
             {done.right >= STAGE_PASS
               ? "You passed this step! The next step is open. 🎉"
-              : `Good try! You need ${STAGE_PASS} right to pass. Let's practise these again.`}
+              : `Good try! You need ${STAGE_PASS} right to pass. Let's practice these again.`}
           </p>
           <div className="mt-5 flex justify-center gap-3">
             {done.right < STAGE_PASS && (

@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ section: string }> }): Promise<Metadata> {
   const { section } = await params;
   const t = SECTION_TITLES[section as TanakhSection];
-  return { title: t ? `${t.en} · Kriah Trainer` : "Kriah Trainer" };
+  return { title: t ? `${t.en} · Keriah Trainer` : "Keriah Trainer" };
 }
 
 /** Lessons available for a book (by its curriculum course id). */
@@ -38,7 +38,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href="/#tanakh" className="hover:underline">
@@ -81,7 +81,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
             <span>
               <span className="block text-lg font-semibold text-stone-900">Te&apos;amim trainer →</span>
               <span className="block text-sm text-stone-600">
-                Learn the names and sounds of every ta&apos;am, practise singing them, and take the listening quiz.
+                Learn the names and sounds of every ta&apos;am, practice singing them, and take the listening quiz.
               </span>
             </span>
             <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">

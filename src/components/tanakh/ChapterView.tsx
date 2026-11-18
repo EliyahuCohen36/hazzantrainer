@@ -48,7 +48,7 @@ export function ChapterView({ book, slug }: { book: TanakhBook; slug: string }) 
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/tanakh/${book.section}/`} className="hover:underline">

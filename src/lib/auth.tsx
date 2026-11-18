@@ -28,6 +28,12 @@ interface AuthState {
   beginnerLevel: number;
   /** How many letters of the alef-bet (in order) the teacher has opened. */
   lettersOpen: number;
+  /** School students: the teacher has opened the script (handwriting) letters. */
+  scriptOpen: boolean;
+  /** Sections the teacher lets this class use (null = everything). */
+  sections: string[] | null;
+  /** Personal subscribers (and free testers): each level opens when the one before is finished. */
+  selfPaced: boolean;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -40,6 +46,9 @@ const AuthContext = createContext<AuthState>({
   level: 1,
   beginnerLevel: 1,
   lettersOpen: 1,
+  scriptOpen: false,
+  sections: null,
+  selfPaced: false,
   refresh: async () => {},
   signOut: async () => {},
 });
@@ -52,6 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [level, setLevel] = useState(1);
   const [beginnerLevel, setBeginnerLevel] = useState(1);
   const [lettersOpen, setLettersOpen] = useState(1);
+  const [scriptOpen, setScriptOpen] = useState(false);
+  const [sections, setSections] = useState<string[] | null>(null);
 
   const load = useCallback(async (s: Session | null) => {
     setSession(s);
@@ -70,6 +81,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       db.rpc("my_beginner_level"),
       db.rpc("my_letters_open"),
     ]);
+    // Class settings (supabase/accounts.sql); missing before that file is run.
+    const { data: cs } = await db.rpc("my_class_settings");
+    const settings = (cs ?? {}) as { script_open?: boolean; sections?: string[] | null };
+    setScriptOpen(!!settings.script_open);
+    setSections(settings.sections ?? null);
     setBeginnerLevel(typeof blvl === "number" ? blvl : 1);
     setLettersOpen(typeof lopen === "number" ? lopen : 1);
     setLevel(typeof lvl === "number" ? lvl : 1);
@@ -85,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLevel(99);
       setBeginnerLevel(99);
       setLettersOpen(99);
+      setScriptOpen(true);
       setLoading(false);
       return;
     }
@@ -107,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loading, session, profile, access, level, beginnerLevel, lettersOpen, refresh, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ loading, session, profile, access, level, beginnerLevel, lettersOpen, scriptOpen, sections, selfPaced: profile?.role === "family", refresh, signOut }}>{children}</AuthContext.Provider>
   );
 }
 

@@ -13,6 +13,7 @@
   --font-hebrew: "Noto Serif Hebrew", "SBL Hebrew", "Taamey Frank CLM", serif;
   --font-scroll: var(--font-stam), "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
   --font-siddur: var(--font-taamey), "Noto Serif Hebrew", serif;
+  --font-script: var(--font-gveret), cursive;
 }
 
 :root {
@@ -102,4 +103,17 @@ body {
 /* Hebrew/Arabic interface: text still in English keeps its own direction. */
 html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
   unicode-bidi: plaintext;
+}
+
+/* Doubled ta'am (Talsha, Tilsa, Zarqa, Teri Kadma): the letter that takes the sound, in bold. */
+.taam-sound {
+  font-weight: 800;
+  color: #92400e;
+}
+
+/* Beginner Keriah: how to write a letter, one stroke after another. */
+@keyframes write-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
 }

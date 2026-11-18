@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SIDDUR_PARTS } from "@/data/siddur";
 
-export const metadata: Metadata = { title: "Siddur · Kriah Trainer" };
+export const metadata: Metadata = { title: "Siddur · Keriah Trainer" };
 
 /** The Siddur, nusach Edot HaMizrah: every part, with the Hazzan's recordings. */
 export default function SiddurPage() {
@@ -10,7 +10,7 @@ export default function SiddurPage() {
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         Siddur

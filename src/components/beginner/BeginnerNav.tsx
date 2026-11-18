@@ -5,7 +5,7 @@ export function BeginnerNav({ here }: { here?: string }) {
   return (
     <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
       <Link href="/" className="hover:underline">
-        Kriah Trainer
+        Keriah Trainer
       </Link>
       <span className="mx-1.5">/</span>
       {here ? (

@@ -38,7 +38,13 @@ def load_verses():
             for t in v["t"]:
                 if isinstance(t, dict):
                     t = t["q"]
-                if not t or t in ("|", "_") or t.startswith("¶") or t == "׆":
+                if t == "|":
+                    # Pesik / legarmeh line: keep it after the word (Azla / Mehuppakh Legarmeh,
+                    # Shalshelet Gedola, Shofar Holekh with Pesik).
+                    if disp and not disp[-1].endswith("׀"):
+                        disp[-1] += " ׀"
+                    continue
+                if not t or t == "_" or t.startswith("¶") or t == "׆":
                     continue
                 for piece in t.replace("־", "־ ").split():
                     w = re.sub("[{}\\[\\]<>׃]", "", piece).replace("־", "")

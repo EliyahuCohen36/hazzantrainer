@@ -35,9 +35,9 @@ function SiteHeader() {
   return (
     <header className="z-30 sm:sticky sm:top-0 border-b border-stone-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 text-sm">
-        <Link href="/" className="me-2 flex items-center gap-2 rounded-md py-1 pe-2" aria-label="Kriah Trainer home">
+        <Link href="/" className="me-2 flex items-center gap-2 rounded-md py-1 pe-2" aria-label="Keriah Trainer home">
           <span className="flex size-8 items-center justify-center rounded-lg bg-amber-700 font-hebrew text-lg text-white">ק</span>
-          <span className="font-semibold text-stone-900">Kriah Trainer</span>
+          <span className="font-semibold text-stone-900">Keriah Trainer</span>
         </Link>
         <NavLink href="/">Home</NavLink>
         <NavLink href="/about/">About</NavLink>
@@ -121,7 +121,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       ) : (
         <Card title="Your school's licence has ended">
           <p className="text-stone-600">
-            Your account is fine, but your school&apos;s Kriah Trainer licence isn&apos;t active right now. Please tell
+            Your account is fine, but your school&apos;s Keriah Trainer licence isn&apos;t active right now. Please tell
             your teacher. Your progress is saved and will be here when it&apos;s renewed.
           </p>
         </Card>

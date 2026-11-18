@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TeamimQuiz } from "@/components/tanakh/TeamimQuiz";
 
-export const metadata: Metadata = { title: "Te'amim listening quiz · Kriah Trainer" };
+export const metadata: Metadata = { title: "Te'amim listening quiz · Keriah Trainer" };
 
 export function generateStaticParams() {
   return [{ section: "torah" }];
@@ -13,7 +13,7 @@ export default function TeamimQuizPage() {
     <main className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href="/tanakh/torah/" className="hover:underline">

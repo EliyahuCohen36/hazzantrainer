@@ -209,11 +209,17 @@ export function ScrollPages({
             </div>
             {/* Zoom makes the whole page bigger, exactly as it is (scroll sideways if it gets wider than the screen). */}
             <div className="overflow-x-auto pt-3">
+              {/* Sized by width, not CSS zoom: the letters are measured in container units (cqw),
+                  so a wider column makes everything bigger exactly as it is, in every browser. */}
               <div
-                className={
-                  tikkun ? "grid gap-3 md:grid-cols-2" : "mx-auto max-w-xl"
+                className={tikkun ? "mx-auto grid gap-3 md:grid-cols-2" : "mx-auto max-w-xl"}
+                style={
+                  zoom === 1
+                    ? undefined
+                    : tikkun
+                      ? { width: `${zoom * 100}%`, minWidth: `${zoom * 100}%` }
+                      : { maxWidth: `${36 * zoom}rem` }
                 }
-                style={zoom !== 1 ? { zoom } : undefined}
               >
                 {tikkun && (
                   <div className="md:order-2">

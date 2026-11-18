@@ -18,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ book: string }> }): Promise<Metadata> {
   const { book } = await params;
   const b = TANAKH.find((x) => x.id === book);
-  return { title: b ? `${b.en} · Kriah Trainer` : "Kriah Trainer" };
+  return { title: b ? `${b.en} · Keriah Trainer` : "Keriah Trainer" };
 }
 
 /** "3:12" → comparable number. */
@@ -53,7 +53,7 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
-          Kriah Trainer
+          Keriah Trainer
         </Link>
         <span className="mx-1.5">/</span>
         <Link href="/#tanakh" className="hover:underline">

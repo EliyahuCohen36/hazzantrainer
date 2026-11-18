@@ -5,6 +5,7 @@ import { BeginnerLock, LetterLock } from "@/components/beginner/Lock";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { Tile } from "@/components/beginner/Tile";
 import { SpeedControl } from "@/components/audio/SpeedControl";
+import { LetterLessons } from "@/components/beginner/LetterLessons";
 
 export const metadata: Metadata = { title: "The Alef-Bet · Beginner Keriah" };
 
@@ -19,6 +20,16 @@ export default function LettersPage() {
           אָלֶף בֵּית
         </span>
       </div>
+      <p className="mb-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sky-950">
+        Learn the letters one at a time: tap a letter at the top, hear it, trace it, write it by yourself and answer the
+        questions. The next letter opens when you finish.
+      </p>
+      <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
+        <SpeedControl compact />
+      </div>
+      <LetterLessons
+        all={
+          <>
       <p className="mb-4 text-stone-600">
         Each letter with its name and the sound it makes. Some letters change their sound with a dot inside (a dagesh), so
         they have two tiles: Bet and Vet, Kaf and Khaf, Pe and Fe, and Shin and Sin.
@@ -37,10 +48,6 @@ export default function LettersPage() {
         </span>
         <span className="font-semibold text-emerald-800">Start →</span>
       </Link>
-      <div className="mb-5 rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm">
-        <SpeedControl compact />
-      </div>
-
       <div dir="rtl" className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
         {LETTERS.map((l) => (
           <LetterLock key={l.id} id={l.id}>
@@ -75,6 +82,9 @@ export default function LettersPage() {
         </div>
         </BeginnerLock>
       </section>
+          </>
+        }
+      />
 
       <div className="mt-10 flex justify-end">
         <Link href="/beginner/nekudot/" className="rounded-xl bg-amber-700 px-5 py-3 font-semibold text-white hover:bg-amber-800">

@@ -1,5 +1,7 @@
 "use client";
 
+import { MIC_ON } from "./WordQuestion";
+
 import { useState } from "react";
 import { asset } from "@/lib/base-path";
 import { recordingUrl } from "@/lib/recordings";
@@ -99,8 +101,10 @@ export function SoundCheck() {
       add({ name: "The Hazzan's recordings", ok: false, detail: errText(e) });
     }
 
-    // 4. The microphone.
-    if (!navigator.mediaDevices?.getUserMedia) {
+    // 4. The microphone (only while the "say it" questions are on).
+    if (!MIC_ON) {
+      // skipped
+    } else if (!navigator.mediaDevices?.getUserMedia) {
       add({ name: "Microphone", ok: false, detail: "This browser has no microphone access (getUserMedia missing)" });
     } else {
       try {
@@ -164,11 +168,11 @@ export function SoundCheck() {
         </ul>
       )}
       {saved && <p className="text-sm text-emerald-700">{saved}</p>}
-      <p className="text-xs text-stone-500">
+      {MIC_ON && <p className="text-xs text-stone-500">
         If the microphone isn&apos;t allowed: in Safari on a Mac, Safari menu → Settings for This Website → Microphone →
         Allow. On iPhone/iPad: Settings → Apps → Safari → Microphone → Allow. In Chrome: the icon left of the address →
         Microphone → Allow.
-      </p>
+      </p>}
     </div>
   );
 }
