@@ -88,6 +88,7 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
   };
   const haftarah: AliyahSection | undefined = haftarahVerses.length
     ? {
+        book: hParts[0]?.book,
         id: "haftarah",
         en: "Haftarah",
         he: "הפטרה",
@@ -145,6 +146,7 @@ export default async function ParashaPage({ params }: { params: Promise<{ sectio
 
       <div className="mt-4">
         <TorahText
+          book={p.book}
           sections={sections}
           practice={practice}
           scrollColumns={scrollColumns}

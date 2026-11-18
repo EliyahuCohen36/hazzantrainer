@@ -14,6 +14,10 @@ export interface ShnayimSection {
   en: string;
   he: string;
   verses: ShnayimVerse[];
+  /** The haftarah: read once, with no Targum. */
+  once?: boolean;
+  /** A line shown above the section. */
+  note?: string;
 }
 
 /** Each pasuk twice (Mikra), then its Targum, aliyah by aliyah. */
@@ -39,26 +43,27 @@ export function ShnayimText({ sections }: { sections: ShnayimSection[] }) {
               {s.he}
             </span>
           </div>
+          {s.note && <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-950">{s.note}</p>}
           <ol className="space-y-4" dir="rtl">
             {s.verses.map((v) => (
               <li key={v.ref} lang="he" className="border-b border-stone-50 pb-3 last:border-0" style={{ fontSize: `${zoom}em` }}>
                 <div className="mb-0.5 font-sans text-[0.7rem] text-stone-400" dir="ltr">
                   {v.ref}
                 </div>
-                {[1, 2].map((n) => (
+                {(s.once ? [1] : [1, 2]).map((n) => (
                   <p key={n} className="hebrew-text font-hebrew text-[1.45rem] leading-[2.1] text-stone-900">
                     <span className="me-2 inline-block rounded bg-amber-100 px-1.5 align-middle font-sans text-[0.55rem] font-semibold text-amber-900">
-                      {n === 1 ? "מקרא" : "מקרא ב׳"}
+                      {s.once ? "הפטרה" : n === 1 ? "מקרא" : "מקרא ב׳"}
                     </span>
                     <WithMaamid text={v.mikra} />
                   </p>
                 ))}
-                <p className="hebrew-text font-hebrew text-[1.3rem] leading-[2] text-sky-900">
+                {!s.once && <p className="hebrew-text font-hebrew text-[1.3rem] leading-[2] text-sky-900">
                   <span className="me-2 inline-block rounded bg-sky-100 px-1.5 align-middle font-sans text-[0.55rem] font-semibold text-sky-900">
                     תרגום
                   </span>
                   {v.targum}
-                </p>
+                </p>}
               </li>
             ))}
           </ol>

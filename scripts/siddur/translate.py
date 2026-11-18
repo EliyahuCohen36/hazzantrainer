@@ -91,6 +91,9 @@ def kaddish(html, lang):
     return " ".join(t for key, t in KADDISH[lang] if key in flat)
 
 
+AR_TANAKH = {}  # Van Dyck Arabic of the Tanakh, by book (src/data/tanakh-tr/ar, public domain)
+
+
 def main():
     jps = json.load(open("/tmp/jps.json"))
     parts = json.load(open(ROOT / "src/data/siddur/index.json"))
@@ -126,7 +129,7 @@ def main():
                     v = pesukim.LAST_REFS[k]
                     if v not in order and counts[v] >= max(2, len(pesukim.VERSES[v][2]) // 2):
                         order.append(v)
-                texts, ref_list = [], []
+                texts, ref_list, ar_texts = [], [], []
                 for v in order:
                     book, s, c, vv = pesukim.VREF[v]
                     osis = OSIS[book][s]
@@ -135,11 +138,17 @@ def main():
                         texts = []
                         break
                     texts.append(clean_en(e["en"]))
+                    a = AR_TANAKH.setdefault(book, json.load(open(ROOT / f"src/data/tanakh-tr/ar/{book}.json")))
+                    at = a.get(f"{c}:{vv}") or a.get(f"{s}:{c}:{vv}")
+                    if at:
+                        ar_texts.append(at)
                     ref_list.append((name(book, s), c, vv))
                 if not texts:
                     continue
                 key = f"{si + 1}-{pi + 1}"
                 en[key] = " ".join(texts)
+                if ar_texts:
+                    ar[key] = " ".join(ar_texts)
                 # "Tehillim 145:1–21; Tehillim 115:18"
                 groups = []
                 for n, c, vv in ref_list:

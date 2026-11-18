@@ -6,6 +6,8 @@ import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import { TANAKH } from "@/data/teamim-reference";
 import { versesBetween, type TorahVerse } from "@/data/torah";
 import { ONKELOS } from "@/data/onkelos";
+import { PARASHA_EXTRA } from "@/data/parasha-extra";
+import { versesRange } from "@/data/tanakh";
 import { ShnayimText, type ShnayimSection } from "@/components/tanakh/ShnayimText";
 
 export function generateStaticParams() {
@@ -47,6 +49,20 @@ export default async function ShnayimParashaPage({ params }: { params: Promise<{
         targum: tg[`${v.c}:${v.v}`] ?? "",
       })),
     }));
+  // Then the haftarah of the week, read once.
+  const hParts = PARASHA_EXTRA[p.num]?.syrian ?? [];
+  const hVerses = hParts.flatMap((h) =>
+    versesRange(h.book, h.part, h.from, h.to).map((v) => ({ ref: `${v.c}:${v.v}`, mikra: mikra(v), targum: "" })),
+  );
+  if (hVerses.length)
+    sections.push({
+      id: "haftarah",
+      en: "Haftarah",
+      he: "הפטרה",
+      verses: hVerses,
+      once: true,
+      note: "After the parasha, there is a halakha to read the haftarah of the week once.",
+    });
   const prev = PARASHOT[idx - 1];
   const next = PARASHOT[idx + 1];
   return (
@@ -69,7 +85,7 @@ export default async function ShnayimParashaPage({ params }: { params: Promise<{
         </span>
       </div>
       <p className="mt-1 mb-4 text-sm text-stone-600">
-        {book.en}: each pasuk twice, then the Targum.
+        {book.en}: each pasuk twice, then the Targum; then the haftarah once.
       </p>
       <ShnayimText sections={sections} />
       <div className="mt-6 flex justify-between gap-4 text-sm">

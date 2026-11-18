@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useZoom, ZoomControl, zoomWidth } from "@/components/reader/Zoom";
 import Link from "next/link";
 import type { TorahToken, TorahVerse } from "@/data/torah";
@@ -23,6 +23,8 @@ import { usePathname } from "next/navigation";
 import type { ScrollColumn } from "@/lib/torah/scroll-pages";
 
 export interface AliyahSection {
+  /** The book these pesukim are from, when not the page's book (the haftarah). */
+  book?: string;
   id: string;
   en: string;
   he: string;
@@ -47,11 +49,58 @@ interface Props {
   weekdaySections?: AliyahSection[];
   /** The haftarah, shown after the aliyot. */
   haftarah?: AliyahSection;
+  /** The book (for the translation under each pasuk). */
+  book?: string;
   /** The page's name, for bookmarks ("Noah", "Yehoshua 3"). */
   title?: string;
   /** false = no Scroll Mode (Nevi'im and most of Ketuvim). */
   allowScroll?: boolean;
   scrollLabel?: string;
+}
+
+/** Hebrew only, or the reader's language under each pasuk (remembered per browser). */
+function useTanakhTranslation(lang: string, books: string[], on: boolean) {
+  const [data, setData] = useState<Record<string, Record<string, string>>>({});
+  const tl = lang === "en" || lang === "ar" ? lang : null;
+  const key = books.join(",");
+  useEffect(() => {
+    if (!tl || !on) return;
+    let live = true;
+    books.forEach((b) =>
+      import(`@/data/tanakh-tr/${tl}/${b}.json`)
+        .then((m) => live && setData((d) => ({ ...d, [`${tl}:${b}`]: (m.default ?? m) as Record<string, string> })))
+        .catch(() => {}),
+    );
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tl, key, on]);
+  return (book: string | undefined, v: TorahVerse): string | undefined => {
+    if (!tl || !on || !book) return undefined;
+    const d = data[`${tl}:${book}`];
+    if (!d) return undefined;
+    const s = (v as TorahVerse & { s?: number }).s;
+    return d[`${v.c}:${v.v}`] ?? d[`${s ?? 0}:${v.c}:${v.v}`];
+  };
+}
+
+function useShowTr(): [boolean, (v: boolean) => void] {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    try {
+      setShow(localStorage.getItem("kriah-tanakh-translation") === "1");
+    } catch {}
+  }, []);
+  return [
+    show,
+    (v) => {
+      setShow(v);
+      try {
+        localStorage.setItem("kriah-tanakh-translation", v ? "1" : "0");
+      } catch {}
+    },
+  ];
 }
 
 const ALIYAH_LABELS: Record<string, [string, string]> = {
@@ -248,6 +297,7 @@ export function TorahText({
   weekdaySections,
   haftarah,
   title,
+  book,
 }: Props) {
   const pathname = usePathname();
   const [division, setDivision] = useState<"shabbat" | "weekday">("shabbat");
@@ -257,6 +307,10 @@ export function TorahText({
   const sections =
     division === "weekday" && weekdaySections ? weekdaySections : haftarah ? [...shabbatSections, haftarah] : shabbatSections;
   const { lang } = useLang();
+  const [showTr, setShowTr] = useShowTr();
+  const trBooks = Array.from(new Set([book, haftarah?.book].filter((b): b is string => !!b)));
+  const trOf = useTanakhTranslation(lang, trBooks, showTr);
+  const trLang = lang === "en" || lang === "ar" ? lang : null;
   // The aliyah names written in the scroll, in the reader's language.
   const marks: [number, string][] = items
     .filter((x) => x.from)
@@ -295,6 +349,16 @@ export function TorahText({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
           <ZoomControl zoom={zoom} onChange={setZoom} />
+          {trLang && !scroll && book && (
+            <div className="flex overflow-hidden rounded-full text-sm ring-1 ring-amber-300" role="group" aria-label="Translation">
+              <button type="button" onClick={() => setShowTr(false)} className={`px-3 py-1 ${!showTr ? "bg-amber-700 text-white" : "bg-white text-amber-900"}`}>
+                Hebrew only
+              </button>
+              <button type="button" onClick={() => setShowTr(true)} className={`px-3 py-1 ${showTr ? "bg-amber-700 text-white" : "bg-white text-amber-900"}`}>
+                {trLang === "ar" ? "Arabic + Hebrew" : "English + Hebrew"}
+              </button>
+            </div>
+          )}
         </div>
         {nav && (
           <div className="mt-3 border-t border-stone-100 pt-3">
@@ -403,7 +467,25 @@ export function TorahText({
                       Maftir ↓
                     </span>
                   )}
-                  <Verse verse={v} settings={settings} practiceHref={practice[key]} />
+                  {(() => {
+                    const tr = !scroll ? trOf(s.book ?? book, v) : undefined;
+                    if (!tr) return <Verse verse={v} settings={settings} practiceHref={practice[key]} />;
+                    return (
+                      <span className="mb-3 block">
+                        <span className="block">
+                          <Verse verse={v} settings={settings} practiceHref={practice[key]} />
+                        </span>
+                        <span
+                          lang={trLang ?? undefined}
+                          dir={trLang === "ar" ? "rtl" : "ltr"}
+                          data-no-translate
+                          className={`block font-sans text-[0.5em] leading-relaxed text-stone-600 ${trLang === "ar" ? "text-right" : "text-left"}`}
+                        >
+                          {tr}
+                        </span>
+                      </span>
+                    );
+                  })()}
                 </Fragment>
               );
             })}

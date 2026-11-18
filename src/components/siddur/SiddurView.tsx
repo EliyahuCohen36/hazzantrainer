@@ -196,7 +196,7 @@ function Paragraph({
   }
   return (
     <div id={`p-${s + 1}-${p + 1}`} className="scroll-mt-40 border-b border-stone-50 py-2 last:border-0">
-      <div className={tr ? "grid gap-x-6 gap-y-1 md:grid-cols-2" : ""}>
+      <div className={tr ? "space-y-1.5" : ""}>
       <p className="hebrew-text font-siddur leading-[2.1] text-stone-900">
         {toks.map((t, k) =>
           t.br ? (
@@ -219,7 +219,7 @@ function Paragraph({
           lang={trLang}
           dir={trLang === "ar" ? "rtl" : "ltr"}
           data-no-translate
-          className={`self-start rounded-lg bg-stone-50 px-3 py-2 text-[0.62em] leading-relaxed text-stone-700 ${trLang === "ar" ? "text-right" : "text-left"}`}
+          className={`rounded-lg bg-stone-50 px-3 py-2 text-[0.62em] leading-relaxed text-stone-700 ${trLang === "ar" ? "text-right" : "text-left"}`}
         >
           {tr}
           {trRef && trLang === "en" && <span className="mt-1 block text-[0.85em] text-stone-400">{trRef}</span>}

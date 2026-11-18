@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TUNE_SETS } from "@/data/tanakh-recordings";
 import { notFound } from "next/navigation";
 import { SECTION_TITLES, TANAKH, type TanakhSection } from "@/data/teamim-reference";
 import { curriculum } from "@/lib/curriculum/repository";
@@ -55,6 +56,25 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
       </div>
 
       {s === "torah" && <TorahTabs current="tikkun" />}
+      {s !== "torah" && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {TUNE_SETS.filter((t) => t.id !== "torah" && t.books.some((id) => TANAKH.find((b) => b.id === id)?.section === s)).map((t) => (
+            <Link
+              key={t.id}
+              href={`/teamim/${t.id}/`}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm transition-colors hover:bg-amber-100"
+            >
+              <span>
+                <span className="block font-semibold text-stone-900">Te&apos;amim trainer: {t.en} →</span>
+                <span className="block text-sm text-stone-600">Learn the te&apos;amim with this melody, one at a time.</span>
+              </span>
+              <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+                {t.he}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
       {s === "torah" && (
         <nav className="mt-4 flex flex-wrap gap-2" aria-label="Books of the Torah">
           {books.map(({ book }) => (

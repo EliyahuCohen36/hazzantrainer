@@ -68,6 +68,7 @@ export default function ShnayimMikraPage() {
             Rashi (Shulchan Arukh 285:2).
           </li>
           <li>A pasuk that has no Targum is read three times in Hebrew.</li>
+          <li>After reading the parasha, there is a halakha to read the haftarah of the week once. It is shown after each parasha here.</li>
           <li>
             Many Sephardim follow the Arizal (brought in Kaf HaHayyim 285): read on Friday, in the daytime, and not the
             Targum at night; and try to read without interruption.
