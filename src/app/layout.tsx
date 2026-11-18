@@ -19,10 +19,9 @@ const stam = localFont({
 // The Siddur: Taamey David CLM (Culmus, GPL + font exception), a clear font made for
 // nikkud and te'amim, so the Siddur has its own look.
 const siddurFont = localFont({
-  src: [
-    { path: "../fonts/taamey-david/TaameyDavidCLM-Medium.ttf", weight: "400" },
-    { path: "../fonts/taamey-david/TaameyDavidCLM-Bold.ttf", weight: "700" },
-  ],
+  // Only the Medium file: the Bold file has empty te'amim glyphs, so bold first words lost their te'amim.
+  // Bold words are drawn by the browser from the same font.
+  src: [{ path: "../fonts/taamey-david/TaameyDavidCLM-Medium.ttf", weight: "400" }],
   variable: "--font-taamey",
   display: "swap",
 });

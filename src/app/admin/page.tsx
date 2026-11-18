@@ -31,6 +31,7 @@ interface FreePerson {
 
 const input = "rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-amber-500";
 const today = () => new Date().toISOString().slice(0, 10);
+const daysFromToday = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
 /** The owner's page: add schools, set how many seats they paid for and until when. */
 export default function AdminPage() {
@@ -112,7 +113,8 @@ export default function AdminPage() {
         Add a school when it signs up, then give its <b>school code</b> to the teachers. If the school uses Google accounts,
         type its <b>email domain</b>: students who sign in with a school Google account join the school by themselves, and
         their teacher puts them in a class. A school&apos;s students can use the
-        trainer until the <b>paid until</b> date, up to the number of <b>seats</b> it paid for.
+        trainer until the <b>paid until</b> date, up to the number of <b>seats</b> it paid for. A school is
+        <b>Off</b> when that date has passed or is empty: use its switch to turn it on (for a year) or off.
       </p>
       {error && <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
@@ -142,9 +144,23 @@ export default function AdminPage() {
             <section key={s.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-lg font-semibold text-stone-900">{s.name}</h2>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${active ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>
-                  {active ? "Active" : "Not active"}
-                </span>
+                {/* On / off: a school can use the site while its "paid until" date hasn't passed. */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!!active}
+                  onClick={() => {
+                    if (active) update(s.id, { paid_until: daysFromToday(-1) });
+                    else update(s.id, { paid_until: daysFromToday(365) });
+                  }}
+                  className="flex items-center gap-2 text-sm font-semibold"
+                  title={active ? "Turn off: the school's teachers and students can't use the site" : "Turn on for one year (you can change the date)"}
+                >
+                  <span className={active ? "text-emerald-800" : "text-rose-800"}>{active ? "On" : "Off"}</span>
+                  <span className={`relative h-6 w-11 rounded-full transition-colors ${active ? "bg-emerald-600" : "bg-stone-300"}`}>
+                    <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${active ? "left-[1.375rem]" : "left-0.5"}`} />
+                  </span>
+                </button>
               </div>
               <div className="mt-3 flex flex-wrap items-end gap-4 text-sm">
                 <div>
@@ -179,6 +195,7 @@ export default function AdminPage() {
                 <label>
                   <span className="block text-xs text-stone-500">Paid until</span>
                   <input
+                    key={s.paid_until ?? "none"}
                     className={input}
                     type="date"
                     defaultValue={s.paid_until ?? ""}
