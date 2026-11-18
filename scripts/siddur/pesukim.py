@@ -105,11 +105,27 @@ def match(words):
                 kk += 1
             whole = k == 0 and len(run) >= len(VERSES[vi][2]) >= 3
             if (len(run) >= 5 or whole) and len(run) > best[0]:
-                best = (len(run), run)
+                best = (len(run), run, vi, k)
         if best[1]:
             for d, (w, v) in enumerate(best[1]):
                 out[i + d] = w
                 LAST_REFS[i + d] = v
+            # Go back too: the first word of a paragraph (often in bold) may be written as one
+            # word where the pasuk has two (הַללוּיָהּ = הַֽ֭לְלוּ יָ֨הּ), so the 3-word match started after it.
+            _, _, vi0, k0 = best
+            j = i - 1
+            while j >= 0 and j not in out and k0 > 0:
+                nv = VERSES[vi0][2]
+                if nv[k0 - 1] == words[j]:
+                    out[j] = VERSES[vi0][1][k0 - 1]
+                    k0 -= 1
+                elif k0 > 1 and nv[k0 - 2] + nv[k0 - 1] == words[j]:
+                    out[j] = VERSES[vi0][1][k0 - 2] + VERSES[vi0][1][k0 - 1]
+                    k0 -= 2
+                else:
+                    break
+                LAST_REFS[j] = vi0
+                j -= 1
             i += best[0]
         else:
             i += 1
