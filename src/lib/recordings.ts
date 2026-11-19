@@ -41,6 +41,22 @@ async function bucketPathFor(path: string): Promise<string> {
   return names.has(alt.slice(alt.lastIndexOf("/") + 1)) ? alt : p;
 }
 
+/* Offline: the last link and folder listing are kept in this browser, and the service worker
+   (public/sw.js) plays recordings heard before from its cache, whatever the link's token. */
+const remember = (k: string, v: unknown) => {
+  try {
+    localStorage.setItem(`kriah-off:${k}`, JSON.stringify(v));
+  } catch {}
+};
+const recall = <T,>(k: string): T | null => {
+  try {
+    const v = localStorage.getItem(`kriah-off:${k}`);
+    return v ? (JSON.parse(v) as T) : null;
+  } catch {
+    return null;
+  }
+};
+
 export function recordingUrl(path: string): Promise<string> {
   if (isPublicRecording(path)) return Promise.resolve(asset(path));
   const key = `${currentNusach()}:${path}`;
@@ -48,8 +64,18 @@ export function recordingUrl(path: string): Promise<string> {
     const p = bucketPathFor(path)
       .then((bp) => supabase().storage.from("recordings").createSignedUrl(bp, HOUR))
       .then(({ data, error }) => {
-        if (error || !data) throw new Error("This recording is for signed-in students.");
+        if (error || !data) {
+          const old = recall<string>(`url:${key}`);
+          if (old && typeof navigator !== "undefined" && !navigator.onLine) return old;
+          throw new Error("This recording is for signed-in students.");
+        }
+        remember(`url:${key}`, data.signedUrl);
         return data.signedUrl;
+      })
+      .catch((e) => {
+        const old = recall<string>(`url:${key}`);
+        if (old && !navigator.onLine) return old;
+        throw e;
       });
     p.catch(() => cache.delete(key));
     cache.set(key, p);
@@ -90,7 +116,13 @@ export function listRecordings(folder: string, fresh = false): Promise<Set<strin
     const p = supabase()
       .storage.from("recordings")
       .list(f, { limit: 1000 })
-      .then(({ data }) => new Set((data ?? []).filter((o) => o.id).map((o) => o.name)));
+      .then(({ data, error }) => {
+        if (error || !data) return new Set(recall<string[]>(`dir:${f}`) ?? []);
+        const names = data.filter((o) => o.id).map((o) => o.name);
+        remember(`dir:${f}`, names);
+        return new Set(names);
+      })
+      .catch(() => new Set(recall<string[]>(`dir:${f}`) ?? []));
     p.catch(() => folders.delete(f));
     folders.set(f, p);
   }

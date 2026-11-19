@@ -76,7 +76,8 @@ kept in case the owner goes back to Netlify.
 - Recordings other than the 3 demo ones are in the private "recordings" bucket
   and played through signed links (src/lib/recordings.ts). Never commit them to
   public/ (the repo is public). New recordings: upload from /admin/ → Recordings.
-- Te'amim levels: 29 levels (src/data/teamim-levels.ts, owner's design Nov 2026): Level 1
+- Te'amim levels: 28 levels (src/data/teamim-levels.ts, owner's design Nov 2026; Azla's own level and card removed Nov 19,
+  taught() hides `hidden` te'amim, the Kadma lesson at level 11 stresses end of word = pausing, middle = connecting): Level 1
   Mil'el and Milra (MilelMilra.tsx, ~36 words with a ma'amid, src/data/stress-words.ts, quiz key
   teamim-stress, pass 80%); then ONE ta'am per level (mafsik before the mesharet that leads into
   it); "combo" levels for pairs after both are learned (5 Ma'arikh Tarha / Tarha Ma'arikh,
@@ -116,11 +117,12 @@ kept in case the owner goes back to Netlify.
   (e.g. shofar-holekh_segolta.mp3), in TORAH_TEAMIM_PAIRS with a Torah example;
   the pair shows on both cards ("Before X" / "After Y"). Process uploads with
   ffmpeg: trim silence, loudnorm I=-18, MP3 128k mono.
-- Practising te'amim (for children): every recording on the te'amim trainer has a
-  "Practice" button (src/components/tanakh/TaamPractice.tsx): the child sings, it's
-  scored against the Hazzan's recording by scoreTaamPractice() in
-  src/lib/audio/taam-practice.ts (melody match + tempo-free tune shape + length
-  check), with stars and tips. Listening quiz: /tanakh/torah/teamim/quiz/
+- Te'amim are graded by the teacher, NOT automatically (owner, Nov 19): school students press "Record … for my
+  teacher" (TaamSubmit.tsx) → file in the private "submissions" bucket + a taam_submissions row
+  (supabase/submissions.sql); the teacher grades 1–10 in /teacher/ (GradeRecordings.tsx, grade_submission());
+  7+ passes, writes progress graded:<src>, and when a level's recordings all pass the child's
+  class_members.unlocked_level goes up. Everyone else presses "I've learned it" (learned:<src>).
+  TaamPractice.tsx is now used only for "Read … yourself" on aliyot/chapters. Listening quiz: /tanakh/torah/teamim/quiz/
   (TeamimQuiz.tsx, uses solo recordings, offers look-alike te'amim as wrong
   answers). Progress (best scores, quiz record) is kept in the browser
   (localStorage), so it's per device.
@@ -204,6 +206,9 @@ kept in case the owner goes back to Netlify.
   Done by hand so far: morning (all), shaharit Shema & blessings, Amida, Ashre, Aleinu (en + ar). No free
   Jewish Arabic Bible was found, so Arabic pesukim are only where written by hand. Add more paragraphs there
   and re-run the script.
+- Siddur recordings: no word highlighting (removed Nov 19); "Show/Hide recordings" toggle in the sticky bar
+  (remembered); Birkot HaShahar and Pitum HaKetoret have ONE recording per section (ONE_RECORDING_SECTIONS,
+  siddur/<part>/<s>-all.mp3, admin drop at the top of the section), no paragraph players there.
 - Bookmarks (src/lib/bookmarks.tsx): "Bookmark" beside each Tanakh section and Siddur section, up to 3 per
   kind (oldest drops), kept in the browser; shown on the home page (MyBookmarks).
 - Translator: sounds in Latin letters ("ba", "bar-ne-a", "kh'") are shown in Hebrew or Arabic letters
@@ -362,3 +367,27 @@ sample-curriculum.ts with word timings and the stressed-syllable timings
 (stressStart/stressEnd) measured from the recording.
 
 Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
+
+## Added Nov 19, 2026 (owner's list)
+- Home page = coloured tabs (src/components/home/HomeTabs.tsx): Beginner Keriah, Tanach, Tefillah / Songs; the admin
+  adds tabs (link cards), renames, colours, hides and reorders them ("Arrange the tabs"), saved in site_settings.
+  Header tabs each have a colour (TONES in AuthGate.tsx). Beginner steps: a colour and an SVG picture each
+  (src/components/beginner/StepPictures.tsx).
+- Owner's page editor (admin only): "✏️ Edit this page" (src/components/admin/SiteEditor.tsx) → tap any text that
+  isn't Tanakh/Siddur/Hebrew → new English/Hebrew/Arabic words, colours, bold, colour the whole card; "Copy a note
+  for Claude" copies a description. Stored in site_settings key "edits" (supabase/site.sql, src/lib/site-edits.ts),
+  applied by the Translator (keyed by the original English text).
+- Sheva Na rule: the first of two of the SAME letter (כ/ך and all finals count as the same) with a sheva is always Na
+  (vowel-hints.ts + build.py "na-double"); Beginner stage "na-double" is #10 of the Na rules = level 29 (owner wrote
+  31, but his level→step list matches 29). Beginner levels open their step's page (STEP_OF_PART in beginner.ts).
+- Dagesh Hazaq: any letter but א ה ח ע ר (examples on the page and in the rules); the data already mixes letters.
+- Tevir with a vowel under the same letter: the Tevir is drawn just left of the letter (.tevir-shift/.tevir-mark,
+  a clipped copy of the letter from a data-l attribute) in all Tanakh and Siddur text.
+- Tracing: the second pass ("by yourself") shows the guide without the numbers. Letter tabs wrap (no sideways scroll).
+- Ketuvim te'amim trainers sit inside each book's page (BookChapters.tsx); the Ketuvim list shows only books.
+- Scroll mode: "Vowels beside (tikkun)" checkbox next to the scroll switch (Torah and megillot); zoom grows both columns.
+- Tehillim legarmeh: the pesik is drawn bold and dark.
+- Offline (app on the home screen): public/sw.js (pages network-first, files cache-first, recordings played once are
+  kept); the last account settings are cached per user (auth.tsx, 40 days); progress saved offline waits in an outbox
+  and is sent when back online (taam-practice.ts flushOutbox); pullProgress merges (best of both). Updates need no
+  reinstall. Bump VERSION in sw.js only when its rules change.

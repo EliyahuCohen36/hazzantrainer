@@ -164,18 +164,70 @@ async function db() {
   return supabase();
 }
 
-/** After sign-in: load this student's saved progress from their account. */
+/* Offline (the app on the home screen): saves that couldn't reach the account wait here and are
+   sent when the device is back online. save_practice keeps the best score, so sending twice is safe. */
+const OUTBOX = "kriah-progress-outbox";
+type Pending = { fn: "save_practice" | "save_quiz"; args: Record<string, unknown>; user: string };
+
+function queue(item: Pending) {
+  try {
+    const q: Pending[] = JSON.parse(localStorage.getItem(OUTBOX) ?? "[]");
+    q.push(item);
+    localStorage.setItem(OUTBOX, JSON.stringify(q.slice(-2000)));
+  } catch {}
+}
+
+function send(fn: Pending["fn"], args: Record<string, unknown>) {
+  const user = currentUser;
+  if (!user) return;
+  db()
+    .then((c) => c?.rpc(fn, args))
+    .then((r) => {
+      if (r?.error && /fetch|network/i.test(r.error.message)) throw r.error;
+    })
+    .catch(() => queue({ fn, args, user }));
+}
+
+/** Send what was saved while offline (called on sign-in and whenever the device comes back online). */
+export async function flushOutbox() {
+  if (!currentUser) return;
+  let q: Pending[] = [];
+  try {
+    q = JSON.parse(localStorage.getItem(OUTBOX) ?? "[]");
+  } catch {}
+  const mine = q.filter((x) => x.user === currentUser);
+  if (!mine.length) return;
+  const c = await db();
+  if (!c) return;
+  const left: Pending[] = q.filter((x) => x.user !== currentUser);
+  for (const x of mine) {
+    const r = await c.rpc(x.fn, x.args).then(
+      (r) => r,
+      () => ({ error: { message: "network" } }),
+    );
+    if (r.error && /fetch|network/i.test(r.error.message)) left.push(x);
+  }
+  localStorage.setItem(OUTBOX, JSON.stringify(left));
+}
+
+if (typeof window !== "undefined") window.addEventListener("online", () => flushOutbox().catch(() => {}));
+
+/** After sign-in: send anything saved offline, then load this student's progress from their account
+ *  (kept together with what's in this browser: the best of both). */
 export async function pullProgress() {
   const { supabase } = await import("@/lib/supabase");
   const client = supabase();
-  const { data: u } = await client.auth.getUser();
-  currentUser = u.user?.id ?? null;
+  const { data: s } = await client.auth.getSession();
+  currentUser = s.session?.user.id ?? null;
   if (!currentUser) return;
-  const { data } = await client.from("progress").select("kind, key, best, right_n, total_n").eq("user_id", currentUser);
-  const p: Progress = { practice: {}, quiz: {} };
+  await flushOutbox().catch(() => {});
+  const { data, error } = await client.from("progress").select("kind, key, best, right_n, total_n").eq("user_id", currentUser);
+  if (error) return; // offline: keep this browser's copy
+  const local = loadProgress();
+  const p: Progress = { practice: { ...local.practice }, quiz: { ...local.quiz } };
   for (const r of data ?? []) {
-    if (r.kind === "practice") p.practice[r.key] = r.best;
-    else p.quiz[r.key] = { right: r.right_n, total: r.total_n };
+    if (r.kind === "practice") p.practice[r.key] = Math.max(r.best, local.practice[r.key] ?? 0);
+    else if ((local.quiz[r.key]?.total ?? 0) <= r.total_n) p.quiz[r.key] = { right: r.right_n, total: r.total_n };
   }
   save(p);
 }
@@ -190,7 +242,7 @@ export function recordPractice(src: string, score: number): number {
   const best = Math.max(score, p.practice[src] ?? 0);
   p.practice[src] = best;
   save(p);
-  db().then((c) => c?.rpc("save_practice", { p_key: src, p_score: Math.round(score) })).catch(() => {});
+  send("save_practice", { p_key: src, p_score: Math.round(score) });
   return best;
 }
 
@@ -207,5 +259,5 @@ export function recordQuiz(taamId: string, right: boolean) {
   const q = p.quiz[taamId] ?? { right: 0, total: 0 };
   p.quiz[taamId] = { right: q.right + (right ? 1 : 0), total: q.total + 1 };
   save(p);
-  db().then((c) => c?.rpc("save_quiz", { p_key: taamId, p_right: right })).catch(() => {});
+  send("save_quiz", { p_key: taamId, p_right: right });
 }

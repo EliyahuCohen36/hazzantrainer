@@ -3,7 +3,7 @@ export const dynamic = "force-static";
 import type { MetadataRoute } from "next";
 import { asset } from "@/lib/base-path";
 
-/** PWA manifest. Phase 2: add a service worker (e.g. Serwist) for offline lessons. */
+/** PWA manifest. Offline use: public/sw.js (registered by src/components/ServiceWorker.tsx). */
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Keriah Trainer: Syrian Torah Reading",

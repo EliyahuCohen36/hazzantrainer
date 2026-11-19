@@ -6,6 +6,7 @@ import "@fontsource/frank-ruhl-libre/500.css";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
+import { ServiceWorker } from "@/components/ServiceWorker";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { LanguageProvider } from "@/lib/i18n/Translator";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${stam.variable} ${siddurFont.variable} ${scriptFont.variable}`}>
       <body className="min-h-dvh antialiased">
+        <ServiceWorker />
         <LanguageProvider>
           <AuthProvider>
             <AuthGate>{children}</AuthGate>

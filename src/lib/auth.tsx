@@ -75,15 +75,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const db = supabase();
-    const [{ data: p }, { data: ok }, { data: lvl }, { data: blvl }, { data: lopen }] = await Promise.all([
-      db.from("profiles").select("id, role, school_id, display_name, username").eq("id", s.user.id).maybeSingle(),
-      db.rpc("has_access"),
-      db.rpc("my_level"),
-      db.rpc("my_beginner_level"),
-      db.rpc("my_letters_open"),
-    ]);
-    // Class settings (supabase/accounts.sql); missing before that file is run.
-    const { data: cs } = await db.rpc("my_class_settings");
+    const cacheKey = `kriah-auth-cache:${s.user.id}`;
+    let p: unknown, ok: unknown, lvl: unknown, blvl: unknown, lopen: unknown, cs: unknown;
+    try {
+      const r = await Promise.all([
+        db.from("profiles").select("id, role, school_id, display_name, username").eq("id", s.user.id).maybeSingle(),
+        db.rpc("has_access"),
+        db.rpc("my_level"),
+        db.rpc("my_beginner_level"),
+        db.rpc("my_letters_open"),
+      ]);
+      if (r[0].error && /fetch|network/i.test(r[0].error.message)) throw r[0].error;
+      [p, ok, lvl, blvl, lopen] = r.map((x) => x.data);
+      // Class settings (supabase/accounts.sql); missing before that file is run.
+      cs = (await db.rpc("my_class_settings")).data;
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ p, ok, lvl, blvl, lopen, cs, at: Date.now() }));
+      } catch {}
+    } catch (e) {
+      // Offline (the app saved to the home screen): use what we knew the last time, for up to 40 days.
+      let c: { p: unknown; ok: unknown; lvl: unknown; blvl: unknown; lopen: unknown; cs: unknown; at: number } | null = null;
+      try {
+        c = JSON.parse(localStorage.getItem(cacheKey) ?? "null");
+      } catch {}
+      if (!c || Date.now() - c.at > 40 * 86400000) {
+        console.warn("Offline and nothing saved yet", e);
+        setAccess(false);
+        setLoading(false);
+        return;
+      }
+      ({ p, ok, lvl, blvl, lopen, cs } = c);
+    }
     const settings = (cs ?? {}) as { script_open?: boolean; sections?: string[] | null };
     setScriptOpen(!!settings.script_open);
     setSections(settings.sections ?? null);
