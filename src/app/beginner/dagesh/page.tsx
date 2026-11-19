@@ -19,7 +19,7 @@ export default function Page() {
           דָּגֵשׁ קַל וְדָגֵשׁ חָזָק
         </span>
       </div>
-      <p className="mb-5 text-stone-600">The dot inside a letter is a Dagesh. At the start of a word in בּ גּ דּ כּ פּ תּ it is a Dagesh Kal (soft); right after a short vowel it is a Dagesh Hazaq (strong: the letter is said twice).</p>
+      <p className="mb-5 text-stone-600">The dot inside a letter is a Dagesh. At the start of a word in בּ גּ דּ כּ פּ תּ it is a Dagesh Kal (soft); right after a short vowel it is a Dagesh Hazaq (strong: the letter is said twice). A Dagesh Hazaq can be in almost any letter, not only בּ גּ דּ כּ פּ תּ (never in א ה ח ע ר).</p>
       <div className="mb-5 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4">
           <p className="font-semibold text-stone-900">Dagesh Kal: at the start of the word</p>
@@ -28,8 +28,9 @@ export default function Page() {
         </div>
         <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
           <p className="font-semibold text-stone-900">Dagesh Hazaq: after a short vowel</p>
-          <p dir="rtl" lang="he" className="hebrew-text mt-1 font-hebrew text-3xl leading-[1.8]">הַשָּׁמַיִם · נִצָּב</p>
-          <p className="text-sm text-stone-700" dir="ltr">hash-sha-ma-yim · nits-tsav</p>
+          <p dir="rtl" lang="he" className="hebrew-text mt-1 font-hebrew text-3xl leading-[1.8]">הַשָּׁמַיִם · נִצָּב · אִמּוֹ · הַבַּיִת · יְדַבֵּר</p>
+          <p className="text-sm text-stone-700" dir="ltr">hash-sha-ma-yim · nits-tsav · im-mo · hab-ba-yit · ye-dab-ber</p>
+          <p className="text-sm text-stone-700">In any letter except א ה ח ע ר, also in בּ גּ דּ כּ פּ תּ</p>
         </div>
       </div>
       <BeginnerLock need={FIRST}>

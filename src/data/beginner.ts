@@ -169,20 +169,31 @@ export interface BeginnerLevel {
   href: string;
 }
 
+const STEP_OF_PART: Record<string, string> = {
+  nach: "/beginner/sheva/",
+  na: "/beginner/sheva/",
+  mixed: "/beginner/sheva/",
+  katan: "/beginner/qamats-katan/",
+  genuva: "/beginner/patah-genuva/",
+  dagesh: "/beginner/dagesh/",
+  he: "/beginner/he/",
+};
+
 export const BEGINNER_LEVELS: BeginnerLevel[] = [
   { n: 1, title: "Letters Alef to Tet", he: "א – ט", letters: ["alef", "bet", "vet", "gimel", "dalet", "he", "vav", "zayin", "het", "tet"], href: "/beginner/letters/" },
   { n: 2, title: "Letters Yod to Samekh", he: "י – ס", letters: ["yod", "kaf", "khaf", "lamed", "mem", "nun", "samekh"], href: "/beginner/letters/" },
   { n: 3, title: "Letters Ayin to Tav", he: "ע – ת", letters: ["ayin", "pe", "fe", "tsadi", "qof", "resh", "shin", "sin", "tav"], href: "/beginner/letters/" },
   { n: 4, title: "Final letters", he: "סוֹפִיּוֹת", sofiyot: true, href: "/beginner/letters/#sofiyot" },
-  { n: 5, title: "Qamats and Patah: \"a\"", he: "קָמַץ פַּתַח", nekudot: ["qamats", "patah"], href: "/beginner/nekudot/qamats/" },
-  { n: 6, title: "Sere and Segol: \"e\"", he: "צֵרֵי סֶגּוֹל", nekudot: ["sere", "segol"], href: "/beginner/nekudot/sere/" },
-  { n: 7, title: "Hireq: \"i\"", he: "חִירֶק", nekudot: ["hireq", "hireq-male"], href: "/beginner/nekudot/hireq/" },
-  { n: 8, title: "Holem: \"o\"", he: "חוֹלֶם", nekudot: ["holem", "holem-male"], href: "/beginner/nekudot/holem/" },
-  { n: 9, title: "Qibbus and Shuruq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shuruq"], href: "/beginner/nekudot/qibbus/" },
-  { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/hataf-patah/" },
-  { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/chart/" },
-  // The Sheva and Qamats Katan, one step per level (src/data/sheva-stages.ts).
-  ...SHEVA_STAGES.map((st) => ({ n: st.level, title: st.title, he: st.he, href: `/beginner/sheva/practice/#${st.id}` })),
+  { n: 5, title: "Qamats and Patah: \"a\"", he: "קָמַץ פַּתַח", nekudot: ["qamats", "patah"], href: "/beginner/nekudot/" },
+  { n: 6, title: "Sere and Segol: \"e\"", he: "צֵרֵי סֶגּוֹל", nekudot: ["sere", "segol"], href: "/beginner/nekudot/" },
+  { n: 7, title: "Hireq: \"i\"", he: "חִירֶק", nekudot: ["hireq", "hireq-male"], href: "/beginner/nekudot/" },
+  { n: 8, title: "Holem: \"o\"", he: "חוֹלֶם", nekudot: ["holem", "holem-male"], href: "/beginner/nekudot/" },
+  { n: 9, title: "Qibbus and Shuruq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shuruq"], href: "/beginner/nekudot/" },
+  { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/" },
+  { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/nekudot/" },
+  // Steps 6–10, one rule per level (src/data/sheva-stages.ts). A level opens its step's page (owner's mapping:
+  // 1–3 → step 1, 4 → step 2, 5–11 → step 3, Sheva → step 6, Qamats Katan → 7, Patah Genuva → 8, Dagesh → 9, He → 10).
+  ...SHEVA_STAGES.map((st) => ({ n: st.level, title: st.title, he: st.he, href: STEP_OF_PART[st.part] })),
 ];
 
 /** The Sheva section opens last, after all the letters and the other nekudot. */

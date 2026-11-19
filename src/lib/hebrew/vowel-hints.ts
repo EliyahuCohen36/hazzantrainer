@@ -12,6 +12,8 @@
  *  - after patah, segol, hiriq haser, qamats katan, qubuts, or a shuruk that is
  *    the first letter of the word (וּ): nach
  *  - the second of two shevas in the middle of a word: na
+ *  - the first of two of the same letter (כ/ך and every final form count as the same), with a sheva:
+ *    always na, e.g. וּלְלָבָ֖ן (oo-le-la-van), וּכְכֹל (oo-khe-khol)
  *  - on the last letter, or two shevas at the end of a word: nach
  *  - right after the stressed vowel (mil'el words like לָ֑יְלָה, קֵ֣דְמָה, הַשָּׁמַ֗יְמָה): nach
  *  - never in Hashem's name
@@ -56,6 +58,9 @@ function vowelOf(letter: string, marks: string): Vowel {
 }
 
 /** Split one word (no spaces, no maqaf) into letter clusters with hints. */
+const FINALS: Record<string, string> = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
+const plainLetter = (l: string) => FINALS[l] ?? l;
+
 export function analyzeWord(word: string): { lead: string; clusters: ClusterHint[] } {
   const chars = [...word];
   let i = 0;
@@ -127,6 +132,7 @@ export function analyzeWord(word: string): { lead: string; clusters: ClusterHint
     if (k === last || (k === last - 1 && v[last] === "sheva")) continue; // nach at the end of a word
     let na: boolean;
     if (k === 0) na = true; // first letter of the word
+    else if (k + 1 < n && plainLetter(letters[k]) === plainLetter(letters[k + 1])) na = true; // the same letter twice (וּלְלָבָן)
     else if (marks[k].includes(DAGESH)) na = true; // a letter with a dagesh (not the last letter)
     else if (v[k - 1] === "sheva") na = k - 1 > 0; // the second of two shevas
     else {

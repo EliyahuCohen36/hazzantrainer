@@ -97,9 +97,14 @@ VOW = {"qamats": "a", "patah": "a", "tsere": "e", "segol": "e", "hiriq": "i", "h
        "qibbus": "u", "shuruk": "u", "shuruk-mid": "u", "katan": "o"}
 
 
+FINAL = {"ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ"}
+same_letter = lambda a, b: FINAL.get(a, a) == FINAL.get(b, b)
+
+
 def sheva_na(cl, v, k, stress, last):
     if k == last or (k == last - 1 and v[last] == "sheva"): return False
     if k == 0: return True
+    if k + 1 < len(cl) and same_letter(cl[k][0], cl[k + 1][0]): return True  # וּלְלָבָן: the same letter twice
     if DAGESH in cl[k][1]: return True
     if v[k - 1] == "sheva": return k - 1 > 0
     pk = k - 1 if v[k - 1] != "mater" else k - 2
@@ -184,6 +189,11 @@ for b in BOOKS:
                         items["gadol-sheva"].setdefault(plain, {"_src": (cl, v, stress), "w": display(cl), "i": k, "a": "a", "k": "gadol-sheva"})
                 # ── Sheva (a qamats katan elsewhere in the word keeps its mark)
                 D = display(cl, keep_katan=True)
+                # Two of the same letter, the first with a sheva (וּלְלָבָן, וּכְכֹל): always Na (owner's rule).
+                dbl = [k for k in shevas if 0 < k < last and same_letter(cl[k][0], cl[k + 1][0])]
+                if dbl:
+                    items["na-double"].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": dbl[0], "a": "na", "k": "na-double"})
+                    continue
                 if len(shevas) == 2 and shevas[1] == shevas[0] + 1 and 0 < shevas[0] and shevas[1] < last:
                     items["two-middle"].setdefault(plain, {"_src": (cl, v, stress), "w": D, "i": shevas[1], "a": "na", "k": "two-middle", "j": shevas[0]})
                 if len(shevas) != 1:
@@ -317,6 +327,11 @@ items["katan-both"] = {f"{x['w']}": x for x in both}
 # More of the owner's examples of a qamats katan: עָרְלָה, אָרְכָּה, רָחְבָּה.
 for w_, r_, x_ in [("עָרְלָה", "or-la", "a-re-la"), ("אָרְכָּהּ", "or-kah", "a-re-kah"), ("רָחְבָּהּ", "roḥ-bah", "ra-ḥe-bah")]:
     items["katan-sheva"]["!" + w_] = {"w": w_, "i": 0, "a": "o", "k": "katan-sheva", "r": r_, "x": x_}
+
+# The owner's examples come first.
+for p_ in ["וללבן", "וככל"]:
+    if p_ in items["na-double"]:
+        items["na-double"] = {"!" + p_: items["na-double"].pop(p_), **items["na-double"]}
 
 out = {}
 for cat, d in items.items():

@@ -72,6 +72,7 @@ const REASON: Record<string, string> = {
   "gadol-sheva": "a ma'amid under it: Qamats Gadol, \"a\"",
   "katan-maqaf": "before a Maqaf: Qamats Katan, \"o\"",
   "na-dagesh": "a Sheva with a Dagesh: Na",
+  "na-double": "the same letter twice: Na",
   "genuva-w": "after \"o\" or \"u\": a \"w\" sound",
   "genuva-y": "after \"e\" or \"i\": a \"y\" sound",
   "dagesh-kal": "at the start of the word: Dagesh Kal",
