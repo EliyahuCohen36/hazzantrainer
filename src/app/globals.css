@@ -127,6 +127,25 @@ html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
   position: absolute;
   top: 0;
   right: 0.16em;
+  line-height: normal; /* same box as the letter itself, not the tall line */
+  white-space: nowrap;
   clip-path: inset(72% 0 0 0);
   pointer-events: none;
+  user-select: none;
+}
+.tevir-mark::before {
+  content: attr(data-l);
+}
+
+/* The owner's page editor (SiteEditor.tsx): show what can be tapped. */
+.site-editing main *:hover {
+  outline: 2px dashed #8b5cf6;
+  outline-offset: 2px;
+  cursor: text;
+}
+.site-editing main [lang="he"]:hover,
+.site-editing main [lang="he"] *:hover,
+.site-editing main [data-no-translate]:hover {
+  outline: none;
+  cursor: not-allowed;
 }

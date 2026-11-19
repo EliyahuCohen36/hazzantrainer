@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { LANGS, translateText, type Lang } from "./translate";
+import { EDITS_EVENT, hasTextEdits, loadEdits, textEdit, type TextEdit } from "@/lib/site-edits";
 
 const KEY = "kriah-lang";
 const LangContext = createContext<{ lang: Lang; setLang: (l: Lang) => void }>({ lang: "en", setLang: () => {} });
@@ -21,6 +22,25 @@ function skip(el: Element | null): boolean {
   return !!el?.closest('[lang="he"]:not(html), script, style, textarea, input, [data-no-translate]');
 }
 
+/** The English a text node was written with (before any translation or edit). */
+export const sourceText = (node: Text) => original.get(node) ?? node.nodeValue ?? "";
+
+/** The owner's colours for an edited text: on the text itself, or on the card around it. */
+function styleFor(node: Text, ed: TextEdit | undefined) {
+  const el = node.parentElement;
+  if (!el) return;
+  const box = (ed?.box && (el.closest("a, li, section, button, [class*='rounded']") as HTMLElement | null)) || el;
+  const prev = (el as HTMLElement & { _editBox?: HTMLElement })._editBox;
+  if (prev && prev !== box) {
+    prev.style.color = prev.style.backgroundColor = prev.style.fontWeight = "";
+  }
+  (el as HTMLElement & { _editBox?: HTMLElement })._editBox = box;
+  if (!ed) return;
+  box.style.color = ed.color ?? "";
+  box.style.backgroundColor = ed.bg ?? "";
+  box.style.fontWeight = ed.bold ? "700" : "";
+}
+
 function doText(node: Text, lang: Lang) {
   if (skip(node.parentElement)) return;
   const cur = node.nodeValue ?? "";
@@ -28,7 +48,11 @@ function doText(node: Text, lang: Lang) {
   const en = original.get(node) ?? cur;
   const t = en.trim();
   if (!t || !/[A-Za-z]/.test(t)) return;
-  const tr = lang === "en" ? null : translateText(t, lang);
+  const ed = textEdit(t);
+  if (ed || (node.parentElement as (HTMLElement & { _editBox?: HTMLElement }) | null)?._editBox) styleFor(node, ed);
+  const base = ed?.en?.trim() || t;
+  const tr =
+    lang === "en" ? (base !== t ? base : null) : (ed?.[lang]?.trim() || translateText(base, lang) || (base !== t ? base : null));
   const next = tr === null ? en : en.replace(t, tr);
   if (next !== cur) {
     shown.set(node, next);
@@ -69,6 +93,14 @@ function walk(root: Node, lang: Lang) {
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
+  // The owner's edits (wording/colours): apply them again whenever they change.
+  const [editsV, setEditsV] = useState(0);
+  useEffect(() => {
+    loadEdits();
+    const on = () => setEditsV((v) => v + 1);
+    window.addEventListener(EDITS_EVENT, on);
+    return () => window.removeEventListener(EDITS_EVENT, on);
+  }, []);
 
   useEffect(() => {
     try {
@@ -84,7 +116,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = lang;
     document.documentElement.dir = info.dir;
     walk(document.body, lang);
-    if (lang === "en") return;
+    if (lang === "en" && !hasTextEdits()) return;
     let pending = new Set<Node>();
     let raf = 0;
     const obs = new MutationObserver((muts) => {
@@ -106,7 +138,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       obs.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, [lang]);
+  }, [lang, editsV]);
 
   const setLang = (l: Lang) => {
     setLangState(l);

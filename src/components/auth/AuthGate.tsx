@@ -1,5 +1,6 @@
 "use client";
 
+import { SiteEditor } from "@/components/admin/SiteEditor";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,9 +22,19 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** Each tab in the header has its own colour (owner's request). */
+const TONES = {
+  amber: "bg-amber-100 text-amber-900 hover:bg-amber-200",
+  sky: "bg-sky-100 text-sky-900 hover:bg-sky-200",
+  emerald: "bg-emerald-100 text-emerald-900 hover:bg-emerald-200",
+  rose: "bg-rose-100 text-rose-900 hover:bg-rose-200",
+  violet: "bg-violet-100 text-violet-900 hover:bg-violet-200",
+  teal: "bg-teal-100 text-teal-900 hover:bg-teal-200",
+} as const;
+
+function NavLink({ href, children, tone = "amber" }: { href: string; children: React.ReactNode; tone?: keyof typeof TONES }) {
   return (
-    <Link href={href} className="rounded-md px-2 py-1 font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900">
+    <Link href={href} className={`rounded-full px-3 py-1 font-medium transition-colors ${TONES[tone]}`}>
       {children}
     </Link>
   );
@@ -40,13 +51,13 @@ function SiteHeader() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-amber-700 font-hebrew text-lg text-white">ק</span>
           <span className="font-semibold text-stone-900">Keriah Trainer</span>
         </Link>
-        <NavLink href="/">Home</NavLink>
-        <NavLink href="/about/">About</NavLink>
-        {!session && <NavLink href="/schools/">For schools</NavLink>}
-        {!session && <NavLink href="/demo/">Try the demo</NavLink>}
+        <NavLink href="/" tone="amber">Home</NavLink>
+        <NavLink href="/about/" tone="sky">About</NavLink>
+        {!session && <NavLink href="/schools/" tone="emerald">For schools</NavLink>}
+        {!session && <NavLink href="/demo/" tone="rose">Try the demo</NavLink>}
         <div className="ms-auto flex flex-wrap items-center gap-x-2">
-          {profile?.role === "admin" && <NavLink href="/admin/">Admin</NavLink>}
-          {(profile?.role === "teacher" || profile?.role === "admin") && <NavLink href="/teacher/">My classes</NavLink>}
+          {profile?.role === "admin" && <NavLink href="/admin/" tone="violet">Admin</NavLink>}
+          {(profile?.role === "teacher" || profile?.role === "admin") && <NavLink href="/teacher/" tone="teal">My classes</NavLink>}
           {session ? (
             <>
               <span className="hidden px-1 text-stone-500 sm:inline">{name}</span>
@@ -172,6 +183,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     <>
       <SiteHeader />
       {body}
+      <SiteEditor />
     </>
   );
 }

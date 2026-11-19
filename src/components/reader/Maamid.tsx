@@ -120,10 +120,7 @@ function Hints({ text, source }: { text: string; source?: string }) {
                 return (
                   <span key={ci} className={`tevir-shift ${cls.join(" ")}`} title={title.join(" · ") || undefined}>
                     {t.replace("\u059B", "")}
-                    <span aria-hidden className="tevir-mark">
-                      {base}
-                      {"\u059B"}
-                    </span>
+                    <span aria-hidden className="tevir-mark" data-l={`${base}\u059B`} />
                   </span>
                 );
               }

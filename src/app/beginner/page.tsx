@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
 import { BeginnerLevelPath } from "@/components/beginner/Lock";
+import { STEP_COLORS, StepPicture } from "@/components/beginner/StepPictures";
 
 export const metadata: Metadata = { title: "Beginner Keriah · Keriah Trainer" };
 
@@ -30,14 +31,16 @@ export default function BeginnerPage() {
           <li key={s.href}>
             <Link
               href={s.href}
-              className="flex h-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-colors hover:border-amber-300 hover:bg-amber-50"
+              className={`flex h-full items-start gap-4 rounded-2xl border-2 p-5 shadow-sm transition-colors ${STEP_COLORS[i].card}`}
             >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-2xl">{s.emoji}</span>
-              <span>
-                <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">Step {i + 1}</span>
+              <span className="flex shrink-0 items-center justify-center rounded-2xl bg-white/80 p-1 shadow-sm">
+                <StepPicture i={i} className="h-16 w-20" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className={`text-xs font-semibold uppercase tracking-wide ${STEP_COLORS[i].label}`}>Step {i + 1}</span>
                 <span className="flex items-baseline justify-between gap-3">
                   <span className="text-lg font-semibold text-stone-900">{s.title}</span>
-                  <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                  <span dir="rtl" lang="he" className={`font-hebrew text-lg ${STEP_COLORS[i].he}`}>
                     {s.he}
                   </span>
                 </span>
