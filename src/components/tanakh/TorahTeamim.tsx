@@ -1,11 +1,11 @@
 "use client";
 
-import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
+import { PROSE_TEAMIM, type TaamReference, taught } from "@/data/teamim-reference";
 import { TORAH_EXAMPLES, type TaamExample } from "@/data/torah-examples";
 import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } from "@/data/teamim-recordings";
 import { Recording } from "@/components/audio/Recording";
 import { WithMaamid } from "@/components/reader/Maamid";
-import { TaamPractice } from "./TaamPractice";
+import { TaamSubmit } from "./TaamSubmit";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { useExistingRecordings } from "@/lib/recordings";
 
@@ -38,7 +38,18 @@ function Example({ ex, sofPasuk, span = 1 }: { ex: TaamExample; sofPasuk: boolea
 }
 
 /** A mesharet sung with the ta'am after it, shown on both of their cards. */
-function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second" }) {
+/** The level this card is shown in, and the recordings that must pass to finish it. */
+export interface LevelInfo {
+  n: number;
+  srcs: string[];
+}
+
+function Submit({ src, label, lv }: { src: string; label: string; lv?: LevelInfo }) {
+  const inLevel = lv && lv.srcs.includes(src);
+  return <TaamSubmit src={src} label={label} level={inLevel ? lv.n : undefined} needed={inLevel ? lv.srcs.length : undefined} />;
+}
+
+function Pair({ pair, side, lv }: { pair: TaamPairRecording; side: "first" | "second"; lv?: LevelInfo }) {
   const other = NAME_OF.get(side === "first" ? pair.second : pair.first);
   return (
     <div className="rounded-lg border border-amber-100 bg-amber-50/50 p-3">
@@ -50,10 +61,7 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
       </div>
       <Recording src={pair.src} />
       <div className="mt-2">
-        <TaamPractice
-          src={pair.src}
-          label={`${NAME_OF.get(pair.first)?.syrian} ${NAME_OF.get(pair.second)?.syrian}`}
-        />
+        <Submit src={pair.src} label={`${NAME_OF.get(pair.first)?.syrian} ${NAME_OF.get(pair.second)?.syrian}`} lv={lv} />
       </div>
       {pair.example && (
         <div className="mt-2">
@@ -64,7 +72,7 @@ function Pair({ pair, side }: { pair: TaamPairRecording; side: "first" | "second
   );
 }
 
-export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: boolean; open?: Set<string> }) {
+export function TaamCard({ t, demo = false, open, lv }: { t: TaamReference; demo?: boolean; open?: Set<string>; lv?: LevelInfo }) {
   const id = t.id ?? "";
   const examples = TORAH_EXAMPLES[id] ?? [];
   // A recording listed in the data, or one the admin uploaded since (teamim/torah/<id>.mp3).
@@ -96,7 +104,7 @@ export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: b
         {audio ? (
           <div className="space-y-2">
             <Recording src={audio} />
-            <TaamPractice src={audio} label={t.syrian} />
+            {!demo && <Submit src={audio} label={t.syrian} lv={lv} />}
           </div>
         ) : !(mesharet && before.length) ? (
           <p className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
@@ -111,10 +119,10 @@ export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: b
         {(before.length > 0 || after.length > 0) && (
           <div className="grid gap-2 sm:grid-cols-2">
             {before.map((p) => (
-              <Pair key={p.src} pair={p} side="first" />
+              <Pair key={p.src} pair={p} side="first" lv={lv} />
             ))}
             {after.map((p) => (
-              <Pair key={p.src} pair={p} side="second" />
+              <Pair key={p.src} pair={p} side="second" lv={lv} />
             ))}
           </div>
         )}
@@ -145,7 +153,7 @@ export function TaamCard({ t, demo = false, open }: { t: TaamReference; demo?: b
 /** "Names of the Te'amim" for the Torah: each ta'am with its recording and examples. */
 export function TorahTeamim({ only }: { only?: string[] } = {}) {
   const demo = Boolean(only);
-  const shown = only ? PROSE_TEAMIM.filter((t) => only.includes(t.id ?? "")) : PROSE_TEAMIM;
+  const shown = (only ? PROSE_TEAMIM.filter((t) => only.includes(t.id ?? "")) : PROSE_TEAMIM).filter(taught);
   const mafsikim = shown.filter((t) => t.role === "mafsik");
   const mesharetim = shown.filter((t) => t.role === "mesharet");
   return (

@@ -3,7 +3,7 @@
 import { WithMaamid } from "@/components/reader/Maamid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
+import { PROSE_TEAMIM, type TaamReference, taught } from "@/data/teamim-reference";
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
 import { openTeamim } from "@/data/teamim-levels";
 import { useAuth } from "@/lib/auth";
@@ -66,7 +66,7 @@ export function TeamimQuiz() {
   const { level } = useAuth();
   const pool = useMemo(() => {
     const open = openTeamim(level);
-    return PROSE_TEAMIM.filter((t) => t.id && TORAH_TEAMIM_RECORDINGS[t.id] && open.has(t.id));
+    return PROSE_TEAMIM.filter((t) => t.id && taught(t) && TORAH_TEAMIM_RECORDINGS[t.id] && open.has(t.id));
   }, [level]);
   const [round, setRound] = useState<Question[]>([]);
   const [n, setN] = useState(0);

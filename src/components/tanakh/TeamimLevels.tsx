@@ -3,41 +3,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { PROSE_TEAMIM } from "@/data/teamim-reference";
-import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
+import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
 import { COMBO_RECORDINGS, LEVEL_LESSONS, MAX_LEVEL, TEAMIM_LEVELS, levelOf, openTeamim } from "@/data/teamim-levels";
 import { STRESS_KEY } from "@/data/stress-words";
 import { MilelMilra } from "./MilelMilra";
 import { Recording } from "@/components/audio/Recording";
-import { TaamPractice } from "./TaamPractice";
+import { TaamSubmit, isLearned, useLearned } from "./TaamSubmit";
 import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
-import { loadProgress, recordPractice, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
+import { recordPractice } from "@/lib/audio/taam-practice";
 import { TaamCard } from "./TorahTeamim";
 
 const BY_ID = new Map(PROSE_TEAMIM.map((t) => [t.id, t]));
-const TWO_STARS = 70;
-
-function useBestScores() {
-  const [best, setBest] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const read = () => setBest(loadProgress().practice);
-    read();
-    window.addEventListener(PROGRESS_EVENT, read);
-    return () => window.removeEventListener(PROGRESS_EVENT, read);
-  }, []);
-  return best;
-}
 
 /**
  * The te'amim trainer in levels, easiest first. Children see the levels their
  * teacher has opened; the rest show a lock. Teachers and admins see all.
  */
 export function TeamimLevels() {
-  const { level: reached, profile } = useAuth();
+  const { level: reached, profile, refresh } = useAuth();
   const isStudent = profile?.role === "student";
   const maxOpen = Math.min(reached, MAX_LEVEL);
   const open = useMemo(() => openTeamim(maxOpen), [maxOpen]);
-  const best = useBestScores();
+  const best = useLearned();
   const [shown, setShown] = useState(maxOpen);
 
   // Start on the newest open level; follow links like #segolta to the right level.
@@ -59,16 +47,29 @@ export function TeamimLevels() {
 
   const comboPaths = useMemo(() => Object.values(COMBO_RECORDINGS).flat().map(([, p]) => p), []);
   const haveCombo = useExistingRecordings(comboPaths);
+  // The recordings that must be learned to finish a level: its solo recordings, the combo ones,
+  // or (a mesharet with no solo recording) its pairs with te'amim already learned.
+  const levelSrcs = (l: number): string[] => {
+    const L = TEAMIM_LEVELS[l - 1];
+    if (L.kind === "stress") return [];
+    if (L.kind === "combo") return (COMBO_RECORDINGS[l] ?? []).map(([, p]) => p).filter((p) => haveCombo?.has(p));
+    const solo = L.teamim.map((id) => TORAH_TEAMIM_RECORDINGS[id]).filter(Boolean);
+    if (solo.length) return solo;
+    return TORAH_TEAMIM_PAIRS.filter((p) => L.teamim.includes(p.first) && levelOf(p.second) <= l).map((p) => p.src);
+  };
+  // Students pass with a grade of 7+ from their teacher; everyone else marks a ta'am as learned.
   const stars = (l: number) => {
     const L = TEAMIM_LEVELS[l - 1];
     if (L.kind === "stress") return { done: (best[STRESS_KEY] ?? 0) >= 80 ? 1 : 0, total: 1 };
-    const srcs =
-      L.kind === "combo"
-        ? (COMBO_RECORDINGS[l] ?? []).map(([, p]) => p).filter((p) => haveCombo?.has(p))
-        : L.teamim.map((id) => TORAH_TEAMIM_RECORDINGS[id]).filter(Boolean);
-    const done = srcs.filter((src) => (best[src] ?? 0) >= TWO_STARS).length;
-    return { done, total: srcs.length };
+    const srcs = levelSrcs(l);
+    return { done: srcs.filter((src) => isLearned(best, src, isStudent)).length, total: srcs.length };
   };
+  // A grade that finished the level opened the next one on the account: fetch the new level.
+  const sDone = stars(maxOpen);
+  useEffect(() => {
+    if (isStudent && sDone.total > 0 && sDone.done === sDone.total) refresh().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStudent, sDone.done, sDone.total]);
 
   // A finished level is saved (teamim-level:<n>), so personal subscribers' next level opens by itself.
   // A level with no recordings uploaded yet doesn't hold anyone back.
@@ -147,7 +148,7 @@ export function TeamimLevels() {
           <div className="text-3xl">🔒</div>
           <p className="mt-2 font-medium text-stone-800">This level isn&apos;t open yet.</p>
           <p className="mt-1 text-sm text-stone-600">
-            Finish Level {maxOpen} first. Your teacher will open Level {shown} when you&apos;re ready.
+            Finish Level {maxOpen} first. When your teacher gives you 7 or more for it, the next level opens.
           </p>
         </div>
       ) : (
@@ -156,7 +157,7 @@ export function TeamimLevels() {
             <div className="mt-3">
               <div className="flex justify-between text-xs text-stone-500">
                 <span>
-                  {s.done} of {s.total} with 2 stars or more
+                  {isStudent ? `${s.done} of ${s.total} passed (7 or more from your teacher)` : `${s.done} of ${s.total} learned`}
                 </span>
                 {s.done === s.total && <span className="font-semibold text-emerald-700">Level complete!</span>}
               </div>
@@ -167,7 +168,7 @@ export function TeamimLevels() {
           )}
           {isStudent && s.total > 0 && s.done === s.total && shown === maxOpen && maxOpen < MAX_LEVEL && (
             <p className="mt-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-              🎉 Great work! Show your teacher, and ask them to open Level {maxOpen + 1}.
+              🎉 Great work! You passed this level. Level {maxOpen + 1} opens for you now.
             </p>
           )}
           {LEVEL_LESSONS[lvl.n] && (
@@ -188,7 +189,7 @@ export function TeamimLevels() {
                     <>
                       <Recording src={src} />
                       <div className="mt-2">
-                        <TaamPractice src={src} label={label} />
+                        <TaamSubmit src={src} label={label} level={lvl.n} needed={levelSrcs(lvl.n).length} />
                       </div>
                     </>
                   ) : (
@@ -201,7 +202,7 @@ export function TeamimLevels() {
           <ul className="mt-2">
             {lvl.teamim.map((id) => {
               const t = BY_ID.get(id);
-              return t ? <TaamCard key={id} t={t} open={open} /> : null;
+              return t ? <TaamCard key={id} t={t} open={open} lv={{ n: lvl.n, srcs: levelSrcs(lvl.n) }} /> : null;
             })}
           </ul>
         </>

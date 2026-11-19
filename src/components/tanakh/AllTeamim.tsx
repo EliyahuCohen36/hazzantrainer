@@ -1,6 +1,6 @@
 "use client";
 
-import { PROSE_TEAMIM, EMET_TEAMIM } from "@/data/teamim-reference";
+import { PROSE_TEAMIM, EMET_TEAMIM, taught } from "@/data/teamim-reference";
 import { tuneRecording } from "@/data/tanakh-recordings";
 import { Recording } from "@/components/audio/Recording";
 import { WithMaamid } from "@/components/reader/Maamid";
@@ -12,7 +12,7 @@ import { AdminDrop } from "@/components/admin/AdminDrop";
  * them for this tune (teamim/<tune>/all.mp3, uploaded at /admin/).
  */
 export function AllTeamim({ tune = "torah", emet = false, links = true }: { tune?: string; emet?: boolean; links?: boolean }) {
-  const list = (emet ? EMET_TEAMIM : PROSE_TEAMIM).filter((t) => t.id);
+  const list = (emet ? EMET_TEAMIM : PROSE_TEAMIM).filter((t) => t.id && taught(t));
   const review = tuneRecording(tune, "all");
   const have = useExistingRecordings([review]);
   return (

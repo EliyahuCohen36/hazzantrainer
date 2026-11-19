@@ -2,42 +2,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { EMET_TEAMIM, PROSE_TEAMIM, type TaamReference } from "@/data/teamim-reference";
+import { EMET_TEAMIM, PROSE_TEAMIM, type TaamReference, taught } from "@/data/teamim-reference";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
 import { tuneRecording, type TuneSet } from "@/data/tanakh-recordings";
 import { useFolder } from "@/lib/recordings";
-import { loadProgress, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { Recording } from "@/components/audio/Recording";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { WithMaamid } from "@/components/reader/Maamid";
-import { TaamPractice } from "./TaamPractice";
+import { TaamSubmit, isLearned, useLearned } from "./TaamSubmit";
 
-const TWO_STARS = 70;
 
 /** One ta'am per level, in the same order as the Torah trainer (Ta'amei Emet: by their own order). */
 export function tuneLevels(tune: TuneSet): TaamReference[] {
   if (tune.system === "emet") {
-    return [...EMET_TEAMIM].sort((a, b) => (a.level ?? 9) - (b.level ?? 9));
+    return EMET_TEAMIM.filter(taught).sort((a, b) => (a.level ?? 9) - (b.level ?? 9));
   }
   const byId = new Map(PROSE_TEAMIM.map((t) => [t.id, t]));
   const ids = TEAMIM_LEVELS.filter((l) => !l.kind).flatMap((l) => l.teamim);
   return ids.map((id) => byId.get(id)).filter((t): t is TaamReference => !!t);
 }
 
-function useBest() {
-  const [best, setBest] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const read = () => setBest(loadProgress().practice);
-    read();
-    window.addEventListener(PROGRESS_EVENT, read);
-    return () => window.removeEventListener(PROGRESS_EVENT, read);
-  }, []);
-  return best;
-}
 
 /**
  * The te'amim trainer for one tune (Nevi'im, Tehillim, Ester…): one ta'am per level, and a ta'am
- * opens only after the one before it was sung with 2 stars. A level whose recording isn't
+ * opens only after the one before it was learned (students: a grade of 7+ from their teacher). A level whose recording isn't
  * uploaded yet doesn't hold anyone back. The trainer appears as soon as the first recording is there.
  */
 export function TuneTrainer({ tune }: { tune: TuneSet }) {
@@ -46,10 +34,11 @@ export function TuneTrainer({ tune }: { tune: TuneSet }) {
   const admin = profile?.role === "admin";
   const levels = useMemo(() => tuneLevels(tune), [tune]);
   const have = useFolder(`/audio/teamim/${tune.id}`);
-  const best = useBest();
+  const best = useLearned();
+  const student = profile?.role === "student";
   const src = (t: TaamReference) => tuneRecording(tune.id, t.id!);
   const recorded = (t: TaamReference) => !!have?.has(src(t));
-  const passed = (t: TaamReference) => !recorded(t) || (best[src(t)] ?? 0) >= TWO_STARS;
+  const passed = (t: TaamReference) => !recorded(t) || isLearned(best, src(t), student);
   const isOpen = (k: number) => free || levels.slice(0, k).every(passed);
   const [shown, setShown] = useState(0);
   useEffect(() => {
@@ -73,11 +62,15 @@ export function TuneTrainer({ tune }: { tune: TuneSet }) {
   return (
     <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       <h2 className="text-xl font-semibold text-stone-900">Levels</h2>
-      <p className="mt-1 text-sm text-stone-600">Sing each ta&apos;am with 2 stars (press Practice) to open the next one.</p>
+      <p className="mt-1 text-sm text-stone-600">
+        {student
+          ? "Record each ta'am for your teacher. A grade of 7 or more opens the next one."
+          : "Listen, learn each ta'am, and press \"I've learned it\" to open the next one."}
+      </p>
       <ol className="mt-3 flex flex-wrap gap-2">
         {levels.map((l, k) => {
           const o = isOpen(k);
-          const done = recorded(l) && (best[src(l)] ?? 0) >= TWO_STARS;
+          const done = recorded(l) && isLearned(best, src(l), student);
           return (
             <li key={l.id}>
               <button
@@ -128,7 +121,7 @@ export function TuneTrainer({ tune }: { tune: TuneSet }) {
               {recorded(t) ? (
                 <>
                   <Recording src={src(t)} />
-                  <TaamPractice src={src(t)} label={t.syrian} />
+                  <TaamSubmit src={src(t)} label={t.syrian} tune={tune.id} />
                 </>
               ) : (
                 <p className="text-sm text-stone-500">The recording for this ta&apos;am is coming soon.</p>

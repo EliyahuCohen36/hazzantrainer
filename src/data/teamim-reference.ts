@@ -31,6 +31,8 @@ export interface TaamReference {
   level?: 1 | 2 | 3 | 4;
   /** Short note on when it's used. */
   note?: string;
+  /** Not taught on its own (owner: no Azla card or level; Kadma mid-word is taught with Kadma). */
+  hidden?: boolean;
   /** An important rule to point out to students (shown highlighted). */
   tip?: string;
   /** Id of a related ta'am to link to from this card. */
@@ -69,7 +71,7 @@ export const PROSE_TEAMIM: TaamReference[] = [
   { id: "shofar-holekh", syrian: "Shofar Holekh", hebrew: "שופר הולך", ashkenazi: "Munach", sample: `${A}֣`, role: "mesharet", note: "Leads into most mafsikim.", tip: "If a pesik (׀) follows the word, sing that word with the Pesik sound instead, on the letter that has the Shofar Holekh under it.", seeAlso: "shofar-holekh-pesik" },
   { id: "shofar-mehuppakh", syrian: "Shofar Mehuppakh", hebrew: "שופר מהופך", ashkenazi: "Mahpach", sample: `${A}֤`, role: "mesharet", note: "Leads into Kadma." },
   { id: "darga", syrian: "Darga", hebrew: "דרגא", ashkenazi: "Darga", sample: `${A}֧`, role: "mesharet", note: "Leads into Tebir." },
-  { id: "azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Kadma", sample: `${A}֨`, role: "mesharet", note: "Leads into Gerish." },
+  { id: "azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Kadma", sample: `${A}֨`, role: "mesharet", note: "Leads into Gerish.", hidden: true },
   { id: "tilsa", syrian: "Tilsa", hebrew: "תילשׂא", ashkenazi: "Telisha Ketana", sample: `${A}֩`, role: "mesharet", note: "Written at the end of the word. Not the same as Talsha: it has its own sound." },
   { id: "tere-taame", syrian: "Tere Ta'ame", hebrew: "תרי טעמי", ashkenazi: "Mercha Kefula", sample: `${A}֦`, role: "mesharet", note: "A double Ma'arikh." },
 ];
@@ -99,7 +101,7 @@ export const EMET_TEAMIM: TaamReference[] = [
   { id: "emet-illuy", syrian: "Illuy", hebrew: "עילוי", ashkenazi: "Illuy", sample: `${A}֬`, role: "mesharet" },
   { id: "emet-tarha", syrian: "Tarha", hebrew: "טרחא", ashkenazi: "Tarcha", sample: `${A}֖`, role: "mesharet", note: "In these books it connects (Dehi is the pause)." },
   { id: "emet-galgal", syrian: "Galgal", hebrew: "גלגל", ashkenazi: "Galgal / Yerach", sample: `${A}֪`, role: "mesharet" },
-  { id: "emet-azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Azla / Kadma", sample: `${A}֨`, role: "mesharet" },
+  { id: "emet-azla", syrian: "Azla", hebrew: "אזלא", ashkenazi: "Azla / Kadma", sample: `${A}֨`, role: "mesharet", hidden: true },
   { id: "emet-shalshelet-ketana", syrian: "Shalshelet Ketana", hebrew: "שלשלת קטנה", ashkenazi: "Shalshelet Ketana", sample: `${A}֓`, role: "mesharet", note: "No Pesik after it." },
   { id: "emet-tsinnorit", syrian: "Tsinnorit", hebrew: "צנורית", ashkenazi: "Tsinnorit", sample: `${A}֘`, role: "mesharet" },
 ];
@@ -158,3 +160,6 @@ export const SECTION_TITLES: Record<TanakhSection, { he: string; en: string }> =
   neviim: { he: "נביאים", en: "Nevi'im" },
   ketuvim: { he: "כתובים", en: "Ketuvim" },
 };
+
+/** The te'amim taught on their own (cards, levels, lists, quiz). */
+export const taught = (t: TaamReference) => !t.hidden;

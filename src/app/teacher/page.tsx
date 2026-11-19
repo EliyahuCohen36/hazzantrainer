@@ -10,6 +10,7 @@ import { BEGINNER_LEVELS, LETTERS, NEKUDOT } from "@/data/beginner";
 import { WORD_STAGES } from "@/data/beginner-words";
 import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 import { Gradebook } from "@/components/teacher/Gradebook";
+import { GradeRecordings } from "@/components/teacher/GradeRecordings";
 import { CLASS_SECTIONS } from "@/components/auth/AuthGate";
 
 interface Klass {
@@ -390,6 +391,8 @@ export default function TeacherPage() {
         </label>
         <button className="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-800">Make class</button>
       </form>
+
+      {classes.length > 0 && <GradeRecordings />}
 
       {unassigned.length > 0 && classes.length > 0 && (
         <section className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-4">

@@ -194,6 +194,14 @@ export function recordPractice(src: string, score: number): number {
   return best;
 }
 
+/** Keep a score in this browser only (e.g. a teacher's grade read from the account). */
+export function setLocalPractice(key: string, score: number) {
+  const p = loadProgress();
+  if ((p.practice[key] ?? 0) >= score) return;
+  p.practice[key] = score;
+  save(p);
+}
+
 export function recordQuiz(taamId: string, right: boolean) {
   const p = loadProgress();
   const q = p.quiz[taamId] ?? { right: 0, total: 0 };

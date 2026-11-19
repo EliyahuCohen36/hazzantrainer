@@ -166,15 +166,6 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
   },
   {
     "n": 17,
-    "title": "Azla",
-    "hebrew": "אזלא",
-    "about": "Azla, which leads into Gerish.",
-    "teamim": [
-      "azla"
-    ]
-  },
-  {
-    "n": 18,
     "title": "Shene Gerishin",
     "hebrew": "שני גרישין",
     "about": "Shene Gerishin.",
@@ -183,7 +174,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 19,
+    "n": 18,
     "title": "Segolta",
     "hebrew": "סגולתא",
     "about": "Segolta.",
@@ -192,7 +183,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 20,
+    "n": 19,
     "title": "Zarka",
     "hebrew": "זרקא",
     "about": "Zarka, which comes before Segolta.",
@@ -201,7 +192,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 21,
+    "n": 20,
     "title": "Tere Kadmin",
     "hebrew": "תרי קדמין",
     "about": "Tere Kadmin.",
@@ -210,7 +201,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 22,
+    "n": 21,
     "title": "Yetib",
     "hebrew": "יתיב",
     "about": "Yetib, written before the word.",
@@ -219,7 +210,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 23,
+    "n": 22,
     "title": "Pazer Gadol",
     "hebrew": "פזר גדול",
     "about": "Pazer Gadol.",
@@ -228,7 +219,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 24,
+    "n": 23,
     "title": "Talsha",
     "hebrew": "תלשא",
     "about": "Talsha, at the start of the word.",
@@ -237,7 +228,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 25,
+    "n": 24,
     "title": "Tilsa",
     "hebrew": "תילשא",
     "about": "Tilsa, at the end of the word.",
@@ -246,7 +237,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 26,
+    "n": 25,
     "title": "Tere Ta'ame",
     "hebrew": "תרי טעמי",
     "about": "Tere Ta'ame.",
@@ -255,7 +246,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 27,
+    "n": 26,
     "title": "Shalshelet",
     "hebrew": "שלשלת",
     "about": "Shalshelet: rare.",
@@ -264,7 +255,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 28,
+    "n": 27,
     "title": "Karne Farah",
     "hebrew": "קרני פרה",
     "about": "Karne Farah: once in the Torah.",
@@ -273,7 +264,7 @@ export const TEAMIM_LEVELS: TeamimLevel[] = [
     ]
   },
   {
-    "n": 29,
+    "n": 28,
     "title": "Shofar Holekh with Pesik",
     "hebrew": "שופר הולך ופסיק",
     "about": "When a pesik follows Shofar Holekh.",
@@ -296,8 +287,8 @@ export const LEVEL_LESSONS: Record<number, string[]> = {
   ],
   11: [
     "Kadma written at the END of the word (after the last letter) is a pausing ta'am (mafsik). Its sound stops the phrase a little.",
-    "The same-looking sign written in the MIDDLE of the word, on the letter that takes the stress, is a connecting ta'am (mehabber): it runs straight on into the next word (on this site it's called Azla, and it leads into Gerish).",
-    "Look where the sign sits: end of the word = Kadma, pausing. Middle of the word = connecting.",
+    "The same-looking sign written in the MIDDLE of the word, on the letter that takes the stress, is a connecting ta'am (mehabber): it runs straight on into the next word.",
+    "Don't confuse the two! Look where the sign sits: at the END of the word it is a pausing ta'am; in the MIDDLE of the word it is a connecting ta'am.",
   ],
   13: [
     "Shofar Mehuppakh and Kadma very often come one after the other, leading into Zakef Katon. Now that you know each one, sing them together.",
