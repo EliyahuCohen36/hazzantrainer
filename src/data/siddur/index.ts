@@ -26,6 +26,11 @@ export const SIDDUR_PARTS = index as SiddurPartInfo[];
 export const siddurRecording = (part: string, s: number, p: number, maqam?: string, tune = 1) =>
   `/audio/siddur/${part}/${s + 1}-${p + 1}${maqam ? `@${maqam}-${tune}` : ""}.mp3`;
 
+/** Sections read as ONE recording for the whole section, not one per paragraph (owner's request). */
+export const ONE_RECORDING_SECTIONS = ["ברכות השחר", "פטום הקטורת"];
+export const oneRecording = (sectionHe: string) => ONE_RECORDING_SECTIONS.some((x) => sectionHe.includes(x));
+export const sectionRecording = (part: string, s: number) => `/audio/siddur/${part}/${s + 1}-all.mp3`;
+
 /** How many tunes in one maqam a place can have. */
 export const MAX_TUNES = 6;
 
