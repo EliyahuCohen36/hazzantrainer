@@ -56,7 +56,8 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
       </div>
 
       {s === "torah" && <TorahTabs current="tikkun" />}
-      {s !== "torah" && (
+      {/* Nevi'im: one trainer for all the books. Ketuvim: each book's trainer is inside the book's page. */}
+      {s === "neviim" && (
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {TUNE_SETS.filter((t) => t.id !== "torah" && t.books.some((id) => TANAKH.find((b) => b.id === id)?.section === s)).map((t) => (
             <Link

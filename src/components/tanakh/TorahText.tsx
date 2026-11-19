@@ -250,7 +250,7 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
       )}
       {verse.t.map((tok, i) => {
         // The pesik is a reading mark: not written in a Sefer Torah.
-        if (tok === "|") return scroll ? null : <span key={i} className="text-stone-400"> ׀ </span>;
+        if (tok === "|") return scroll ? null : <span key={i} className="font-bold text-stone-900"> ׀ </span>;
         if (tok === "_") return <span key={i} className="inline-block w-[2em]" />;
         if (tok === "׆") return <span key={i}> ׆ </span>;
         if (tok === "¶p") return <span key={i} className="block h-2" />;
@@ -307,6 +307,11 @@ export function TorahText({
   const sections =
     division === "weekday" && weekdaySections ? weekdaySections : haftarah ? [...shabbatSections, haftarah] : shabbatSections;
   const { lang } = useLang();
+  // Scroll mode: the vowelled text beside the scroll, like a tikkun (off on phones at first).
+  const [tikkun, setTikkun] = useState(true);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 767px)").matches) setTikkun(false);
+  }, []);
   const [showTr, setShowTr] = useShowTr();
   const trBooks = Array.from(new Set([book, haftarah?.book].filter((b): b is string => !!b)));
   const trOf = useTanakhTranslation(lang, trBooks, showTr);
@@ -348,6 +353,12 @@ export function TorahText({
       <div className="sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
+          {scroll && (
+            <label className="flex cursor-pointer items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-medium text-stone-800 ring-1 ring-amber-300">
+              <input type="checkbox" checked={tikkun} onChange={(e) => setTikkun(e.target.checked)} className="size-4 accent-amber-700" />
+              Vowels beside (tikkun)
+            </label>
+          )}
           <ZoomControl zoom={zoom} onChange={setZoom} />
           {trLang && !scroll && book && (
             <div className="flex overflow-hidden rounded-full text-sm ring-1 ring-amber-300" role="group" aria-label="Translation">
@@ -415,7 +426,7 @@ export function TorahText({
       </div>
 
       {scroll && scrollColumns?.length && focus !== "haftarah" ? (
-        <ScrollPages columns={scrollColumns} zoom={zoom} marks={marks} focus={scrollFocus} />
+        <ScrollPages columns={scrollColumns} zoom={zoom} marks={marks} focus={scrollFocus} tikkun={tikkun} />
       ) : null}
 
       {/* In scroll mode the haftarah (not in the Sefer Torah) is shown as text when it's picked. */}
@@ -444,10 +455,23 @@ export function TorahText({
               {s.maftirRecording && <AdminDrop path={s.maftirRecording} compact label="Maftir: drop the reading here" />}
             </div>
           )}
+          <div className={scroll && tikkun ? "grid gap-3 md:grid-cols-2" : ""}>
+          {scroll && tikkun && (
+            <div
+              dir="rtl"
+              lang="he"
+              className="hebrew-text rounded-xl bg-white px-4 py-5 text-right font-hebrew leading-[2.1] text-stone-900 ring-1 ring-stone-200 sm:text-justify md:order-2"
+              style={{ fontSize: `calc(${zoom} * clamp(1.3rem, 3vw, 1.6rem))` }}
+            >
+              {s.verses.map((v) => (
+                <Verse key={`${v.c}:${v.v}`} verse={v} settings={{ ...settings, scrollMode: false, showTaamNames: false }} />
+              ))}
+            </div>
+          )}
           <div
             dir="rtl"
             lang="he"
-            className={`hebrew-text text-right sm:text-justify ${
+            className={`hebrew-text text-right sm:text-justify md:order-1 ${
               scroll
                 ? "rounded-xl bg-[#f6eedd] px-4 py-5 font-scroll text-[1.9rem] leading-[1.9] text-stone-900 sm:text-[2.1rem]"
                 : `font-hebrew text-[1.55rem] text-stone-900 sm:text-[1.9rem] ${settings.showTaamNames ? "leading-[2.6]" : "leading-[2.1]"}`
@@ -489,6 +513,7 @@ export function TorahText({
                 </Fragment>
               );
             })}
+          </div>
           </div>
         </section>
       ))}

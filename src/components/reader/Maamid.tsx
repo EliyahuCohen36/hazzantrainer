@@ -53,8 +53,12 @@ function doubledOf(word: string) {
   return DOUBLED.find((m) => word.split(m).length > 2);
 }
 
+// Tevir under a letter that also has a vowel underneath: the vowel hides it, so the Tevir is drawn
+// a little to the left of the letter instead (owner's request).
+const TEVIR_CLASH = /\u059B[^\s]*[\u05B0-\u05B8\u05BB]|[\u05B0-\u05B8\u05BB][^\s]*\u059B/;
+
 function Hints({ text, source }: { text: string; source?: string }) {
-  if (!HINT_MARKS.test(text) && !DOUBLED.some((m) => text.split(m).length > 2)) return <>{text}</>;
+  if (!HINT_MARKS.test(text) && !DOUBLED.some((m) => text.split(m).length > 2) && !TEVIR_CLASH.test(text)) return <>{text}</>;
   // Words are split at spaces and maqafs (each part of a maqaf pair is its own word for the rules).
   const SPLIT = /(\s+|־)/;
   const parts = text.split(SPLIT);
@@ -65,7 +69,8 @@ function Hints({ text, source }: { text: string; source?: string }) {
     <>
       {parts.map((part, pi) => {
         const twice = part ? doubledOf(part) : undefined;
-        if (!part || /^\s+$|^־$/.test(part) || (!HINT_MARKS.test(part) && !twice)) return <Fragment key={pi}>{part}</Fragment>;
+        if (!part || /^\s+$|^־$/.test(part) || (!HINT_MARKS.test(part) && !twice && !TEVIR_CLASH.test(part)))
+          return <Fragment key={pi}>{part}</Fragment>;
         const shown = analyzeWord(part);
         const full = aligned ? analyzeWord(srcParts![pi]) : null;
         const lead = shown.lead;
@@ -84,7 +89,8 @@ function Hints({ text, source }: { text: string; source?: string }) {
             {lead}
             {clusters.map((c, ci) => {
               const sound = ci === soundAt;
-              if (!c.meteg && !c.qamatsKatan && !c.shevaNa && !sound) return <Fragment key={ci}>{c.text}</Fragment>;
+              const tevir = c.text.includes("\u059B") && /[\u05B0-\u05B8\u05BB]/.test(c.text);
+              if (!c.meteg && !c.qamatsKatan && !c.shevaNa && !sound && !tevir) return <Fragment key={ci}>{c.text}</Fragment>;
               let t = c.text;
               const cls: string[] = [];
               const title: string[] = [];
@@ -108,6 +114,18 @@ function Hints({ text, source }: { text: string; source?: string }) {
                 t = t.replace("ְ", "");
                 cls.push("vowel-sheva-na");
                 title.push("Sheva na: say a short \"e\"");
+              }
+              if (tevir) {
+                const base = t.replace(/[\u0591-\u05C7]/g, "");
+                return (
+                  <span key={ci} className={`tevir-shift ${cls.join(" ")}`} title={title.join(" · ") || undefined}>
+                    {t.replace("\u059B", "")}
+                    <span aria-hidden className="tevir-mark">
+                      {base}
+                      {"\u059B"}
+                    </span>
+                  </span>
+                );
               }
               return (
                 <span key={ci} className={cls.join(" ")} title={title.join(" · ")}>

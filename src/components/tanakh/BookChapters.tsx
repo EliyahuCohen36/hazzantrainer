@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { SECTION_TITLES, type TanakhBook } from "@/data/teamim-reference";
 import { bookParts, MEGILLOT } from "@/data/tanakh";
+import { TUNE_SETS } from "@/data/tanakh-recordings";
 
 /** A Nevi'im or Ketuvim book: its chapters (grouped by part in combined books). */
 export function BookChapters({ book }: { book: TanakhBook }) {
   const parts = bookParts(book.id);
   const title = SECTION_TITLES[book.section];
+  // Ketuvim: the te'amim trainer of this book's melody is here, inside the book (owner's request).
+  const tune = book.section === "ketuvim" ? TUNE_SETS.find((t) => t.id !== "torah" && t.books.includes(book.id)) : undefined;
   return (
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <nav className="text-xs text-stone-500" aria-label="Breadcrumb">
@@ -37,6 +40,21 @@ export function BookChapters({ book }: { book: TanakhBook }) {
       )}
       {MEGILLOT.has(book.id) && (
         <p className="mt-2 text-sm text-stone-600">Each chapter can also be shown in Scroll Mode, as it&apos;s written in the megillah.</p>
+      )}
+
+      {tune && (
+        <Link
+          href={`/teamim/${tune.id}/`}
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm transition-colors hover:bg-amber-100"
+        >
+          <span>
+            <span className="block font-semibold text-stone-900">Te&apos;amim trainer for {book.en} →</span>
+            <span className="block text-sm text-stone-600">Learn the te&apos;amim with this book&apos;s melody, one at a time.</span>
+          </span>
+          <span dir="rtl" lang="he" className="font-hebrew text-xl text-amber-800">
+            טעמי {tune.he}
+          </span>
+        </Link>
       )}
 
       <div className="mt-5 space-y-5">

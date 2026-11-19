@@ -73,7 +73,7 @@ function WriteDemo({ strokes }: { strokes: Stroke[] }) {
 }
 
 /** A pad to draw the letter on, with or without the letter faintly underneath. Calls onPass when it's good. */
-function DrawPad({ strokes, guide, onPass }: { strokes: Stroke[]; guide: boolean; onPass: () => void }) {
+function DrawPad({ strokes, guide, numbers = true, onPass }: { strokes: Stroke[]; guide: boolean; numbers?: boolean; onPass: () => void }) {
   const [ink, setInk] = useState<[number, number][][]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -83,7 +83,7 @@ function DrawPad({ strokes, guide, onPass }: { strokes: Stroke[]; guide: boolean
     return [((e.clientX - r.left) / r.width) * 110 - 5, ((e.clientY - r.top) / r.height) * 110 - 5] as [number, number];
   };
   const check = () => {
-    const { coverage, accuracy } = checkDrawing(strokes, ink, 7, !guide);
+    const { coverage, accuracy } = checkDrawing(strokes, ink, 7, false);
     if (coverage >= DRAW_PASS.coverage && accuracy >= DRAW_PASS.accuracy) {
       setMsg({ ok: true, text: "Beautiful! 🎉" });
       setTimeout(onPass, 900);
@@ -126,10 +126,14 @@ function DrawPad({ strokes, guide, onPass }: { strokes: Stroke[]; guide: boolean
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              <circle cx={s[0][0]} cy={s[0][1]} r="4" fill="#fbbf24" />
-              <text x={s[0][0]} y={s[0][1] + 2} fontSize="5.5" textAnchor="middle" fill="white" fontWeight="700">
-                {i + 1}
-              </text>
+              {numbers && (
+                <>
+                  <circle cx={s[0][0]} cy={s[0][1]} r="4" fill="#fbbf24" />
+                  <text x={s[0][0]} y={s[0][1] + 2} fontSize="5.5" textAnchor="middle" fill="white" fontWeight="700">
+                    {i + 1}
+                  </text>
+                </>
+              )}
             </g>
           ))}
         {ink.map((s, i) => (
@@ -348,9 +352,9 @@ function LetterLessonView({ lesson, known, next }: { lesson: LetterLesson; known
             <span dir="rtl" lang="he" className="font-hebrew text-2xl">
               {g.char}
             </span>{" "}
-            by yourself!
+            by yourself! Remember where each line starts.
           </p>
-          <DrawPad key="draw" strokes={strokes} guide={false} onPass={() => setPhase("quiz")} />
+          <DrawPad key="draw" strokes={strokes} guide numbers={false} onPass={() => setPhase("quiz")} />
           <button type="button" onClick={() => setPhase("trace")} className="mt-3 block w-full text-center text-sm text-amber-800 underline">
             Trace it again first
           </button>
@@ -584,7 +588,7 @@ export function LetterLessons({ all }: { all: React.ReactNode }) {
   return (
     <div>
       <div className="sticky top-14 z-10 -mx-4 mb-4 border-b border-stone-200 bg-[#fbf8f3]/95 px-4 py-2 backdrop-blur">
-        <div dir="rtl" className="flex gap-1.5 overflow-x-auto pb-1">
+        <div dir="rtl" className="flex flex-wrap justify-center gap-1.5 pb-1">
           <button
             type="button"
             onClick={() => go("all")}

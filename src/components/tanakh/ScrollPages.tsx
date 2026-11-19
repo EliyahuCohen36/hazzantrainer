@@ -160,7 +160,10 @@ export function ScrollPages({
   zoom = 1,
   marks = [],
   focus = null,
+  tikkun = true,
 }: {
+  /** Vowels beside (the switch is next to the Torah Scroll Mode switch). */
+  tikkun?: boolean;
   columns: ScrollColumn[];
   zoom?: number;
   /** Where each aliyah starts: [pasuk (c × 1000 + v), name]. */
@@ -168,11 +171,6 @@ export function ScrollPages({
   /** The aliyah picked: only its words are shown clearly. */
   focus?: [number, number] | null;
 }) {
-  // Side by side on wide screens; on a phone, the scroll alone (the vowels can be turned on).
-  const [tikkun, setTikkun] = useState(true);
-  useEffect(() => {
-    if (window.matchMedia("(max-width: 767px)").matches) setTikkun(false);
-  }, []);
   if (!columns.length) return null;
   // Only the columns that hold the aliyah picked.
   const shown = focus
@@ -192,15 +190,6 @@ export function ScrollPages({
             Columns {columns[0].n}–{columns[columns.length - 1].n} of 245, line
             for line as in the Sefer Torah (42 lines a column).
           </p>
-          <label className="flex cursor-pointer items-center gap-2 font-medium text-stone-800">
-            <input
-              type="checkbox"
-              checked={tikkun}
-              onChange={(e) => setTikkun(e.target.checked)}
-              className="size-4 accent-amber-700"
-            />
-            Vowels beside (tikkun)
-          </label>
         </div>
         {shown.map((c) => (
           <section key={c.n} aria-label={`Column ${c.n}`}>
@@ -208,7 +197,7 @@ export function ScrollPages({
               Column {c.n}
             </div>
             {/* Zoom makes the whole page bigger, exactly as it is (scroll sideways if it gets wider than the screen). */}
-            <div className="overflow-x-auto pt-3">
+            <div className={tikkun && zoom !== 1 ? "pt-3" : "overflow-x-auto pt-3"}>
               {/* Sized by width, not CSS zoom: the letters are measured in container units (cqw),
                   so a wider column makes everything bigger exactly as it is, in every browser. */}
               <div
@@ -217,7 +206,12 @@ export function ScrollPages({
                   zoom === 1
                     ? undefined
                     : tikkun
-                      ? { width: `${zoom * 100}%`, minWidth: `${zoom * 100}%` }
+                      ? // Both sides grow together, centred on the screen (up to the screen's width).
+                        {
+                          width: `min(calc(100vw - 2rem), ${zoom * 100}%)`,
+                          marginLeft: `calc((100% - min(calc(100vw - 2rem), ${zoom * 100}%)) / 2)`,
+                          marginRight: 0,
+                        }
                       : { maxWidth: `${36 * zoom}rem` }
                 }
               >

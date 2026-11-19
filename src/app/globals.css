@@ -117,3 +117,16 @@ html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
     stroke-dashoffset: 0;
   }
 }
+
+/* Tevir with a vowel under the same letter: the Tevir is drawn just to the left of the letter
+   (a copy of the letter, clipped so only the Tevir below the line shows). */
+.tevir-shift {
+  position: relative;
+}
+.tevir-mark {
+  position: absolute;
+  top: 0;
+  right: 0.16em;
+  clip-path: inset(72% 0 0 0);
+  pointer-events: none;
+}
