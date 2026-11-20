@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useQuestions } from "@/lib/question-settings";
 import { useAuth } from "@/lib/auth";
 import { openLetters, sameSound, type Letter } from "@/data/beginner";
 import { beginnerRecording } from "@/data/beginner-recordings";
@@ -286,7 +287,9 @@ export function LetterTrainer() {
   const [done, setDone] = useState(false);
   const key = lettersKey(open.length);
   const newest = open[open.length - 1];
-  const total = Math.max(MIN_ROUND, open.length * PER_LETTER);
+  // The teacher can set how many questions (src/lib/question-settings.ts); otherwise 5 per letter.
+  const qset = useQuestions("letters");
+  const total = qset?.n ?? Math.max(MIN_ROUND, open.length * PER_LETTER);
   const [saved, setSaved] = useState<{ i: number } | null>(null);
   useEffect(() => {
     const r = loadRound(user, open.length, open);
@@ -296,7 +299,12 @@ export function LetterTrainer() {
   const start = (resume = false) => {
     unlockAudio();
     const r = resume ? loadRound(user, open.length, open) : null;
-    const qs = r?.qs ?? makeRound(open);
+    let qs = r?.qs;
+    if (!qs) {
+      qs = makeRound(open);
+      while (qs.length < total) qs = [...qs, ...makeRound(open)];
+      qs = qs.slice(0, total);
+    }
     setRound(qs);
     setI(r?.i ?? 0);
     setScore(r?.score ?? 0);

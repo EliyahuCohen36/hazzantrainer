@@ -11,6 +11,7 @@ import { WORD_STAGES } from "@/data/beginner-words";
 import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 import { Gradebook } from "@/components/teacher/Gradebook";
 import { GradeRecordings } from "@/components/teacher/GradeRecordings";
+import { QuestionSettings } from "@/components/teacher/QuestionSettings";
 import { CLASS_SECTIONS } from "@/components/auth/AuthGate";
 
 interface Klass {
@@ -24,6 +25,8 @@ interface Klass {
   /** supabase/accounts.sql: */
   script_open?: boolean;
   sections?: string[] | null;
+  /** supabase/questions.sql: */
+  questions?: Record<string, { n: number; pass: number }> | null;
 }
 interface Member {
   class_id: string;
@@ -253,8 +256,9 @@ export default function TeacherPage() {
       return q;
     };
     const base = "id, name, code, teacher_id, unlocked_level, beginner_level, letters_open";
-    let { data: cls, error } = await pick(`${base}, script_open, sections`);
-    // Before supabase/accounts.sql is run, those two columns don't exist yet.
+    let { data: cls, error } = await pick(`${base}, script_open, sections, questions`);
+    // Before supabase/questions.sql / accounts.sql are run, those columns don't exist yet.
+    if (error) ({ data: cls, error } = await pick(`${base}, script_open, sections`));
     if (error) ({ data: cls, error } = await pick(base));
     if (error) return setError(error.message);
     setClasses((cls as unknown as Klass[]) ?? []);
@@ -337,7 +341,7 @@ export default function TeacherPage() {
   const patchClass = async (id: string, patch: Partial<Klass>) => {
     setClasses((cs) => cs.map((c) => (c.id === id ? { ...c, ...patch } : c)));
     const { error } = await supabase().from("classes").update(patch).eq("id", id);
-    if (error) setError(/column/i.test(error.message) ? "Ask the site owner to run supabase/accounts.sql first." : error.message);
+    if (error) setError(/column/i.test(error.message) ? "Ask the site owner to run the newest database file (supabase/questions.sql) first." : error.message);
   };
 
   const changeCode = async (c: Klass) => {
@@ -517,6 +521,9 @@ export default function TeacherPage() {
                 >
                   {grades === c.id ? "Hide grades" : "Grades"}
                 </button>
+              </div>
+              <div className="mt-2 px-3">
+                <QuestionSettings value={c.questions} onSave={(q) => patchClass(c.id, { questions: q })} />
               </div>
               {grades === c.id && (
                 <Gradebook

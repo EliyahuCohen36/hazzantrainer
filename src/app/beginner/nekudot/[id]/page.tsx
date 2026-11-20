@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LETTERS, NEKUDOT, SOFIT_WITH_NEKUDA, spell, withNekuda, nekudaLevel } from "@/data/beginner";
+import { NEKUDOT, nekudaLevel } from "@/data/beginner";
 import { BeginnerLock } from "@/components/beginner/Lock";
 import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
-import { Tile } from "@/components/beginner/Tile";
+import { NekudaLetters } from "@/components/beginner/NekudaLetters";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 
 export function generateStaticParams() {
@@ -26,7 +26,6 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
   const n = NEKUDOT[i];
   const prev = NEKUDOT[i - 1];
   const next = NEKUDOT[i + 1];
-  const sofit = SOFIT_WITH_NEKUDA.filter((s) => s.nekuda === n.id);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
@@ -65,23 +64,8 @@ export default async function NekudaPage({ params }: { params: Promise<{ id: str
         <SpeedControl compact />
       </div>
 
-      <div dir="rtl" className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
-        {LETTERS.map((l) => {
-          const g = withNekuda(l, n);
-          return g ? <Tile key={l.id} glyph={g} label={spell(l, n)} sub={l.name} color={n.color} rec={`sound:${l.id}:${n.id}`} /> : null;
-        })}
-      </div>
+      <NekudaLetters id={n.id} />
 
-      {sofit.length > 0 && (
-        <section className="mt-8">
-          <h2 className="mb-2 text-lg font-semibold text-stone-800">At the end of a word</h2>
-          <div dir="rtl" className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-7">
-            {sofit.map((s) => (
-              <Tile key={s.text} glyph={s.text} label={s.sound} sub="Khaf Sofit" color={n.color} rec={`sound:${s.sofit}:${n.id}`} />
-            ))}
-          </div>
-        </section>
-      )}
         {nekudaLevel(n.id) <= 10 && (
           <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center">
             <Link href="/beginner/words/" className="text-lg font-semibold text-amber-900 underline">

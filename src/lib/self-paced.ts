@@ -18,7 +18,8 @@ export function selfPacedLevels(practice: Record<string, number>) {
   if (LETTER_LESSONS.every((l) => (practice[learnKey(l.id)] ?? 0) >= LEARN_PASS)) {
     beginner = 5;
     for (const g of NEKUDA_GROUPS) {
-      if ((practice[`beginner-nekudot:${g}`] ?? 0) >= PASS) beginner++;
+      // Passed with the level's pass mark (25 of 35), or 80% from before.
+      if ((practice[`beginner-nekudot:${g}:passed`] ?? 0) >= 100 || (practice[`beginner-nekudot:${g}`] ?? 0) >= PASS) beginner++;
       else break;
     }
     if (beginner > 10) beginner = 99;

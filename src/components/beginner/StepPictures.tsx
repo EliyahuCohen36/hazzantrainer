@@ -2,7 +2,7 @@
  * A colour and a small picture for each of the 10 Beginner Keriah steps (owner's request, Nov 2026).
  * Pictures are drawn here (SVG), so they look the same everywhere and need no image files.
  */
-export const STEP_COLORS = [
+const ALL_COLORS = [
   { card: "border-rose-200 bg-rose-50 hover:border-rose-400", label: "text-rose-700", he: "text-rose-800", main: "#e11d48", soft: "#ffe4e6" },
   { card: "border-orange-200 bg-orange-50 hover:border-orange-400", label: "text-orange-700", he: "text-orange-800", main: "#ea580c", soft: "#ffedd5" },
   { card: "border-amber-200 bg-amber-50 hover:border-amber-400", label: "text-amber-700", he: "text-amber-800", main: "#d97706", soft: "#fef3c7" },
@@ -15,11 +15,15 @@ export const STEP_COLORS = [
   { card: "border-fuchsia-200 bg-fuchsia-50 hover:border-fuchsia-400", label: "text-fuchsia-700", he: "text-fuchsia-800", main: "#c026d3", soft: "#fae8ff" },
 ];
 
+/** The steps' pictures in order (the old step 4 "Letters with Nekudot" is now a tab in the Nekudot step). */
+const ORDER = [0, 1, 2, 4, 5, 6, 7, 8, 9];
+export const STEP_COLORS = ORDER.map((k) => ALL_COLORS[k]);
+
 const HEB = { fontFamily: "var(--font-hebrew), 'Noto Serif Hebrew', serif" } as const;
 const LAT = { fontFamily: "ui-sans-serif, system-ui, sans-serif", fontWeight: 700 } as const;
 
 function Pic({ i }: { i: number }) {
-  const { main, soft } = STEP_COLORS[i];
+  const { main, soft } = ALL_COLORS[i];
   switch (i) {
     case 0: // The Alef-Bet: three letter blocks
       return (
@@ -178,7 +182,7 @@ function Pic({ i }: { i: number }) {
 export function StepPicture({ i, className = "size-20" }: { i: number; className?: string }) {
   return (
     <svg viewBox="0 0 96 72" className={className} aria-hidden data-no-translate role="presentation">
-      <Pic i={i % STEP_COLORS.length} />
+      <Pic i={ORDER[i % ORDER.length]} />
     </svg>
   );
 }

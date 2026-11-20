@@ -8,13 +8,13 @@ export const metadata: Metadata = { title: "Qamats Katan · Beginner Keriah" };
 
 const FIRST = SHEVA_STAGES.find((s) => s.part === "katan")!.level;
 
-/** Step 7: the Qamats Katan. */
+/** Step 6: the Qamats Katan. */
 export default function Page() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <BeginnerNav here="Qamats Katan" />
       <div className="mt-1 mb-2 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="text-3xl font-semibold text-stone-900">Step 7: Qamats Katan</h1>
+        <h1 className="text-3xl font-semibold text-stone-900">Step 6: Qamats Katan</h1>
         <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
           קָמָץ קָטָן
         </span>

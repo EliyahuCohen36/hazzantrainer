@@ -6,6 +6,8 @@ import { NEKUDOT, openLetters, withNekuda, nekudaLevel, type Letter, type Nekuda
 import { soundOf, syllableRecordings } from "@/data/beginner-recordings";
 import { joinedWordUrl } from "@/lib/audio/join-syllables";
 import { playUrls, unlockAudio } from "@/lib/audio/player";
+import { ReviewTab, WhatToDo } from "./LessonIntro";
+import { useQuestions } from "@/lib/question-settings";
 import { loadProgress, recordPractice, recordQuiz, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { shuffle } from "./WordQuestion";
@@ -68,10 +70,8 @@ interface Question {
   item: Item;
   options: Item[];
 }
-const PER_LETTER = 5;
 
-function makeRound(targets: Item[], all: Item[], letterCount: number): Question[] {
-  const total = Math.max(10, Math.min(130, letterCount * PER_LETTER));
+function makeRound(targets: Item[], all: Item[], total: number): Question[] {
   // Spread: one short sound (בָּ) for every long one (אָב), all different until used up.
   const singles = shuffle(targets.filter((t) => !t.end));
   const doubles = shuffle(targets.filter((t) => t.end));
@@ -249,7 +249,7 @@ function useBest() {
   return best;
 }
 
-export function NekudaTrainer({ group }: { group: NekudaGroup }) {
+export function NekudaTrainer({ group, intro }: { group: NekudaGroup; intro?: React.ReactNode }) {
   const { beginnerLevel, lettersOpen, profile } = useAuth();
   const user = profile?.id ?? "guest";
   const letters = useMemo(() => openLetters(lettersOpen, beginnerLevel), [lettersOpen, beginnerLevel]);
@@ -264,10 +264,13 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
-  const total = Math.max(10, Math.min(130, letters.length * PER_LETTER));
+  // 35 questions, 25 right to finish (owner, Nov 20); the teacher can change both.
+  const qset = useQuestions("nekudot")!;
+  const total = qset.n;
+  const pass = qset.pass;
 
   // A round in progress is kept in the browser (stop and carry on later).
-  const saveKey = `kriah-nekuda-run:${user}:${group.id}:${letters.length}`;
+  const saveKey = `kriah-nekuda-run:${user}:${group.id}:${letters.length}:${total}`;
   const byKey = useMemo(() => new Map(all.map((it) => [it.key, it])), [all]);
   const [saved, setSaved] = useState<number | null>(null);
   const save = (qs: Question[] | null, at = 0, sc = 0) => {
@@ -300,7 +303,7 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
   const start = (resume = false) => {
     unlockAudio();
     const r = resume ? load() : null;
-    const qs = r?.qs ?? makeRound(targets, all, letters.length);
+    const qs = r?.qs ?? makeRound(targets, all, total);
     setRound(qs);
     setI(r?.i ?? 0);
     setScore(r?.score ?? 0);
@@ -325,12 +328,15 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
           This practice starts when your teacher has opened a few more letters.
         </p>
       ) : !round ? (
-        <div className="mt-5 rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-stone-700">
-            {total} questions: hear a sound and find it, or read it and pick the sound. Short sounds like{" "}
-            <Heb t={targets.find((t) => !t.end)?.text ?? ""} size="text-2xl" /> and longer ones like{" "}
-            <Heb t={targets.find((t) => t.end)?.text ?? ""} size="text-2xl" />.
-          </p>
+        <div className="mt-5 space-y-4">
+        {intro}
+        <WhatToDo>
+          {total} questions. Some questions: <b>hear a sound</b> (press 🔊) and tap the one you heard. Other questions:{" "}
+          <b>read</b> what is written and pick the sound it makes. Short sounds like{" "}
+          <Heb t={targets.find((t) => !t.end)?.text ?? ""} size="text-2xl" /> and longer ones like{" "}
+          <Heb t={targets.find((t) => t.end)?.text ?? ""} size="text-2xl" />. Get <b>{pass}</b> right to finish this level.
+        </WhatToDo>
+        <div className="rounded-3xl border border-stone-200 bg-white p-6 text-center shadow-sm">
           {best[key] !== undefined && <p className="mt-1 text-sm text-amber-700">Best: {best[key]}%</p>}
           <div className="mt-4 flex flex-wrap justify-center gap-3">
             {saved !== null && (
@@ -343,9 +349,10 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
               onClick={() => start(false)}
               className={`rounded-xl px-6 py-3 text-lg font-semibold ${saved !== null ? "border border-stone-300 bg-white text-stone-800 hover:bg-stone-50" : "bg-amber-700 text-white hover:bg-amber-800"}`}
             >
-              {saved !== null ? "Start again" : "Start ▶"}
+              {saved !== null ? "Start again" : "Start the questions ▶"}
             </button>
           </div>
+        </div>
         </div>
       ) : done ? (
         <div className="mt-5 rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center">
@@ -353,12 +360,17 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
           <p className="mt-2 text-2xl font-semibold text-stone-900">
             {score} of {round.length} right
           </p>
+          <p className="mt-1 text-stone-700">
+            {score >= pass ? "You finished this level! The next one is open. 🎉" : `You need ${pass} right to finish this level. Try again!`}
+          </p>
           <button type="button" onClick={() => start(false)} className="mt-4 rounded-xl bg-amber-700 px-6 py-3 font-semibold text-white hover:bg-amber-800">
             Again
           </button>
         </div>
       ) : (
-        <div className="mt-5 rounded-3xl border border-stone-200 bg-white p-6 text-center shadow-sm">
+        <div className="mt-5">
+        {intro && <ReviewTab>{intro}</ReviewTab>}
+        <div className="rounded-3xl border border-stone-200 bg-white p-6 text-center shadow-sm">
           <div className="flex items-center justify-between text-sm text-stone-500">
             <span>
               Question {i + 1} of {round.length}
@@ -388,6 +400,7 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
               setScore(s);
               if (i + 1 >= round.length) {
                 recordPractice(key, Math.round((100 * s) / round.length));
+                if (s >= pass) recordPractice(`${key}:passed`, 100);
                 save(null);
                 setSaved(null);
                 setDone(true);
@@ -397,6 +410,7 @@ export function NekudaTrainer({ group }: { group: NekudaGroup }) {
               }
             }}
           />
+        </div>
         </div>
       )}
     </div>

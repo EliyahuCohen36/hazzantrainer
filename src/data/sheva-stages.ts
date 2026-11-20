@@ -1,9 +1,9 @@
 /**
  * Beginner Keriah reading-rule steps, in the owner's order (Nov 2026):
- *  Step 6  The Sheva, two tabs: Sheva Nach (after the short vowels, תנועות קטנות) and Sheva Na
- *          (after the long vowels, תנועות גדולות), then mixed steps.
- *  Step 7  Qamats Katan.   Step 8  Patah Genuva.   Step 9  Dagesh Kal and Dagesh Hazaq.
- *  Step 10 The four kinds of He.
+ *  Step 5  The Sheva, two tabs: Sheva Nach (first the sounds, then after the short vowels, תנועות קטנות)
+ *          and Sheva Na (first the sounds, then after the long vowels, תנועות גדולות), then mixed steps.
+ *  Step 6  Qamats Katan.   Step 7  Patah Genuva.   Step 8  Dagesh Kal and Dagesh Hazaq.
+ *  Step 9  The four kinds of He.
  * Each stage is its own Beginner level (the teacher opens it; self-paced accounts open it by
  * passing the one before), and a child must pass the stage before it.
  * Words: src/data/sheva-words.json (scripts/sheva-words/build.py).
@@ -26,6 +26,8 @@ export interface ShevaStage {
   choices?: string[];
   /** Which wrong readings to offer (default the other way of the Sheva / Qamats: "x"). */
   wrong?: ("x" | "y")[];
+  /** "nach" / "na": a listening level: hear the Hazzan say a letter with a Sheva, tap that letter (15 questions). */
+  sounds?: "nach" | "na";
 }
 
 /** What the choice buttons say. */
@@ -39,6 +41,7 @@ export const CHOICE_LABELS: Record<string, { en: string; he: string }> = {
 };
 
 const S: Omit<ShevaStage, "level">[] = [
+  { id: "nach-sounds", part: "nach", sounds: "nach", title: "The sound of a Sheva Nach", he: "הַקּוֹל שֶׁל שְׁוָא נָח", from: [], rule: "A Sheva Nach is silent: the letter says only its own sound, with no vowel after it. בְ says just \"b\", מְ says just \"m\". Tap each letter to hear it." },
   { id: "nach-patah", part: "nach", title: "Sheva Nach after a Patah", he: "שווא נח אחרי פתח", from: ["nach-patah"], rule: "After a Patah (a short vowel), the Sheva is Nach: silent. It closes the syllable: נַשְׁ-קֶה = nash-qe." },
   { id: "nach-segol", part: "nach", title: "Sheva Nach after a Segol", he: "שווא נח אחרי סגול", from: ["nach-segol"], rule: "After a Segol, the Sheva is Nach: נֶחְ-מָד = neḥ-mad." },
   { id: "nach-hiriq", part: "nach", title: "Sheva Nach after a Hiriq (no Yod)", he: "שווא נח אחרי חירק חסר", from: ["nach-hiriq"], rule: "After a Hiriq without a Yod (Hiriq Haser), the Sheva is Nach: לִשְׁ-חֹט = lish-ḥoṭ." },
@@ -47,6 +50,7 @@ const S: Omit<ShevaStage, "level">[] = [
   { id: "nach-all", part: "nach", title: "Sheva Nach: all the short vowels", he: "שווא נח: תנועות קטנות", from: ["nach-patah", "nach-segol", "nach-hiriq", "nach-katan", "nach-qibbus"], rule: "The short vowels (תנועות קטנות) are Patah, Segol, Hiriq Haser, Qamats Katan and Qibbus. After any of them, the Sheva is Nach." },
   { id: "nach-u", part: "nach", title: "Sheva Nach after וּ at the start", he: "שווא נח אחרי וּ בתחילת מילה", from: ["nach-u"], rule: "When a word starts with וּ (Shuruq), the Sheva after it is Nach: וּשְׁ-פָ-טוּם = ush-fa-ṭum." },
   { id: "end", part: "nach", title: "Shevas at the end of a word", he: "שווא בסוף מילה", from: ["end"], rule: "A Sheva on the last letter is Nach, and so are two Shevas at the end of a word: אָבִיךְ = a-vikh." },
+  { id: "na-sounds", part: "na", sounds: "na", title: "The sound of a Sheva Na", he: "הַקּוֹל שֶׁל שְׁוָא נָע", from: [], rule: "A Sheva Na says a short \"e\", the same sound as a Tsere or a Segol: בְ says \"be\", מְ says \"me\". A Sheva Na is never under א ה ח ע (they take a Hataf instead). Tap each letter to hear it." },
   { id: "na-qamats", part: "na", title: "Sheva Na after a Qamats", he: "שווא נע אחרי קמץ", from: ["na-qamats"], rule: "After a Qamats (a long vowel, with a ma'amid under it), the Sheva is Na: say a short \"e\": גָּֽ-בְ-רוּ = ga-ve-ru." },
   { id: "na-tsere", part: "na", title: "Sheva Na after a Tsere", he: "שווא נע אחרי צירי", from: ["na-tsere"], rule: "After a Tsere, the Sheva is Na: יֵ-שְׁ-בוּ = ye-she-vu." },
   { id: "na-hiriq", part: "na", title: "Sheva Na after a Hiriq Male", he: "שווא נע אחרי חירק מלא", from: ["na-hiriq"], rule: "After a Hiriq with a Yod (Hiriq Male), the Sheva is Na: תִּי-רְ-אוּ = ti-re-u." },
@@ -78,8 +82,9 @@ const S: Omit<ShevaStage, "level">[] = [
 
 export const SHEVA_FIRST_LEVEL = 12;
 export const SHEVA_STAGES: ShevaStage[] = S.map((s, i) => ({ ...s, level: SHEVA_FIRST_LEVEL + i }));
-export const SHEVA_QUESTIONS = 50;
-export const SHEVA_PASS = 40;
+/** Listening levels: 15 questions (owner), 12 right. Other levels: src/lib/question-settings.ts. */
+export const SOUND_QUESTIONS = 15;
+export const SOUND_PASS = 12;
 export const shevaStageKey = (id: string) => `beginner-sheva:${id}`;
 export const PART_TITLES: Record<StagePart, string> = {
   nach: "Sheva Nach rules",

@@ -1,90 +1,89 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NEKUDOT, LETTER_BY_ID, withNekuda, nekudaLevel } from "@/data/beginner";
+import { CHART_LEVEL, LETTER_BY_ID, NEKUDOT, withNekuda } from "@/data/beginner";
 import { BeginnerLock, LockTile } from "@/components/beginner/Lock";
 import { NEKUDA_GROUPS, groupLevel } from "@/data/nekuda-groups";
 import { BeginnerNav } from "@/components/beginner/BeginnerNav";
-import { Tile } from "@/components/beginner/Tile";
+import { NekudotStep } from "@/components/beginner/NekudotStep";
+import { FullChart } from "@/components/beginner/FullChart";
 
 export const metadata: Metadata = { title: "The Nekudot · Beginner Keriah" };
 
-const GROUPS = [
-  { sound: "a", ids: ["qamats", "patah"] },
-  { sound: "e", ids: ["sere", "segol"] },
-  { sound: "i", ids: ["hireq", "hireq-male"] },
-  { sound: "o", ids: ["holem", "holem-male"] },
-  { sound: "u", ids: ["qibbus", "shuruq"] },
-  { sound: "Short sounds (hataf)", ids: ["hataf-patah", "hataf-segol", "hataf-qamats"] },
-];
-
-/** The nekudot, grouped by the sound they make, each shown on Bet (or Alef for the hataf ones). */
+/**
+ * Step 3: the Nekudot. The practice levels come first; each level shows its own nekudot with every
+ * letter when it opens. The whole chart (the old step 4) is the second tab (owner, Nov 20).
+ */
 export default function NekudotPage() {
   const bet = LETTER_BY_ID.get("bet")!;
   const alef = LETTER_BY_ID.get("alef")!;
+  const sample = (ids: string[]) =>
+    ids
+      .map((id) => {
+        const n = NEKUDOT.find((x) => x.id === id)!;
+        return withNekuda(id.startsWith("hataf") ? alef : bet, n);
+      })
+      .join(" ");
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
+    <main className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
       <BeginnerNav here="The Nekudot" />
-      <div className="mt-1 mb-5 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="text-3xl font-semibold text-stone-900">The Nekudot</h1>
+      <div className="mt-1 mb-2 flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="text-3xl font-semibold text-stone-900">Step 3: The Nekudot</h1>
         <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
           נְקוּדוֹת
         </span>
       </div>
-      <p className="mb-6 text-stone-600">
-        Nekudot are the dots and lines that tell us how to say a letter. Two nekudot can make the same sound: Qamats and
-        Patah both say &ldquo;a&rdquo;. Tap a nekuda to see it with every letter.
+      <p className="mb-5 text-stone-600">
+        Nekudot are the dots and lines that tell us how to say a letter. Open a level to see its nekudot with every letter,
+        then practice.
       </p>
 
       <BeginnerLock need={5}>
-      <div className="space-y-6">
-        {GROUPS.map((g) => (
-          <section key={g.sound}>
-            <h2 className="mb-2 text-lg font-semibold text-stone-800">
-              {g.sound.length === 1 ? <>Say &ldquo;{g.sound}&rdquo;</> : g.sound}
-            </h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {g.ids.map((id) => {
-                const n = NEKUDOT.find((x) => x.id === id)!;
-                const glyph = withNekuda(id.startsWith("hataf") ? alef : bet, n)!;
-                return (
-                  <LockTile key={id} need={nekudaLevel(id)}>
-                    <Link href={`/beginner/nekudot/${id}/`} className="block">
-                      <Tile glyph={glyph} label={n.name} sub={n.he} color={n.color} still />
+        <NekudotStep
+          levels={
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {NEKUDA_GROUPS.map((g, k) => (
+                <li key={g.id}>
+                  <LockTile need={g.id === "all" ? CHART_LEVEL : groupLevel(g)}>
+                    <Link
+                      href={`/beginner/nekudot/practice/${g.id}/`}
+                      className="flex items-center gap-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50 px-4 py-3 hover:bg-emerald-100"
+                    >
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white">
+                        {k + 1}
+                      </span>
+                      <span className="flex-1">
+                        <span className="block font-semibold text-stone-900">{g.title}</span>
+                        <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
+                          {g.id === "all" ? g.he : sample(g.nekudot)}
+                        </span>
+                      </span>
+                      <span className="text-sm font-semibold text-emerald-800">Open →</span>
                     </Link>
                   </LockTile>
-                );
-              })}
+                </li>
+              ))}
+            </ol>
+          }
+          chart={
+            <div>
+              <p className="mb-3 text-stone-600">
+                Read each row from right to left. An empty box means that letter doesn&apos;t take that nekuda. Final letters
+                never take a nekuda, except Khaf Sofit with a Qamats (ךָ).
+              </p>
+              <BeginnerLock need={CHART_LEVEL}>
+                <FullChart />
+              </BeginnerLock>
             </div>
-          </section>
-        ))}
-      </div>
+          }
+        />
       </BeginnerLock>
-
-      <section className="mt-10">
-        <h2 className="mb-2 text-xl font-semibold text-stone-900">⭐ Practice the nekudot</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {NEKUDA_GROUPS.map((g) => (
-            <LockTile key={g.id} need={g.id === "all" ? 11 : groupLevel(g)}>
-              <Link
-                href={`/beginner/nekudot/practice/${g.id}/`}
-                className="flex items-center justify-between rounded-2xl border-2 border-emerald-200 bg-emerald-50 px-4 py-3 hover:bg-emerald-100"
-              >
-                <span className="font-semibold text-stone-900">{g.title}</span>
-                <span dir="rtl" lang="he" className="font-hebrew text-lg text-amber-800">
-                  {g.he}
-                </span>
-              </Link>
-            </LockTile>
-          ))}
-        </div>
-      </section>
 
       <div className="mt-10 flex justify-between">
         <Link href="/beginner/letters/" className="rounded-xl border border-stone-300 bg-white px-5 py-3 font-semibold text-stone-800 hover:bg-stone-50">
           ← The Alef-Bet
         </Link>
-        <Link href="/beginner/chart/" className="rounded-xl bg-amber-700 px-5 py-3 font-semibold text-white hover:bg-amber-800">
-          Every letter with every nekuda →
+        <Link href="/beginner/words/" className="rounded-xl bg-amber-700 px-5 py-3 font-semibold text-white hover:bg-amber-800">
+          Practice words →
         </Link>
       </div>
     </main>

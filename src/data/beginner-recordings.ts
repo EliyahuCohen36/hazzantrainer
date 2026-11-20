@@ -213,6 +213,8 @@ export const SAME_SOUND: Record<string, string> = {
   "hataf-patah": "qamats",
   "hataf-segol": "sere",
   "hataf-qamats": "holem",
+  // A Sheva Na sounds like a Tsere / Segol (owner): בְ = "be".
+  "sheva-na": "sere",
 };
 
 function fileFor(key: string): string | undefined {
@@ -221,6 +223,7 @@ function fileFor(key: string): string | undefined {
   const a = raw?.replace(/-sofit$/, "");
   if (kind === "letter") return `letter-${a}`;
   if (kind === "nekuda") return `nekuda-${a}`;
+  if (kind === "alone") return `${a}-alone`; // the letter's sound alone (= with a Sheva Nach)
   if (kind === "sound") return `${a}-${SAME_SOUND[b] ?? b}`;
   return undefined;
 }

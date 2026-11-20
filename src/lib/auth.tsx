@@ -33,6 +33,8 @@ interface AuthState {
   scriptOpen: boolean;
   /** Sections the teacher lets this class use (null = everything). */
   sections: string[] | null;
+  /** The teacher's question counts per Beginner Keriah step (src/lib/question-settings.ts). */
+  questions: Record<string, { n: number; pass: number }> | null;
   /** Personal subscribers (and free testers): each level opens when the one before is finished. */
   selfPaced: boolean;
   refresh: () => Promise<void>;
@@ -49,6 +51,7 @@ const AuthContext = createContext<AuthState>({
   lettersOpen: 1,
   scriptOpen: false,
   sections: null,
+  questions: null,
   selfPaced: false,
   refresh: async () => {},
   signOut: async () => {},
@@ -64,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [lettersOpen, setLettersOpen] = useState(1);
   const [scriptOpen, setScriptOpen] = useState(false);
   const [sections, setSections] = useState<string[] | null>(null);
+  const [questions, setQuestions] = useState<Record<string, { n: number; pass: number }> | null>(null);
 
   const load = useCallback(async (s: Session | null) => {
     setSession(s);
@@ -106,7 +110,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       ({ p, ok, lvl, blvl, lopen, cs } = c);
     }
-    const settings = (cs ?? {}) as { script_open?: boolean; sections?: string[] | null };
+    const settings = (cs ?? {}) as {
+      script_open?: boolean;
+      sections?: string[] | null;
+      questions?: Record<string, { n: number; pass: number }> | null;
+    };
+    setQuestions(settings.questions ?? null);
     setScriptOpen(!!settings.script_open);
     setSections(settings.sections ?? null);
     setBeginnerLevel(typeof blvl === "number" ? blvl : 1);
@@ -170,6 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lettersOpen: paced?.lettersOpen ?? lettersOpen,
         scriptOpen,
         sections,
+        questions,
         selfPaced: profile?.role === "family",
         refresh,
         signOut,

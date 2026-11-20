@@ -133,10 +133,9 @@ export const SOFIT_WITH_NEKUDA: { sofit: string; nekuda: string; text: string; s
 export const BEGINNER_STEPS = [
   { href: "/beginner/letters/", title: "The Alef-Bet", he: "אָלֶף בֵּית", text: "Every letter, its name and its sound.", emoji: "🔤" },
   { href: "/beginner/letters/#sofiyot", title: "Final letters", he: "סוֹפִיּוֹת", text: "The five letters that look different at the end of a word.", emoji: "🔚" },
-  { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u.", emoji: "•" },
-  { href: "/beginner/chart/", title: "Letters with Nekudot", he: "לוּחַ", text: "Every letter with every nekuda, to read one by one.", emoji: "📋" },
+  { href: "/beginner/nekudot/", title: "The Nekudot", he: "נְקוּדוֹת", text: "The dots and lines that make the sounds a, e, i, o, u, and every letter with every nekuda.", emoji: "•" },
   { href: "/beginner/words/", title: "Practice words", he: "מִלִּים", text: "Read real Torah words with the nekudot you know, and get stars.", emoji: "⭐" },
-  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Nach and Sheva Na: two tabs, one for each, once all the letters and nekudot are learned.", emoji: "⁚" },
+  { href: "/beginner/sheva/", title: "The Sheva", he: "שְׁוָא", text: "Sheva Nach and Sheva Na: once all the letters and nekudot are learned.", emoji: "⁚" },
   { href: "/beginner/qamats-katan/", title: "Qamats Katan", he: "קָמָץ קָטָן", text: "When the Qamats says \"o\".", emoji: "ׇ" },
   { href: "/beginner/patah-genuva/", title: "Patah Genuva", he: "פַּתַח גְּנוּבָה", text: "A Patah at the end of a word that is said before its letter.", emoji: "ַ" },
   { href: "/beginner/dagesh/", title: "Dagesh Kal and Dagesh Hazaq", he: "דָּגֵשׁ", text: "The soft dot and the strong dot.", emoji: "ּ" },
@@ -190,7 +189,7 @@ export const BEGINNER_LEVELS: BeginnerLevel[] = [
   { n: 8, title: "Holem: \"o\"", he: "חוֹלֶם", nekudot: ["holem", "holem-male"], href: "/beginner/nekudot/" },
   { n: 9, title: "Qibbus and Shuruq: \"u\"", he: "קִבּוּץ שׁוּרֶק", nekudot: ["qibbus", "shuruq"], href: "/beginner/nekudot/" },
   { n: 10, title: "Short sounds (hataf)", he: "חֲטָפִים", nekudot: ["hataf-patah", "hataf-segol", "hataf-qamats"], href: "/beginner/nekudot/" },
-  { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/nekudot/" },
+  { n: 11, title: "Everything together", he: "לוּחַ", chart: true, href: "/beginner/nekudot/#chart" },
   // Steps 6–10, one rule per level (src/data/sheva-stages.ts). A level opens its step's page (owner's mapping:
   // 1–3 → step 1, 4 → step 2, 5–11 → step 3, Sheva → step 6, Qamats Katan → 7, Patah Genuva → 8, Dagesh → 9, He → 10).
   ...SHEVA_STAGES.map((st) => ({ n: st.level, title: st.title, he: st.he, href: STEP_OF_PART[st.part] })),

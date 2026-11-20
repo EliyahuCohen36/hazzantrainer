@@ -2,21 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { STAGE_PASS, STAGE_QUESTIONS, WORD_STAGES, sayKey, sayWordKey, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
+import { WORD_STAGES, sayKey, sayWordKey, stageKey, type PracticeWord, type WordStage } from "@/data/beginner-words";
 import { WordQuestion, QUESTION_LABEL, MIC_ON, hasSound, mixedTypes, shuffle, type QuestionType } from "./WordQuestion";
 import { loadProgress, recordPractice, recordQuiz, PROGRESS_EVENT } from "@/lib/audio/taam-practice";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { releaseMic } from "@/lib/audio/word-check";
 
 type Mode = "mixed" | "listen" | "read";
-const PASS_PCT = Math.round((100 * STAGE_PASS) / STAGE_QUESTIONS);
-const stars = (s: number) => (s >= 95 ? 3 : s >= PASS_PCT ? 2 : s >= 50 ? 1 : 0);
+import { useQuestions, passPct } from "@/lib/question-settings";
 
-/** 50 questions from the stage's words (repeating words if there are fewer than 50). */
-function makeQuestions(words: PracticeWord[]): string[] {
+/** n questions from the stage's words (repeating words if there are fewer than n). */
+function makeQuestions(words: PracticeWord[], n: number): string[] {
   const out: string[] = [];
-  while (out.length < STAGE_QUESTIONS && words.length) out.push(...shuffle(words).map((w) => w.w));
-  return out.slice(0, STAGE_QUESTIONS);
+  while (out.length < n && words.length) out.push(...shuffle(words).map((w) => w.w));
+  return out.slice(0, n);
 }
 
 /** A stage in progress, kept in the browser so a child can stop and carry on later. */
@@ -71,7 +70,14 @@ export function WordPractice() {
   const free = profile?.role === "teacher" || profile?.role === "admin";
   const best = useBest();
   useEffect(() => () => releaseMic(), []);
-  const passed = (s: WordStage) => (best[stageKey(s.id)] ?? 0) >= PASS_PCT;
+  // How many questions and how many right (owner, Nov 20): the teacher's setting, or 50/40 for school
+  // students and 25/20 for everyone else.
+  const qset = useQuestions("words")!;
+  const STAGE_QUESTIONS = qset.n;
+  const STAGE_PASS = qset.pass;
+  const PASS_PCT = passPct(qset);
+  const stars = (s: number) => (s >= 95 ? 3 : s >= PASS_PCT ? 2 : s >= 50 ? 1 : 0);
+  const passed = (s: WordStage) => (best[`${stageKey(s.id)}:passed`] ?? 0) >= 100 || (best[stageKey(s.id)] ?? 0) >= PASS_PCT;
   const isOpen = (i: number) =>
     beginnerLevel >= WORD_STAGES[i].level && (free || i === 0 || passed(WORD_STAGES[i - 1]));
 
@@ -92,7 +98,7 @@ export function WordPractice() {
   };
   const start = (m: Mode) => {
     if (!stage) return;
-    const q = makeQuestions(m === "listen" ? listenWords : stage.words);
+    const q = makeQuestions(m === "listen" ? listenWords : stage.words, STAGE_QUESTIONS);
     const words = q.map((w) => byWord.get(w)!);
     const t: QuestionType[] = m === "listen" ? q.map(() => "listen") : m === "read" ? q.map(() => "say") : mixedTypes(words, stage.words);
     const r: Run = { mode: m, q, t, i: 0, right: 0 };
@@ -116,6 +122,7 @@ export function WordPractice() {
     if (r.i >= r.q.length) {
       const score = Math.round((100 * r.right) / r.q.length);
       recordPractice(stageKey(stage.id), score);
+      if (r.right >= Math.min(STAGE_PASS, r.q.length)) recordPractice(`${stageKey(stage.id)}:passed`, 100);
       saveRun(user, stage.id, null);
       setRun(null);
       setDone({ score, right: r.right });

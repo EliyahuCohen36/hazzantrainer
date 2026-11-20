@@ -1,7 +1,7 @@
 "use client";
 
 import { LETTER_LESSONS, LEARN_PASS, learnKey } from "@/data/letter-lessons";
-import { SHEVA_STAGES, shevaStageKey, SHEVA_PASS, SHEVA_QUESTIONS } from "@/data/sheva-stages";
+import { SHEVA_STAGES, shevaStageKey } from "@/data/sheva-stages";
 import { WORD_STAGES } from "@/data/beginner-words";
 import { NEKUDA_GROUPS } from "@/data/nekuda-groups";
 import { TEAMIM_LEVELS } from "@/data/teamim-levels";
@@ -20,7 +20,6 @@ interface Student {
   username: string | null;
 }
 
-const STEP_PASS = Math.round((100 * SHEVA_PASS) / SHEVA_QUESTIONS);
 const letterGrade = (p: number) => (p >= 90 ? "A" : p >= 80 ? "B" : p >= 70 ? "C" : p >= 60 ? "D" : "F");
 
 /** Everything a child's work adds up to, graded automatically from their saved scores. */
@@ -28,11 +27,15 @@ export function gradeStudent(rows: Row[]) {
   const best = new Map(rows.filter((r) => r.kind === "practice").map((r) => [r.key, r.best]));
   const quiz = rows.filter((r) => r.kind === "quiz");
   const letters = LETTER_LESSONS.filter((l) => (best.get(learnKey(l.id)) ?? 0) >= LEARN_PASS).length;
-  const nekudot = NEKUDA_GROUPS.filter((g) => (best.get(`beginner-nekudot:${g.id}`) ?? 0) >= 80).length;
-  const words = WORD_STAGES.filter((s) => (best.get(`beginner-stage:${s.id}`) ?? 0) >= 80).length;
-  const rules = SHEVA_STAGES.filter((s) => (best.get(shevaStageKey(s.id)) ?? 0) >= STEP_PASS).length;
+  // Passed = reached the lesson's pass mark (saved as "<key>:passed"), or 80% from before.
+  const ok = (k: string) => (best.get(`${k}:passed`) ?? 0) >= 100 || (best.get(k) ?? 0) >= 80;
+  const nekudot = NEKUDA_GROUPS.filter((g) => ok(`beginner-nekudot:${g.id}`)).length;
+  const words = WORD_STAGES.filter((s) => ok(`beginner-stage:${s.id}`)).length;
+  const rules = SHEVA_STAGES.filter((s) => ok(shevaStageKey(s.id))).length;
   const teamim = TEAMIM_LEVELS.filter((l) => (best.get(`teamim-level:${l.n}`) ?? 0) >= 100).length;
-  const scores = [...best.entries()].filter(([k]) => !k.startsWith("teamim-level:")).map(([, v]) => v);
+  const scores = [...best.entries()]
+    .filter(([k]) => !k.startsWith("teamim-level:") && !k.endsWith(":passed") && !k.startsWith("learned:") && !k.startsWith("graded:"))
+    .map(([, v]) => v);
   const right = quiz.reduce((a, r) => a + r.right_n, 0);
   const total = quiz.reduce((a, r) => a + r.total_n, 0);
   const all = [...scores, ...(total ? [Math.round((100 * right) / total)] : [])];

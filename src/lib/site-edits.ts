@@ -38,10 +38,34 @@ export interface HomeTab {
   items?: TabItem[];
 }
 
+/** The owner's fix to a Beginner Keriah question word, keyed by "<kind>|<original word>". */
+export interface WordEdit {
+  w?: string;
+  r?: string;
+  x?: string;
+  y?: string;
+  hide?: boolean;
+}
+
+/** A picture the owner added next to some text (SiteEditor "Add a picture"). */
+export interface SitePicture {
+  id: string;
+  /** Page path ("/about/"), the English text it sits next to, and where. */
+  page: string;
+  near: string;
+  where: "before" | "after";
+  url: string;
+  /** Width in % of the column (10–100). */
+  width: number;
+  alt?: string;
+}
+
 export interface SiteEdits {
   /** Keyed by the original English text. */
   text: Record<string, TextEdit>;
   tabs?: HomeTab[];
+  words?: Record<string, WordEdit>;
+  pictures?: SitePicture[];
 }
 
 const CACHE = "kriah-site-edits";
