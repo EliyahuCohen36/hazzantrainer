@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { asset } from "@/lib/base-path";
 import { useLang } from "@/lib/i18n/Translator";
@@ -27,6 +28,10 @@ interface Text {
   plans: string;
   shot1: string;
   shot2: string;
+  tabMe: string;
+  tabSite: string;
+  featuresTitle: string;
+  features: [string, string][];
 }
 
 const T: Record<Lang, Text> = {
@@ -58,7 +63,7 @@ const T: Record<Lang, Text> = {
     startedTitle: "How it started",
     started: [
       "Children learning to read the Torah in our tradition, the tradition of Aram Tsoba (Aleppo), had very little to practice with at home. Most of the apps and recordings out there teach the Ashkenazi tunes, and even call the te'amim by other names: what we call Kadma, they call Pashta.",
-      "So Eliyahu recorded every ta'am himself, in the Syrian melody, and built a trainer around those recordings. Children hear each ta'am exactly the way it's sung in shul, practice it into the microphone, and get stars and a tip every time. Then they read real pesukim, then whole aliyot, and finally a page of the Sefer Torah itself.",
+      "So Eliyahu recorded every ta'am himself, in the Syrian melody, and built a trainer around those recordings. Children hear each ta'am exactly the way it's sung in shul, learn it level by level, and school students record it for their teacher, who gives a grade. Then they read real pesukim, then whole aliyot, and finally a page of the Sefer Torah itself.",
     ],
     diffTitle: "What makes it different",
     diff: [
@@ -82,6 +87,17 @@ const T: Record<Lang, Text> = {
     plans: "See the plans",
     shot1: "The te'amim trainer",
     shot2: "Shirat HaYam in Torah Scroll Mode",
+    tabMe: "About me",
+    tabSite: "What the website does",
+    featuresTitle: "Everything on Keriah Trainer",
+    features: [
+      ["Beginner Keriah", "For first-time readers: the alef-bet (with tracing), the final letters, every nekuda with every letter, practice words, then the Sheva, Qamats Katan, Patah Genuva, Dagesh and the four kinds of He, one level at a time."],
+      ["The te'amim trainer", "Every ta'am in the Syrian melody, one per level, with examples from the Torah. School students record each ta'am for their teacher, who grades it."],
+      ["The whole Tanakh", "Every parasha, aliyah, haftarah and chapter of Nevi'im and Ketuvim, with nikkud, te'amim, the ma'amid and the Sheva Na marked, and a translation under each pasuk."],
+      ["Torah Scroll Mode with a tikkun", "The real columns of a Sefer Torah in Sephardic letters, with the vowelled column beside it, and the five megillot as scrolls."],
+      ["The Siddur", "The whole Siddur Edot HaMizrah, with recordings for many of its parts and the Shabbat tunes in each maqam."],
+      ["For teachers", "Classes with their own codes, levels opened when the class is ready, how many questions each lesson asks, grades worked out automatically, and the te'amim recordings to grade."],
+    ],
   },
   he: {
     kicker: "קריאת התורה · מנהג ארם צובא",
@@ -106,7 +122,7 @@ const T: Record<Lang, Text> = {
     startedTitle: "איך זה התחיל",
     started: [
       "לילדים שלומדים לקרוא בתורה במסורת שלנו, מסורת ארם צובא (חלב), היה מעט מאוד לתרגל איתו בבית. רוב האפליקציות וההקלטות מלמדות את הלחנים האשכנזיים, ואפילו קוראות לטעמים בשמות אחרים: מה שאנחנו קוראים קדמא, הם קוראים פשטא.",
-      "לכן אליהו הקליט בעצמו כל טעם, בלחן הסורי, ובנה סביב ההקלטות האלה מאמן. הילדים שומעים כל טעם בדיוק כפי שהוא מושר בבית הכנסת, מתרגלים אותו מול המיקרופון, ומקבלים כוכבים ועצה בכל פעם. אחר כך הם קוראים פסוקים אמיתיים, אחר כך עליות שלמות, ולבסוף עמוד מספר התורה עצמו.",
+      "לכן אליהו הקליט בעצמו כל טעם, בלחן הסורי, ובנה סביב ההקלטות האלה מאמן. הילדים שומעים כל טעם בדיוק כפי שהוא מושר בבית הכנסת, לומדים אותו שלב אחר שלב, ותלמידי בתי ספר מקליטים אותו למורה שנותן ציון. אחר כך הם קוראים פסוקים אמיתיים, אחר כך עליות שלמות, ולבסוף עמוד מספר התורה עצמו.",
     ],
     diffTitle: "מה מיוחד בזה",
     diff: [
@@ -130,6 +146,17 @@ const T: Record<Lang, Text> = {
     plans: "ראו את המסלולים",
     shot1: "מאמן הטעמים",
     shot2: "שירת הים במצב ספר תורה",
+    tabMe: "עליי",
+    tabSite: "מה יש באתר",
+    featuresTitle: "כל מה שיש בקריאה טריינר",
+    features: [
+      ["קריאה למתחילים", "לקוראים חדשים: האלף־בית (עם עקיבה בכתיבה), האותיות הסופיות, כל ניקוד עם כל אות, מילים לתרגול, ואחר כך השווא, הקמץ הקטן, הפתח הגנובה, הדגש וארבעת סוגי ה״א, שלב אחר שלב."],
+      ["מאמן הטעמים", "כל טעם בלחן הסורי, טעם אחד בכל שלב, עם דוגמאות מהתורה. תלמידי בתי ספר מקליטים כל טעם למורה, שנותן ציון."],
+      ["כל התנ״ך", "כל פרשה, עלייה, הפטרה וכל פרק בנביאים ובכתובים, עם ניקוד, טעמים, מעמיד ושווא נע מסומן, ותרגום מתחת לכל פסוק."],
+      ["מצב ספר תורה עם תיקון", "העמודות האמיתיות של ספר תורה בכתב ספרדי, עם עמודה מנוקדת לידה, וחמש המגילות כמגילות."],
+      ["הסידור", "כל סידור עדות המזרח, עם הקלטות להרבה מחלקיו ולחני שבת בכל מקאם."],
+      ["למורים", "כיתות עם קוד משלהן, שלבים שנפתחים כשהכיתה מוכנה, כמה שאלות שואל כל שיעור, ציונים שמחושבים לבד, והקלטות הטעמים לבדיקה."],
+    ],
   },
   ar: {
     kicker: "קריאת התורה · מנהג ארם צובא",
@@ -154,7 +181,7 @@ const T: Record<Lang, Text> = {
     startedTitle: "كيف بدأ",
     started: [
       "الأطفال الذين يتعلّمون قراءة التوراة حسب تقليدنا، تقليد آرام صوبا (حلب)، لم يكن لديهم ما يتمرّنون به في البيت. معظم التطبيقات والتسجيلات تعلّم الألحان الأشكنازية، بل وتسمّي الطعميم بأسماء أخرى: ما نسمّيه قدما يسمّونه بشطا.",
-      "لذلك سجّل إلياهو بنفسه كل طعم باللحن السوري، وبنى حول هذه التسجيلات مدرّباً. يسمع الأطفال كل طعم تماماً كما يُغنّى في الكنيس، ويتمرّنون عليه أمام الميكروفون، ويحصلون على نجوم ونصيحة في كل مرة. ثم يقرؤون آيات حقيقية، ثم عاليوت كاملة، وأخيراً صفحة من سفر التوراة نفسه.",
+      "لذلك سجّل إلياهو بنفسه كل طعم باللحن السوري، وبنى حول هذه التسجيلات مدرّباً. يسمع الأطفال كل طعم تماماً كما يُغنّى في الكنيس، ويتعلّمونه مستوى بعد مستوى، ويسجّله طلاب المدارس لمعلّمهم الذي يعطيهم علامة. ثم يقرؤون آيات حقيقية، ثم عاليوت كاملة، وأخيراً صفحة من سفر التوراة نفسه.",
     ],
     diffTitle: "ما الذي يميّزه",
     diff: [
@@ -178,6 +205,17 @@ const T: Record<Lang, Text> = {
     plans: "اطّلع على الخطط",
     shot1: "مدرّب الطعميم",
     shot2: "شيرات هايام في وضع سفر التوراة",
+    tabMe: "عنّي",
+    tabSite: "ماذا يقدّم الموقع",
+    featuresTitle: "كل ما في مدرّب القراءة",
+    features: [
+      ["القراءة للمبتدئين", "للقرّاء الجدد: الأبجدية (مع تتبّع الكتابة)، الحروف النهائية، كل حركة مع كل حرف، كلمات للتمرين، ثم الشڤا والقامتس القصير والفتحة المسروقة والداگيش وأنواع الهاء الأربعة، مستوى بعد مستوى."],
+      ["مدرّب الطعاميم", "كل طعم باللحن السوري، طعم واحد في كل مستوى، مع أمثلة من التوراة. يسجّل طلاب المدارس كل طعم لمعلّمهم الذي يعطيهم علامة."],
+      ["التناخ كله", "كل پاراشا وعلياه وهفطارا وكل فصل من الأنبياء والكتب، بالحركات والطعاميم والمعميد والشڤا الناطق مميّزاً، وترجمة تحت كل آية."],
+      ["وضع سفر التوراة مع التيكون", "الأعمدة الحقيقية لسفر التوراة بالخط السفاردي، مع عمود مشكول بجانبها، والمجلّات الخمس كلفائف."],
+      ["السيدور", "سيدور عيدوت هامزراح كاملاً، مع تسجيلات لكثير من أجزائه وألحان السبت في كل مقام."],
+      ["للمعلّمين", "صفوف برموز خاصة بها، مستويات تُفتح عندما يكون الصف جاهزاً، عدد أسئلة كل درس، علامات تُحسب تلقائياً، وتسجيلات الطعاميم للتقييم."],
+    ],
   },
 };
 
@@ -196,6 +234,8 @@ const shot = (name: string, lang: Lang) => `/images/${name}${lang === "en" ? "" 
 export function AboutContent() {
   const { lang } = useLang();
   const t = T[lang];
+  // Two tabs (owner, Nov 20): about Eliyahu, and what the website does.
+  const [tab, setTab] = useState<"me" | "site">("me");
   return (
     // Written out in each language (the translator has nothing left to change).
     <main>
@@ -209,7 +249,28 @@ export function AboutContent() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl space-y-12 px-4 py-12">
+      <section className="mx-auto max-w-3xl px-4 py-8">
+        <div role="tablist" className="mb-8 grid grid-cols-2 gap-2 rounded-2xl bg-stone-100 p-1.5">
+          {(
+            [
+              ["me", t.tabMe],
+              ["site", t.tabSite],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              role="tab"
+              type="button"
+              aria-selected={tab === id}
+              onClick={() => setTab(id)}
+              className={`rounded-xl px-4 py-2.5 text-lg font-semibold ${tab === id ? "bg-white text-amber-900 shadow" : "text-stone-600"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {tab === "me" ? (
+          <div className="space-y-12">
         <div className="grid items-start gap-8 sm:grid-cols-[14rem_1fr]">
           <figure className="mx-auto w-48 sm:w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -239,6 +300,20 @@ export function AboutContent() {
           </div>
         </div>
 
+          </div>
+        ) : (
+          <div className="space-y-12">
+        <div>
+          <h2 className="text-2xl font-semibold text-stone-900">{t.featuresTitle}</h2>
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+            {t.features.map(([h, d]) => (
+              <li key={h} className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
+                <h3 className="font-semibold text-stone-900">{h}</h3>
+                <p className="mt-1 text-sm text-stone-700">{d}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
         <Shot src={shot("teamim-levels", lang)} alt={t.shot1} />
 
         <div>
@@ -268,6 +343,8 @@ export function AboutContent() {
             ))}
           </ul>
         </div>
+          </div>
+        )}
       </section>
       <section className="mx-auto max-w-3xl space-y-8 px-4 pb-12">
         <div className="flex flex-wrap justify-center gap-3">

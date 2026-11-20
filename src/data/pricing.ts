@@ -23,15 +23,15 @@ export const BEGINNER_FEATURES = [
   "Every letter of the alef-bet, with the Hazzan saying its name and sound",
   "Every letter with every nekuda, read in the Syrian way",
   "Practice words from the Torah, one sound at a time, with stars",
-  "The Sheva Na and Sheva Nach, once the nekudot are learned",
+  "The Sheva Na and Sheva Nach, Qamats Katan, Patah Genuva, Dagesh and the four kinds of He",
 ];
 
 export const TORAH_FEATURES = [
-  "All the te'amim, in 8 levels, with the Hazzan's recordings",
-  "Practice: sing into the microphone and get stars",
+  "All the te'amim, one per level, with the Hazzan's recordings",
   "Listening quiz",
-  "The whole Torah with te'amim, every parasha and aliyah",
+  "The whole Tanakh with te'amim: every parasha, aliyah, haftarah and chapter",
   "Torah Scroll Mode, line for line like a tikkun",
+  "The whole Siddur, with the Hazzan's recordings for many of its parts and the Shabbat tunes in each maqam",
   "Slow down any recording without changing the tune",
 ];
 
@@ -39,6 +39,8 @@ export const INDIVIDUAL_FEATURES = [...BEGINNER_FEATURES, ...TORAH_FEATURES];
 
 export const SCHOOL_FEATURES = [
   "Accounts for every student, no email needed",
+  "Everything above, plus the whole Siddur with recordings for many of its parts",
+  "Students record each ta'am and the teacher grades it",
   "Teachers open the levels for each class",
   "See every child's progress in one place",
   "Priced per student per year",

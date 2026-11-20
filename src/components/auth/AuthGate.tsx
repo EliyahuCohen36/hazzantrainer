@@ -1,6 +1,9 @@
 "use client";
 
+import { asset } from "@/lib/base-path";
 import { SiteEditor } from "@/components/admin/SiteEditor";
+import { SitePictures } from "@/components/admin/SitePictures";
+import { AdminBar } from "@/components/admin/AdminBar";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -130,11 +133,25 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
 
   const open = OPEN_PAGES.includes(normalized) && normalized !== "/";
+  const visitorView = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("visitor");
   let body: React.ReactNode;
 
   if (open) body = children;
   else if (loading) body = <p className="py-24 text-center text-stone-400">Loading…</p>;
   else if (!session) body = normalized === "/" ? <Landing /> : <Card title="Please sign in">{<LoginForm />}</Card>;
+  // The admin can look at (and edit) the welcome page visitors see: /?visitor (AdminBar).
+  else if (normalized === "/" && visitorView && profile?.role === "admin")
+    body = (
+      <>
+        <p data-site-editor className="bg-violet-100 px-4 py-2 text-center text-sm text-violet-900">
+          You are looking at the welcome page visitors see. Use ✏️ Edit this page to change it.{" "}
+          <a href={asset("/")} className="font-semibold underline">
+            Back to my home page
+          </a>
+        </p>
+        <Landing />
+      </>
+    );
   else if (access && profile?.role === "student" && sections && sectionOf(normalized) && !sections.includes(sectionOf(normalized)!))
     body = (
       <Card title="Not open yet">
@@ -181,9 +198,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <AdminBar />
       <SiteHeader />
       {body}
       <SiteEditor />
+      <SitePictures />
     </>
   );
 }

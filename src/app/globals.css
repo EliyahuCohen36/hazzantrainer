@@ -7,10 +7,12 @@
  *  - Stam Sefarad CLM (Culmus, GPL + font exception; src/fonts/stam-sefarad/):
  *    Sephardic Sefer Torah letters with tagin (crowns), used for Torah Scroll
  *    Mode, where marks are hidden anyway. Frank Ruhl Libre is the fallback.
- *  To use SBL Hebrew or Taamey Frank CLM, self-host the font and put it first in --font-hebrew.
+ *  - Taamey David CLM (Culmus, GPL + font exception): since Nov 20 2026 the main Hebrew font (owner: every
+ *    nekuda and ta'am must be clear and apart). It sets a vowel and a ta'am under the same letter side by
+ *    side, and its nekudot are bigger. Noto Serif Hebrew is the fallback.
  */
 @theme {
-  --font-hebrew: "Noto Serif Hebrew", "SBL Hebrew", "Taamey Frank CLM", serif;
+  --font-hebrew: var(--font-taamey), "Noto Serif Hebrew", "SBL Hebrew", serif;
   --font-scroll: var(--font-stam), "Frank Ruhl Libre", "Noto Serif Hebrew", serif;
   --font-siddur: var(--font-taamey), "Noto Serif Hebrew", serif;
   --font-script: var(--font-gveret), cursive;
@@ -42,9 +44,9 @@ body {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: -0.34em;
+  bottom: 0.12em; /* Taamey David: the line box reaches 0.43em below the letters */
   width: 0.085em;
-  height: 0.3em;
+  height: 0.24em;
   margin-left: -0.0425em;
   border-radius: 0.05em;
   background: currentColor;
@@ -61,7 +63,7 @@ body {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: var(--vowel-bottom, 0.02em);
+  bottom: var(--vowel-bottom, 0.1em);
   width: 0.42em;
   height: 0.26em;
   transform: translateX(-50%);
@@ -75,7 +77,7 @@ body {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: var(--vowel-bottom, 0.02em);
+  bottom: var(--vowel-bottom, 0.1em);
   width: 0.14em;
   height: 0.3em;
   transform: translateX(-50%);

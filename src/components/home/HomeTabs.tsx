@@ -117,7 +117,7 @@ function TefillahTab() {
         </span>
       </Link>
       <Link
-        href="/siddur/shaharit-shabbat/"
+        href="/siddur/tunes/"
         className="flex items-center gap-4 rounded-2xl border border-sky-200 bg-white p-5 shadow-sm transition-colors hover:border-sky-400 hover:bg-sky-50"
       >
         <span className="text-4xl" aria-hidden>
@@ -125,7 +125,7 @@ function TefillahTab() {
         </span>
         <span className="flex-1">
           <span className="block text-lg font-semibold text-stone-900">Songs and maqam tunes</span>
-          <span className="mt-1 block text-sm text-stone-600">The Shabbat and Yom Tov tunes in each maqam, sung by the Hazzan.</span>
+          <span className="mt-1 block text-sm text-stone-600">The parts of the Tefillah sung with tunes, straight to each one, and Pizmonim.</span>
         </span>
       </Link>
     </div>

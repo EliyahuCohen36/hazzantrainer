@@ -391,3 +391,25 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   kept); the last account settings are cached per user (auth.tsx, 40 days); progress saved offline waits in an outbox
   and is sent when back online (taam-practice.ts flushOutbox); pullProgress merges (best of both). Updates need no
   reinstall. Bump VERSION in sw.js only when its rules change.
+
+## Added Nov 20, 2026 (owner's list)
+- Beginner Keriah has 9 steps now: the chart ("Letters with Nekudot", old step 4) is the second tab of Step 3 Nekudot
+  (NekudotStep.tsx, /beginner/nekudot/#chart; /beginner/chart/ redirects). Practice levels show first; each level opens with
+  its own nekudot × every letter (NekudaLetters.tsx; FullChart.tsx for "All"), and once the questions start the chart is in a
+  small "Review" tab (ReviewTab/WhatToDo in LessonIntro.tsx). Steps 5–9 = Sheva, Qamats Katan, Patah Genuva, Dagesh, He.
+- ShevaTrainer: every level = intro (rule + StageChart from LessonCharts.tsx + 3 examples + What to do) → questions only →
+  result. A reason (WHY) after every answer. About 1 in 6 questions in Sheva levels is a listening question (hear the
+  Hazzan: Nach = <id>-alone.mp3, key alone:<id>; Na = the Tsere recording, key sound:<id>:sheva-na; never on א ה ח ע).
+  New first levels "nach-sounds" and "na-sounds" (15 questions, 12 to pass), so Sheva levels are 12–35 now. The
+  every-letter-with-a-Sheva chart is gone from the step page (it's in those two levels; tap a letter to hear it).
+- Question counts (src/lib/question-settings.ts): nekudot 35 / 25 for everyone; other steps 50/40 school students, 25/20
+  everyone else; teachers change them per class ("🔢 Questions per lesson" in /teacher/, classes.questions,
+  supabase/questions.sql). A pass also saves "<key>:passed" (self-paced and Gradebook read it).
+- Admin: "✏️ Edit this word" on each Sheva/rule question (site_settings edits.words); "🖼 Add a picture above/below this"
+  in Edit this page (public bucket site-images, edits.pictures, drawn by SitePictures.tsx); AdminBar.tsx at the top with
+  Edit this page and the visitors' pages (/?visitor shows the admin the welcome page).
+- Main Hebrew font is Taamey David CLM (--font-hebrew), so nekudot and te'amim sit apart; .maamid and the big-vowel
+  offsets were retuned for its metrics. The tikkun column shows the pesik (scroll-pages.ts appends " ׀").
+- About page: two tabs (About me / What the website does, with a features list). /siddur/tunes/: chart of the Tefillah
+  parts sung with tunes (links to #p-s-p) + Pizmonim tab (coming soon); the home "Songs and maqam tunes" card goes there.
+  Plans (src/data/pricing.ts) mention the whole Siddur with recordings.

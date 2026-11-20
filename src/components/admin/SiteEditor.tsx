@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { sourceText } from "@/lib/i18n/Translator";
-import { getEdits, saveEdits, type TextEdit } from "@/lib/site-edits";
+import { getEdits, saveEdits, type SitePicture, type TextEdit } from "@/lib/site-edits";
+import { supabase } from "@/lib/supabase";
+import { EDIT_STATE, EDIT_TOGGLE } from "./AdminBar";
 
 /** Text that must never be changed: the Tanakh, the Siddur, Hebrew names (lang="he"), the editor itself. */
 const LOCKED = '[lang="he"]:not(html), [data-no-translate], [data-site-editor], script, style, textarea, input, select';
@@ -37,6 +39,21 @@ export function SiteEditor() {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const admin = profile?.role === "admin";
+  const [pic, setPic] = useState<SitePicture | null>(null);
+
+  useEffect(() => {
+    const t = () => setOn((x) => !x);
+    window.addEventListener(EDIT_TOGGLE, t);
+    return () => window.removeEventListener(EDIT_TOGGLE, t);
+  }, []);
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(EDIT_STATE, { detail: on }));
+    if (!on) {
+      setPicked(null);
+      setPic(null);
+      setMsg("");
+    }
+  }, [on]);
 
   useEffect(() => {
     if (!on) return;
@@ -46,6 +63,17 @@ export function SiteEditor() {
       if (!target || target.closest("[data-site-editor]")) return;
       e.preventDefault();
       e.stopPropagation();
+      const img = target.closest("img[data-site-pic]") as HTMLImageElement | null;
+      if (img) {
+        const p = (getEdits().pictures ?? []).find((x) => x.id === img.dataset.sitePic);
+        if (p) {
+          setPicked(null);
+          setPic({ ...p });
+          setMsg("");
+        }
+        return;
+      }
+      setPic(null);
       if (target.closest(LOCKED)) {
         setMsg("That's text from the Tanakh or Siddur (or Hebrew), so it can't be changed here.");
         return;
@@ -101,6 +129,36 @@ export function SiteEditor() {
     navigator.clipboard?.writeText(lines.join("\n")).then(() => setMsg("Copied! Paste it into a chat with Claude."));
   }
 
+  /** Add a picture just before or after the text that was tapped (uploaded to the public "site-images" bucket). */
+  async function addPicture(file: File, where: "before" | "after") {
+    if (!picked) return;
+    setBusy(true);
+    setMsg("Uploading the picture…");
+    const name = `${Date.now()}-${file.name.replace(/[^a-z0-9.]+/gi, "_")}`;
+    const db = supabase();
+    const up = await db.storage.from("site-images").upload(name, file, { contentType: file.type });
+    if (up.error) {
+      setBusy(false);
+      return setMsg(/bucket/i.test(up.error.message) ? "Ask Claude to run supabase/site.sql again first (it adds the pictures folder)." : up.error.message);
+    }
+    const url = db.storage.from("site-images").getPublicUrl(name).data.publicUrl;
+    const all = getEdits();
+    const p: SitePicture = { id: name, page: path, near: picked.en, where, url, width: 60 };
+    const err = await saveEdits({ ...all, pictures: [...(all.pictures ?? []), p] });
+    setBusy(false);
+    setMsg(err ?? "Picture added. Tap it to change its size or remove it.");
+    if (!err) setPicked(null);
+  }
+  async function savePic(remove = false) {
+    if (!pic) return;
+    const all = getEdits();
+    const list = (all.pictures ?? []).filter((x) => x.id !== pic.id);
+    const err = await saveEdits({ ...all, pictures: remove ? list : [...list, pic] });
+    if (remove && !err) supabase().storage.from("site-images").remove([pic.id]).catch(() => {});
+    setMsg(err ?? (remove ? "Picture removed." : "Saved."));
+    if (!err) setPic(null);
+  }
+
   const set = (k: keyof TextEdit, v: string | boolean | undefined) =>
     setPicked((p) => (p ? { ...p, edit: { ...p.edit, [k]: v === "" ? undefined : v } } : p));
 
@@ -143,6 +201,23 @@ export function SiteEditor() {
               </button>
             )}
           </div>
+          <div className="flex flex-wrap items-center gap-2 border-t border-stone-100 pt-2 text-xs text-stone-600">
+            <span>🖼 Add a picture:</span>
+            {(["before", "after"] as const).map((w) => (
+              <label key={w} className="cursor-pointer rounded-full px-2 py-1 text-violet-900 ring-1 ring-violet-300">
+                {w === "before" ? "above this" : "below this"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) addPicture(f, w);
+                  }}
+                />
+              </label>
+            ))}
+          </div>
           <div className="flex flex-wrap gap-2 pt-1">
             <button type="button" disabled={busy} onClick={() => save()} className="rounded-full bg-violet-700 px-4 py-1.5 font-semibold text-white">
               Save
@@ -161,21 +236,34 @@ export function SiteEditor() {
           </div>
         </div>
       )}
-      {on && msg && <div className="rounded-xl bg-violet-50 px-3 py-2 text-violet-900 shadow">{msg}</div>}
-      {on && !picked && !msg && (
-        <div className="rounded-xl bg-violet-50 px-3 py-2 text-violet-900 shadow">Tap any words on the page to change them.</div>
+      {on && pic && (
+        <div className="w-[22rem] max-w-[calc(100vw-2rem)] space-y-2 rounded-2xl border border-violet-300 bg-white p-4 shadow-xl">
+          <p className="font-semibold text-violet-900">Picture</p>
+          <label className="block text-xs text-stone-600">
+            Size: {pic.width}%
+            <input type="range" min={10} max={100} step={5} value={pic.width} onChange={(e) => setPic({ ...pic, width: Number(e.target.value) })} className="w-full" />
+          </label>
+          <label className="block text-xs text-stone-600">
+            Description (for people who can&apos;t see it)
+            <input value={pic.alt ?? ""} onChange={(e) => setPic({ ...pic, alt: e.target.value })} className="w-full rounded border border-stone-300 px-2 py-1" />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => savePic()} className="rounded-full bg-violet-700 px-4 py-1.5 font-semibold text-white">
+              Save
+            </button>
+            <button type="button" onClick={() => savePic(true)} className="rounded-full px-3 py-1.5 text-red-700 ring-1 ring-red-300">
+              Remove picture
+            </button>
+            <button type="button" onClick={() => setPic(null)} className="px-2 py-1.5 text-stone-500">
+              Close
+            </button>
+          </div>
+        </div>
       )}
-      <button
-        type="button"
-        onClick={() => {
-          setOn((x) => !x);
-          setPicked(null);
-          setMsg("");
-        }}
-        className={`rounded-full px-4 py-2 font-semibold shadow-lg ${on ? "bg-violet-700 text-white" : "bg-white text-violet-800 ring-1 ring-violet-300"}`}
-      >
-        {on ? "✓ Done editing" : "✏️ Edit this page"}
-      </button>
+      {on && msg && <div className="rounded-xl bg-violet-50 px-3 py-2 text-violet-900 shadow">{msg}</div>}
+      {on && !picked && !pic && !msg && (
+        <div className="rounded-xl bg-violet-50 px-3 py-2 text-violet-900 shadow">Tap any words on the page to change them or add a picture next to them.</div>
+      )}
     </div>
   );
 }

@@ -138,6 +138,8 @@ export function scrollColumnsFor(book: string, from: string, to: string, marks: 
           if ((sb === 1 && pos >= 15001 && pos <= 15019) || (sb === 4 && pos >= 32001 && pos <= 32043)) inSong = true;
           const piece: ScrollPiece = { ...ps[p], in: sb === bi && pos >= a && pos <= b, pos: sb === bi ? pos : -1 };
           if (t === firstWord(verse.t) && p === 0) piece.first = 1;
+          // A pesik after the word shows in the vowelled column (the scroll itself has none).
+          if (p === ps.length - 1 && verse.t[t + 1] === "|") piece.v = `${piece.v} ׀`;
           res.push(piece);
           p++;
         }
