@@ -413,3 +413,15 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
 - About page: two tabs (About me / What the website does, with a features list). /siddur/tunes/: chart of the Tefillah
   parts sung with tunes (links to #p-s-p) + Pizmonim tab (coming soon); the home "Songs and maqam tunes" card goes there.
   Plans (src/data/pricing.ts) mention the whole Siddur with recordings.
+
+## Added Nov 21, 2026 (owner's list)
+- Alef-Bet: a review lesson (🔁, kind "review") after every 3 letters and one at the end, asking every letter learned so
+  far (twice each while there are 6 or fewer); pass 80% to open the next letter (letter-lessons.ts REVIEW_EVERY).
+- Home tabs stay in one row on phones (HomeTabs.tsx).
+- /siddur/tunes/: no Three Festivals part and no El HaHodaot in Musaf of Shabbat; the admin renames, hides and adds
+  links there ("Edit this list", site_settings edits.tunes; added links can go under Pizmonim). Siddur pages jump to
+  #p-s-p links (and #s-n) after loading and light the paragraph up.
+- Te'amim word examples (TaamWords.tsx): on each ta'am's card the admin adds a word (with nikkud and te'amim) and records
+  it in the browser (🎙) or drops a file → teamim-words/<tune>/<taamId>-<id>.mp3, words in edits.taamWords. Everyone hears
+  them on the card; "Which ta'am?" questions (TaamWordsQuiz: hear the word, shown without te'amim, pick the ta'am, open
+  te'amim only) on the Torah levels page, the listening quiz page and every tune trainer. recordQuiz taam-word:<tune>:<id>.

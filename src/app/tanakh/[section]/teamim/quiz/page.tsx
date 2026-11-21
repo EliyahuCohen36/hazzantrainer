@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TeamimQuiz } from "@/components/tanakh/TeamimQuiz";
+import { TeamimQuiz, TeamimWordsQuiz } from "@/components/tanakh/TeamimQuiz";
 
 export const metadata: Metadata = { title: "Te'amim listening quiz · Keriah Trainer" };
 
@@ -28,6 +28,7 @@ export default function TeamimQuizPage() {
       </nav>
       <h1 className="mt-1 mb-4 text-3xl font-semibold text-stone-900">Listening quiz</h1>
       <TeamimQuiz />
+          <TeamimWordsQuiz />
     </main>
   );
 }

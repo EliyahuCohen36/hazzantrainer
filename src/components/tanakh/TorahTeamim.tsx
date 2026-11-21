@@ -6,6 +6,7 @@ import { TORAH_TEAMIM_PAIRS, TORAH_TEAMIM_RECORDINGS, type TaamPairRecording } f
 import { Recording } from "@/components/audio/Recording";
 import { WithMaamid } from "@/components/reader/Maamid";
 import { TaamSubmit } from "./TaamSubmit";
+import { TaamWords } from "./TaamWords";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { useExistingRecordings } from "@/lib/recordings";
 
@@ -145,6 +146,7 @@ export function TaamCard({ t, demo = false, open, lv }: { t: TaamReference; demo
             ))}
           </div>
         )}
+        {id && !demo && <TaamWords tune="torah" taam={id} />}
       </div>
     </li>
   );

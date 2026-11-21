@@ -10,6 +10,7 @@ import { Recording } from "@/components/audio/Recording";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { WithMaamid } from "@/components/reader/Maamid";
 import { TaamSubmit, isLearned, useLearned } from "./TaamSubmit";
+import { TaamWords, TaamWordsQuiz } from "./TaamWords";
 
 
 /** One ta'am per level, in the same order as the Torah trainer (Ta'amei Emet: by their own order). */
@@ -126,10 +127,12 @@ export function TuneTrainer({ tune }: { tune: TuneSet }) {
               ) : (
                 <p className="text-sm text-stone-500">The recording for this ta&apos;am is coming soon.</p>
               )}
+              <TaamWords tune={tune.id} taam={t.id!} />
             </div>
           </div>
         )}
       </div>
+      <TaamWordsQuiz tune={tune.id} pool={levels.filter((_, k) => isOpen(k))} />
     </section>
   );
 }

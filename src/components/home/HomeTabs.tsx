@@ -270,7 +270,7 @@ export function HomeTabs() {
         </button>
       )}
       {admin && arranging && <TabManager tabs={all} onDone={() => setArranging(false)} />}
-      <div role="tablist" aria-label="Parts of the site" className="flex flex-wrap gap-2">
+      <div role="tablist" aria-label="Parts of the site" className="flex gap-1 overflow-x-auto sm:gap-2">
         {tabs.map((t) => {
           const on = t.id === tab.id;
           return (
@@ -280,7 +280,7 @@ export function HomeTabs() {
               aria-selected={on}
               type="button"
               onClick={() => pick(t.id)}
-              className="flex flex-col items-start rounded-t-2xl border-2 border-b-0 px-4 py-2 text-left font-semibold transition-colors"
+              className="flex min-w-[6.5rem] flex-1 flex-col items-center rounded-t-2xl border-2 border-b-0 px-2 py-2 text-center text-sm leading-tight font-semibold transition-colors sm:items-start sm:px-4 sm:text-left sm:text-base"
               style={{
                 borderColor: t.color,
                 backgroundColor: on ? t.color : `${t.color}1a`,
@@ -289,7 +289,7 @@ export function HomeTabs() {
             >
               <span>{t.title}</span>
               {t.he && (
-                <span dir="rtl" lang="he" className="font-hebrew text-sm font-normal opacity-90">
+                <span dir="rtl" lang="he" className="font-hebrew text-xs font-normal opacity-90 sm:text-sm">
                   {t.he}
                 </span>
               )}
@@ -297,7 +297,7 @@ export function HomeTabs() {
           );
         })}
       </div>
-      <div role="tabpanel" className="rounded-b-2xl rounded-tr-2xl border-2 bg-white p-4 sm:p-5" style={{ borderColor: tab.color }}>
+      <div role="tabpanel" className="rounded-b-2xl border-2 bg-white p-4 sm:p-5" style={{ borderColor: tab.color }}>
         {tab.id === "beginner" && tab.builtin ? (
           <BeginnerTab />
         ) : tab.id === "tanakh" && tab.builtin ? (

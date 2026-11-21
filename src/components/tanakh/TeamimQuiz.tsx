@@ -7,6 +7,7 @@ import { PROSE_TEAMIM, type TaamReference, taught } from "@/data/teamim-referenc
 import { TORAH_TEAMIM_RECORDINGS } from "@/data/teamim-recordings";
 import { openTeamim } from "@/data/teamim-levels";
 import { useAuth } from "@/lib/auth";
+import { TaamWordsQuiz } from "./TaamWords";
 import { useRecordingUrl } from "@/lib/recordings";
 import { applySpeed, getSpeed } from "@/lib/audio/speed";
 import { recordQuiz } from "@/lib/audio/taam-practice";
@@ -253,4 +254,14 @@ export function TeamimQuiz() {
       )}
     </div>
   );
+}
+
+/** The Hazzan's word examples: hear a word, pick its ta'am (only open te'amim). */
+export function TeamimWordsQuiz() {
+  const { level } = useAuth();
+  const pool = useMemo(() => {
+    const open = openTeamim(level);
+    return PROSE_TEAMIM.filter((t) => t.id && taught(t) && open.has(t.id));
+  }, [level]);
+  return <TaamWordsQuiz tune="torah" pool={pool} />;
 }

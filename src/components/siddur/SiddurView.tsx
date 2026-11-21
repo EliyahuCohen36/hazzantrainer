@@ -259,6 +259,27 @@ export function SiddurView({ part }: { part: SiddurPart }) {
   const trLang = lang === "en" || lang === "ar" ? lang : null;
   const [showTr, setShowTr] = useShowTranslation();
   const [showRec, setShowRec] = useShowRecordings();
+  // A link to one paragraph (#p-3-2, e.g. from Songs and maqam tunes) lands right on it, and it lights up for a moment.
+  useEffect(() => {
+    const go = () => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      if (!/^[ps]-\d/.test(id)) return;
+      const jump = () => document.getElementById(id)?.scrollIntoView({ block: "start" });
+      jump();
+      const el = document.getElementById(id);
+      el?.classList.add("bg-amber-100", "transition-colors");
+      const t1 = setTimeout(jump, 400);
+      const t2 = setTimeout(jump, 1200);
+      const t3 = setTimeout(() => el?.classList.remove("bg-amber-100"), 3000);
+      return () => [t1, t2, t3].forEach(clearTimeout);
+    };
+    const stop = go();
+    window.addEventListener("hashchange", go);
+    return () => {
+      stop?.();
+      window.removeEventListener("hashchange", go);
+    };
+  }, []);
   const tr = useTranslation(trLang && showTr ? trLang : null, part.slug);
   const refs = useTranslation(trLang === "en" && showTr ? "refs" : null, part.slug);
   const paraCount = part.sections.reduce((n, sec) => n + sec.paras.length, 0);

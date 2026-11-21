@@ -60,12 +60,28 @@ export interface SitePicture {
   alt?: string;
 }
 
+/** The owner's changes to the Songs and maqam tunes chart (/siddur/tunes/), keyed by link. */
+export interface TunesEdits {
+  hidden?: string[];
+  labels?: Record<string, string>;
+  /** Links the owner added: label, link and the part (slug) it is listed under, or "pizmonim". */
+  extra?: { label: string; href: string; part: string }[];
+}
+
+/** A word example for a ta'am (recorded by the Hazzan): teamim-words/<tune>/<taamId>-<id>.mp3. */
+export interface TaamWord {
+  id: string;
+  word: string;
+}
+
 export interface SiteEdits {
   /** Keyed by the original English text. */
   text: Record<string, TextEdit>;
   tabs?: HomeTab[];
   words?: Record<string, WordEdit>;
   pictures?: SitePicture[];
+  tunes?: TunesEdits;
+  taamWords?: Record<string, Record<string, TaamWord[]>>;
 }
 
 const CACHE = "kriah-site-edits";

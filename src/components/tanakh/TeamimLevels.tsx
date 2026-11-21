@@ -13,6 +13,7 @@ import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { recordPractice } from "@/lib/audio/taam-practice";
 import { TaamCard } from "./TorahTeamim";
+import { TaamWordsQuiz } from "./TaamWords";
 
 const BY_ID = new Map(PROSE_TEAMIM.map((t) => [t.id, t]));
 
@@ -207,6 +208,8 @@ export function TeamimLevels() {
           </ul>
         </>
       )}
+
+      <TaamWordsQuiz tune="torah" pool={PROSE_TEAMIM.filter((t) => t.id && open.has(t.id) && !t.hidden)} />
 
       <p className="mt-4 text-xs text-stone-400">
         Names follow the Sephardic Pizmonim Project (pizmonim.org). Examples are from the Westminster Leningrad Codex.

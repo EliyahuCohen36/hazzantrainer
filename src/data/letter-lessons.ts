@@ -8,7 +8,9 @@ import { LETTERS, SOFIYOT } from "./beginner";
  */
 export interface LetterLesson {
   id: string;
-  kind: "letter" | "pair" | "script";
+  kind: "letter" | "pair" | "script" | "review";
+  /** Review: every letter learned so far (owner, Nov 21: a review after every 3 letters). */
+  review?: string[];
   /** The letter (or final letter) taught. */
   letter?: string;
   /** The two look-alike letters compared. */
@@ -59,12 +61,23 @@ const ORDER = [
 
 const baseOf = (id: string) => SOFIYOT.find((s) => s.id === id)?.of ?? id;
 
-export const LETTER_LESSONS: LetterLesson[] = ORDER.flatMap((id) => {
-  const out: LetterLesson[] = [{ id, kind: "letter", letter: id, gate: baseOf(id) }];
-  const p = PAIRS[id];
-  if (p) out.push({ id: `pair-${p.pair.join("-")}`, kind: "pair", pair: p.pair, tip: p.tip, gate: baseOf(id) });
+/** Review after every 3 letters, with questions on every letter learned so far. */
+export const REVIEW_EVERY = 3;
+
+export const LETTER_LESSONS: LetterLesson[] = (() => {
+  const out: LetterLesson[] = [];
+  const learned: string[] = [];
+  for (const id of ORDER) {
+    out.push({ id, kind: "letter", letter: id, gate: baseOf(id) });
+    learned.push(id);
+    const p = PAIRS[id];
+    if (p) out.push({ id: `pair-${p.pair.join("-")}`, kind: "pair", pair: p.pair, tip: p.tip, gate: baseOf(id) });
+    if (learned.length % REVIEW_EVERY === 0 && learned.length < ORDER.length)
+      out.push({ id: `review-${learned.length}`, kind: "review", review: [...learned], gate: baseOf(id) });
+  }
+  out.push({ id: "review-all", kind: "review", review: [...learned], gate: "tav" });
   return out;
-});
+})();
 
 /** Script (handwriting) letters: school students only, after the whole alef-bet; the teacher opens it. */
 export const SCRIPT_LESSON: LetterLesson = { id: "script", kind: "script", gate: "tav" };

@@ -269,6 +269,70 @@ function letterQuestions(g: LessonGlyph, known: LessonGlyph[], n = 5): Q[] {
   });
 }
 
+/** Review: every letter learned so far at least once (twice when there are few), mixed. */
+function reviewQuestions(ids: string[]): Q[] {
+  const gs = ids.map((id) => GLYPHS.get(id)!);
+  const per = gs.length <= 6 ? 2 : 1;
+  const order: LessonGlyph[] = [];
+  for (let r = 0; r < per; r++) order.push(...shuffle(gs));
+  return order.map((g, k) => {
+    const kind: Q["kind"] = k % 2 === 0 ? "which-letter" : "which-name";
+    const others = gs.filter((x) => x.id !== g.id && x.char !== g.char);
+    const pool = others.length >= 3 ? others : [...others, ...[...GLYPHS.values()].filter((x) => x.id !== g.id && !others.includes(x))];
+    return { kind, answer: g, options: shuffle([g, ...shuffle(pool).slice(0, kind === "which-letter" ? 3 : 2)]) };
+  });
+}
+
+function ReviewLessonView({ lesson, next }: { lesson: LetterLesson; next?: () => void }) {
+  const [phase, setPhase] = useState<"look" | "quiz" | "done">("look");
+  const [score, setScore] = useState(0);
+  const [run, setRun] = useState(0);
+  const qs = useMemo(() => reviewQuestions(lesson.review!), [lesson, run]); // eslint-disable-line react-hooks/exhaustive-deps
+  const gs = lesson.review!.map((id) => GLYPHS.get(id)!);
+  return (
+    <div className="space-y-4">
+      {phase === "look" && (
+        <div className="rounded-2xl border-2 border-violet-200 bg-violet-50 p-5 text-center">
+          <h2 className="text-xl font-semibold text-stone-900">Review time! 🔁</h2>
+          <p className="mt-1 text-stone-700">Let&apos;s make sure you remember every letter you learned so far. Tap one to hear it again.</p>
+          <div dir="rtl" className="mx-auto mt-4 grid max-w-2xl grid-cols-4 gap-2 sm:grid-cols-6">
+            {gs.map((g) => (
+              <Tile key={g.id} glyph={g.char} label={g.name} rec={`letter:${g.id}`} />
+            ))}
+          </div>
+          <button type="button" onClick={() => setPhase("quiz")} className="mt-4 rounded-full bg-amber-700 px-6 py-2.5 text-lg font-semibold text-white">
+            Start the review ▶
+          </button>
+        </div>
+      )}
+      {phase === "quiz" && (
+        <Quiz
+          key={run}
+          questions={qs}
+          pass={Math.ceil(qs.length * 0.8)}
+          onDone={(r) => {
+            const s = Math.round((100 * r) / qs.length);
+            setScore(s);
+            recordPractice(learnKey(lesson.id), s);
+            setPhase("done");
+          }}
+        />
+      )}
+      {phase === "done" && (
+        <Done
+          score={score}
+          pass={LEARN_PASS}
+          next={next}
+          onAgain={() => {
+            setRun((r) => r + 1);
+            setPhase("quiz");
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 /** Questions telling two look-alike letters apart. */
 function pairQuestions(a: LessonGlyph, b: LessonGlyph, n = 10): Q[] {
   return Array.from({ length: n }, (_, k) => {
@@ -604,20 +668,24 @@ export function LetterLessons({ all }: { all: React.ReactNode }) {
                 ? GLYPHS.get(l.letter!)!.char
                 : l.kind === "pair"
                   ? l.pair!.map((id) => GLYPHS.get(id)!.char).join(" / ")
-                  : "✍️";
+                  : l.kind === "review"
+                    ? "🔁"
+                    : "✍️";
             return (
               <button
                 key={l.id}
                 type="button"
                 disabled={!open}
                 onClick={() => go(l.id)}
-                title={l.kind === "pair" ? "Look-alike letters" : l.kind === "script" ? "Script letters" : GLYPHS.get(l.letter!)!.name}
+                title={l.kind === "pair" ? "Look-alike letters" : l.kind === "script" ? "Script letters" : l.kind === "review" ? "Review" : GLYPHS.get(l.letter!)!.name}
                 className={`relative shrink-0 rounded-xl px-3 py-1 font-hebrew text-2xl ${
                   tab === l.id
                     ? "bg-amber-700 text-white"
                     : open
                       ? l.kind === "pair"
                         ? "bg-rose-50 text-rose-900 ring-1 ring-rose-200"
+                        : l.kind === "review"
+                        ? "bg-violet-50 text-violet-900 ring-1 ring-violet-200"
                         : "bg-white text-stone-900 ring-1 ring-stone-200"
                       : "bg-stone-100 text-stone-300"
                 }`}
@@ -638,6 +706,8 @@ export function LetterLessons({ all }: { all: React.ReactNode }) {
         <LetterLessonView key={lesson.id} lesson={lesson} known={known} next={nextOpen} />
       ) : lesson.kind === "pair" ? (
         <PairLessonView key={lesson.id} lesson={lesson} next={nextOpen} />
+      ) : lesson.kind === "review" ? (
+        <ReviewLessonView key={lesson.id} lesson={lesson} next={nextOpen} />
       ) : (
         <ScriptLessonView />
       )}

@@ -13,13 +13,14 @@ export const metadata: Metadata = { title: "Songs and maqam tunes · Keriah Trai
  */
 export default async function TunesPage() {
   const rows: { part: string; partEn: string; partHe: string; label: string; href: string }[] = [];
-  for (const info of SIDDUR_PARTS.filter((p) => TUNE_PARTS.has(p.slug))) {
+  // Not in this chart (owner, Nov 21): the three festivals, and El HaHodaot in Musaf of Shabbat.
+  for (const info of SIDDUR_PARTS.filter((p) => TUNE_PARTS.has(p.slug) && p.slug !== "regalim")) {
     const part = JSON.parse(await readFile(path.join(process.cwd(), "src/data/siddur", `${info.slug}.json`), "utf8")) as SiddurPart;
     const seen = new Set<string>();
     part.sections.forEach((sec, s) =>
       sec.paras.forEach((html, p) => {
         const spot = tuneSpot(info.slug, html, sec.he);
-        if (spot && !seen.has(spot.label)) {
+        if (spot && !seen.has(spot.label) && !(info.slug === "musaf-shabbat" && spot.label === "אל ההודאות")) {
           seen.add(spot.label);
           rows.push({ part: info.slug, partEn: info.en, partHe: info.he, label: spot.label, href: `/siddur/${info.slug}/#p-${s + 1}-${p + 1}` });
         }
