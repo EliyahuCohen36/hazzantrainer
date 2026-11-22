@@ -432,3 +432,12 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   refreshed when the file changes; "forget-audio" message on upload; sw VERSION v2). AdminDrop has `exists` → "🗑 Remove".
 - Ma'amid line: a little left of centre and below the nekudot (.maamid::after left 22%, bottom -0.13em).
 - Aliyah buttons scroll to the START of the aliyah, just under the sticky bars (TorahText pick()).
+
+## Added Nov 22, 2026 (owner's list)
+- Recordings didn't play on phones (Siddur, Tanach): the service worker answered the <audio>'s no-CORS request itself,
+  got an opaque reply and returned 504. Now online it leaves recordings alone (the browser fetches them); it only keeps a
+  copy (re-fetched after a week) and plays it when navigator.onLine is false (public/sw.js, VERSION v3, audio cache
+  kept as kt-audio-v2). Never respondWith() an online audio request again.
+- Shin/sin dots: Taamey David's dots were tiny and sat on the arm tips (looked missing) and the dot glyphs sat at the
+  letter's left edge unless the ccmp ligature ran. Both TTFs were patched once by scripts/fonts/fix_shin_dots.py (bigger,
+  higher, each dot glyph at its own place); don't run it again on the patched files.
