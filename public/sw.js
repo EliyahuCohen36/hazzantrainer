@@ -3,16 +3,18 @@
  * - Pages: from the network when online (so every update shows at once, nothing to reinstall),
  *   from the cache when offline.
  * - The site's files (scripts, styles, fonts, pictures, data): from the cache, refreshed in the background.
- * - Recordings: from the network when online (so a recording the admin replaced is heard at once); a copy of each
- *   recording played is kept for offline (the link's token is ignored).
+ * - Recordings: online, the browser fetches them itself; this worker doesn't touch the request (an <audio> asks
+ *   without CORS, so a worker only gets an opaque answer it can't check, and iPhone Safari won't play audio passed
+ *   through a worker that way: recordings stopped playing on phones, Nov 22). A copy of each recording played is
+ *   kept for offline (the link's token is ignored) and played from here only when the device is offline.
  * - Accounts and progress (Supabase): never cached; the app keeps unsent progress and sends it later.
  *
  * Bump VERSION only when this file's own rules change.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const PAGES = `kt-pages-${VERSION}`;
 const FILES = `kt-files-${VERSION}`;
-const AUDIO = `kt-audio-${VERSION}`;
+const AUDIO = "kt-audio-v2"; // keeps the recordings already saved for offline
 const SCOPE = new URL(self.registration.scope).pathname; // "/hazzantrainer/"
 
 self.addEventListener("install", (e) => {
@@ -39,7 +41,8 @@ self.addEventListener("fetch", (e) => {
 
   // Recordings (ours or Supabase storage)
   if (isAudio(url)) {
-    e.respondWith(audio(req, url));
+    if (self.navigator.onLine === false) e.respondWith(offlineAudio(req, url));
+    else e.waitUntil(keepCopy(url).catch(() => {}));
     return;
   }
   // Supabase API (accounts, progress, listings): always live.
@@ -85,25 +88,32 @@ self.addEventListener("fetch", (e) => {
   );
 });
 
-async function audio(req, url) {
-  const c = await caches.open(AUDIO);
+/** Offline: the copy kept on this device, answering the player's Range request. */
+async function offlineAudio(req, url) {
+  const hit = await (await caches.open(AUDIO)).match(audioKey(url));
+  return hit ? ranged(req, hit) : new Response("", { status: 504 });
+}
+
+/* A whole copy of each recording heard, for offline. Fetched again when it's more than a week old (online, the
+   network copy is what plays, so a replaced recording is heard at once anyway). */
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+const checking = new Set();
+async function keepCopy(url) {
   const key = audioKey(url);
+  if (checking.has(key)) return;
+  checking.add(key);
   try {
-    const res = await fetch(req);
-    if (res.ok || res.status === 206) {
-      // Keep a whole, fresh copy for offline (players ask for parts of the file), unless the kept one is the same file.
-      c.match(key).then((old) => {
-        const tag = res.headers.get("etag") || res.headers.get("last-modified");
-        const oldTag = old && (old.headers.get("etag") || old.headers.get("last-modified"));
-        if (old && tag && tag === oldTag) return;
-        return fetch(url.href).then((full) => full.ok && full.status === 200 && c.put(key, full));
-      }).catch(() => {});
-      return res;
-    }
-    throw new Error(String(res.status));
-  } catch (err) {
-    const hit = await c.match(key);
-    return hit ? ranged(req, hit) : new Response("", { status: 504 });
+    const c = await caches.open(AUDIO);
+    const old = await c.match(key);
+    const kept = old && Number(old.headers.get("x-kept-at"));
+    if (kept && Date.now() - kept < WEEK) return;
+    const res = await fetch(url.href, { mode: "cors", credentials: "omit" });
+    if (!res.ok || res.status !== 200) return;
+    const headers = new Headers(res.headers);
+    headers.set("x-kept-at", String(Date.now()));
+    await c.put(key, new Response(await res.blob(), { status: 200, headers }));
+  } finally {
+    checking.delete(key);
   }
 }
 

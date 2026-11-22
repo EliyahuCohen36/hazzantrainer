@@ -42,3 +42,9 @@ http://www.sbl-site.org/educational/BiblicalFonts_SBLHebrew.aspx
 can be used for Windows and OS/X. A keyboard layout based on Tiro
 is available in most Linux distributions.
 
+
+---
+Keriah Trainer change (Nov 22, 2026): the shin and sin dots were made bigger and higher, and each dot
+glyph now carries its own place over the shin (right arm / left arm), so the dots never melt into the
+letter and a renderer that skips the font's ccmp ligature still puts them on the right side.
+Made by scripts/fonts/fix_shin_dots.py (run it on the original files only, once).
