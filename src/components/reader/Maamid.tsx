@@ -11,9 +11,24 @@ const HINT_MARKS = /[ְׇֽ]/;
  *  - sheva na: an extra big, bold sheva (a sheva nach stays as it is)
  * The font's own mark is removed and a clear one is drawn by CSS instead.
  */
-export function WithMaamid({ text, source }: { text: string; source?: string }) {
+export function WithMaamid({ text: raw, source }: { text: string; source?: string }) {
+  const text = dotsFirst(raw);
   if (text.includes(YETIB)) return <YetibFirst text={text} source={source} />;
   return <Hints text={text} source={source} />;
+}
+
+/**
+ * The Shin/Sin dot (and the dagesh) written right after the letter, before its vowel and ta'am (owner, Nov 22:
+ * on phones some Shins and Sins showed no dot). The text keeps them after the vowel (Unicode order); Safari's
+ * text engine doesn't always put the dot in place then. Chrome draws both orders the same.
+ */
+export function dotsFirst(text: string): string {
+  return text.replace(/([א-ת])([֑-ׇ]+)/g, (_, l: string, m: string) => {
+    if (!/[ּׁׂ]/.test(m)) return l + m;
+    const dot = m.match(/[ׁׂ]/g)?.join("") ?? "";
+    const dagesh = m.includes("ּ") ? "ּ" : "";
+    return l + dot + dagesh + m.replace(/[ּׁׂ]/g, "");
+  });
 }
 
 const YETIB = "\u059A";

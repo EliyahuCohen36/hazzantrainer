@@ -408,8 +408,8 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
 - Admin: "✏️ Edit this word" on each Sheva/rule question (site_settings edits.words); "🖼 Add a picture above/below this"
   in Edit this page (public bucket site-images, edits.pictures, drawn by SitePictures.tsx); AdminBar.tsx at the top with
   Edit this page and the visitors' pages (/?visitor shows the admin the welcome page).
-- Main Hebrew font is Taamey David CLM (--font-hebrew), so nekudot and te'amim sit apart; .maamid and the big-vowel
-  offsets were retuned for its metrics. The tikkun column shows the pesik (scroll-pages.ts appends " ׀").
+- (Nov 20–22 only: Taamey David CLM was the main Hebrew font; reverted to Noto Serif Hebrew on Nov 22 because marks
+  went missing in some combinations. Taamey David stays the Siddur font.) The tikkun column shows the pesik (scroll-pages.ts appends " ׀").
 - About page: two tabs (About me / What the website does, with a features list). /siddur/tunes/: chart of the Tefillah
   parts sung with tunes (links to #p-s-p) + Pizmonim tab (coming soon); the home "Songs and maqam tunes" card goes there.
   Plans (src/data/pricing.ts) mention the whole Siddur with recordings.
@@ -432,3 +432,9 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   refreshed when the file changes; "forget-audio" message on upload; sw VERSION v2). AdminDrop has `exists` → "🗑 Remove".
 - Ma'amid line: a little left of centre and below the nekudot (.maamid::after left 22%, bottom -0.13em).
 - Aliyah buttons scroll to the START of the aliyah, just under the sticky bars (TorahText pick()).
+
+## Nov 22, 2026
+- Recordings on phones: the service worker no longer answers audio requests while online (Safari on iPhone won't play
+  media answered by a service worker); it saves a copy in the background and serves it only offline (sw VERSION v3).
+- Shin/Sin dots: dotsFirst() in Maamid.tsx writes the dot (and dagesh) right after the letter before the vowel/ta'am for
+  display (Safari didn't always place the dot otherwise). Tanakh font back to Noto Serif Hebrew; .maamid retuned for it.

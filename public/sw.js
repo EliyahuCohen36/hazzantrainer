@@ -3,13 +3,14 @@
  * - Pages: from the network when online (so every update shows at once, nothing to reinstall),
  *   from the cache when offline.
  * - The site's files (scripts, styles, fonts, pictures, data): from the cache, refreshed in the background.
- * - Recordings: from the network when online (so a recording the admin replaced is heard at once); a copy of each
- *   recording played is kept for offline (the link's token is ignored).
+ * - Recordings: NOT touched while online (Safari on iPhone won't play media answered by a service worker:
+ *   recordings stopped playing on phones); a copy of each recording played is saved in the background and
+ *   used only when the device is offline (the link's token is ignored).
  * - Accounts and progress (Supabase): never cached; the app keeps unsent progress and sends it later.
  *
  * Bump VERSION only when this file's own rules change.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const PAGES = `kt-pages-${VERSION}`;
 const FILES = `kt-files-${VERSION}`;
 const AUDIO = `kt-audio-${VERSION}`;
@@ -39,7 +40,8 @@ self.addEventListener("fetch", (e) => {
 
   // Recordings (ours or Supabase storage)
   if (isAudio(url)) {
-    e.respondWith(audio(req, url));
+    if (self.navigator.onLine === false) e.respondWith(audioOffline(req, url));
+    else e.waitUntil(keepCopy(url));
     return;
   }
   // Supabase API (accounts, progress, listings): always live.
@@ -85,25 +87,27 @@ self.addEventListener("fetch", (e) => {
   );
 });
 
-async function audio(req, url) {
-  const c = await caches.open(AUDIO);
-  const key = audioKey(url);
+/** Save a whole copy of a recording for offline use (once; replaced recordings are forgotten on upload). */
+async function keepCopy(url) {
   try {
-    const res = await fetch(req);
-    if (res.ok || res.status === 206) {
-      // Keep a whole, fresh copy for offline (players ask for parts of the file), unless the kept one is the same file.
-      c.match(key).then((old) => {
-        const tag = res.headers.get("etag") || res.headers.get("last-modified");
-        const oldTag = old && (old.headers.get("etag") || old.headers.get("last-modified"));
-        if (old && tag && tag === oldTag) return;
-        return fetch(url.href).then((full) => full.ok && full.status === 200 && c.put(key, full));
-      }).catch(() => {});
-      return res;
-    }
-    throw new Error(String(res.status));
+    const c = await caches.open(AUDIO);
+    const key = audioKey(url);
+    if (await c.match(key)) return;
+    const full = await fetch(url.href, { mode: "cors" });
+    if (full.ok && full.status === 200) await c.put(key, full);
   } catch (err) {
-    const hit = await c.match(key);
-    return hit ? ranged(req, hit) : new Response("", { status: 504 });
+    // not saved: fine
+  }
+}
+
+async function audioOffline(req, url) {
+  const c = await caches.open(AUDIO);
+  const hit = await c.match(audioKey(url));
+  if (hit) return ranged(req, hit);
+  try {
+    return await fetch(req);
+  } catch (err) {
+    return new Response("", { status: 504 });
   }
 }
 
