@@ -10,7 +10,18 @@ import { currentNusach, recordingsChanged } from "@/lib/recordings";
  * belongs. It's saved to the private bucket at `path` ("/audio/…"), replacing
  * any recording there, and every player on the page picks it up.
  */
-export function AdminDrop({ path, label = "Drop a recording here", compact = false }: { path: string; label?: string; compact?: boolean }) {
+export function AdminDrop({
+  path,
+  label = "Drop a recording here",
+  compact = false,
+  exists = false,
+}: {
+  path: string;
+  label?: string;
+  compact?: boolean;
+  /** A recording is already there: also offer to remove it (e.g. uploaded by mistake). */
+  exists?: boolean;
+}) {
   const { profile } = useAuth();
   const [over, setOver] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -28,7 +39,8 @@ export function AdminDrop({ path, label = "Drop a recording here", compact = fal
     setMsg("Saving…");
     const { error } = await supabase()
       .storage.from("recordings")
-      .upload(target.replace(/^\/audio\//, ""), f, { upsert: true, contentType: f.type || "audio/mpeg" });
+      // Replaces any recording already there (upsert); a short cache time so the new one is heard at once.
+      .upload(target.replace(/^\/audio\//, ""), f, { upsert: true, contentType: f.type || "audio/mpeg", cacheControl: "60" });
     setMsg(error ? `✗ ${error.message}` : "✓ Saved");
     if (!error) {
       recordingsChanged(target);
@@ -36,7 +48,19 @@ export function AdminDrop({ path, label = "Drop a recording here", compact = fal
     }
   };
 
+  const remove = async () => {
+    if (!window.confirm("Remove this recording? (You can drop a new one any time.)")) return;
+    setMsg("Removing…");
+    const { error } = await supabase().storage.from("recordings").remove([target.replace(/^\/audio\//, "")]);
+    setMsg(error ? `✗ ${error.message}` : "✓ Removed");
+    if (!error) {
+      recordingsChanged(target);
+      recordingsChanged(path);
+    }
+  };
+
   return (
+    <span className="inline-flex flex-wrap items-center gap-1.5" data-no-translate>
     <label
       onDragOver={(e) => {
         e.preventDefault();
@@ -67,5 +91,11 @@ export function AdminDrop({ path, label = "Drop a recording here", compact = fal
         }}
       />
     </label>
+    {exists && (
+      <button type="button" onClick={remove} className="rounded-lg border border-red-200 px-2 py-0.5 font-sans text-xs text-red-700 hover:bg-red-50">
+        🗑 Remove
+      </button>
+    )}
+    </span>
   );
 }

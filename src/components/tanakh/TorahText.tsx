@@ -334,8 +334,17 @@ export function TorahText({
       setTimeout(() => {
         const el =
           (scroll && it?.from && document.querySelector(`[data-pos="${posOf(it.from)}"]`)) || document.getElementById(id);
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 60);
+        if (!el) return;
+        // To the START of the aliyah (owner, Nov 21), just under the bars that stay at the top of the screen.
+        const below = [...document.querySelectorAll<HTMLElement>("[class*='sticky']")].reduce((m, b) => {
+          const cs = getComputedStyle(b);
+          if (cs.position !== "sticky") return m;
+          const h = b.getBoundingClientRect().height;
+          return h < window.innerHeight / 2 ? Math.max(m, (parseFloat(cs.top) || 0) + h) : m;
+        }, 0);
+        const target = el.getBoundingClientRect().top + window.scrollY - below - (scroll ? 70 : 12);
+        window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+      }, 80);
   };
   const [settings, setSettings] = useState<ReaderSettings>({
     scrollMode: false,
@@ -451,8 +460,20 @@ export function TorahText({
           )}
           {s.recording && (
             <div className="mb-2 flex flex-wrap gap-2">
-              <AdminDrop path={s.recording} compact label={`${s.en}: drop the Hazzan's reading here`} />
-              {s.maftirRecording && <AdminDrop path={s.maftirRecording} compact label="Maftir: drop the reading here" />}
+              <AdminDrop
+                path={s.recording}
+                compact
+                exists={!!have?.has(s.recording)}
+                label={have?.has(s.recording) ? `${s.en}: drop a new reading to replace it` : `${s.en}: drop the Hazzan's reading here`}
+              />
+              {s.maftirRecording && (
+                <AdminDrop
+                  path={s.maftirRecording}
+                  compact
+                  exists={!!have?.has(s.maftirRecording)}
+                  label={have?.has(s.maftirRecording) ? "Maftir: drop a new reading to replace it" : "Maftir: drop the reading here"}
+                />
+              )}
             </div>
           )}
           <div className={scroll && tikkun ? "grid gap-3 md:grid-cols-2" : ""}>

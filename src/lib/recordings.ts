@@ -88,6 +88,13 @@ export function recordingUrl(path: string): Promise<string> {
 /** The playable URL of a recording, or null while it's being fetched / if not allowed. */
 export function useRecordingUrl(path: string | undefined | null): string | null {
   const [url, setUrl] = useState<string | null>(() => (path && isPublicRecording(path) ? asset(path) : null));
+  // A replaced recording (admin): fetch a fresh link so the new one plays straight away.
+  const [bump, setBump] = useState(0);
+  useEffect(() => {
+    const on = () => setBump((b) => b + 1);
+    window.addEventListener(RECORDINGS_CHANGED, on);
+    return () => window.removeEventListener(RECORDINGS_CHANGED, on);
+  }, []);
   useEffect(() => {
     let live = true;
     if (!path) {
@@ -101,7 +108,7 @@ export function useRecordingUrl(path: string | undefined | null): string | null 
     return () => {
       live = false;
     };
-  }, [path]);
+  }, [path, bump]);
   return url;
 }
 
@@ -136,6 +143,8 @@ export function recordingsChanged(path: string) {
   const f = path.replace(/^\/audio\//, "");
   folders.delete(f.slice(0, f.lastIndexOf("/")));
   for (const k of [...cache.keys()]) if (k.endsWith(`:${path}`) || k.endsWith(`:/audio/${f}`)) cache.delete(k);
+  // The offline copy on this device (public/sw.js) is old now.
+  navigator.serviceWorker?.controller?.postMessage({ type: "forget-audio", path: f });
   window.dispatchEvent(new Event(RECORDINGS_CHANGED));
 }
 

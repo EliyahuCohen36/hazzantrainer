@@ -40,14 +40,14 @@ body {
 .maamid {
   position: relative;
 }
+/* Drawn a little to the left and BELOW the nekudot (owner, Nov 21), so it never touches the letter's nekuda or ta'am. */
 .maamid::after {
   content: "";
   position: absolute;
-  left: 50%;
-  bottom: 0.12em; /* Taamey David: the line box reaches 0.43em below the letters */
-  width: 0.085em;
-  height: 0.24em;
-  margin-left: -0.0425em;
+  left: 22%;
+  bottom: -0.13em; /* Taamey David: the line box reaches 0.43em below the letters; the nekudot end about 0.36em down */
+  width: 0.075em;
+  height: 0.18em;
   border-radius: 0.05em;
   background: currentColor;
   pointer-events: none;

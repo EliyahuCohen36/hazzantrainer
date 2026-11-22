@@ -101,7 +101,7 @@ export function TaamCard({ t, demo = false, open, lv }: { t: TaamReference; demo
         </div>
       </div>
       <div className="space-y-2">
-        {id && <AdminDrop path={audio ?? `/audio/teamim/torah/${id}.mp3`} compact label={audio ? "Replace this recording" : "Drop the recording here"} />}
+        {id && <AdminDrop path={audio ?? `/audio/teamim/torah/${id}.mp3`} exists={!!audio} compact label={audio ? "Replace this recording" : "Drop the recording here"} />}
         {audio ? (
           <div className="space-y-2">
             <Recording src={audio} />

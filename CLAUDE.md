@@ -425,3 +425,10 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   it in the browser (🎙) or drops a file → teamim-words/<tune>/<taamId>-<id>.mp3, words in edits.taamWords. Everyone hears
   them on the card; "Which ta'am?" questions (TaamWordsQuiz: hear the word, shown without te'amim, pick the ta'am, open
   te'amim only) on the Torah levels page, the listening quiz page and every tune trainer. recordQuiz taam-word:<tune>:<id>.
+
+## Added Nov 21 (evening)
+- Replacing recordings: players fetch a fresh link after an upload (useRecordingUrl listens to RECORDINGS_CHANGED),
+  uploads use cacheControl 60, the service worker plays recordings from the network first (keeps a copy for offline,
+  refreshed when the file changes; "forget-audio" message on upload; sw VERSION v2). AdminDrop has `exists` → "🗑 Remove".
+- Ma'amid line: a little left of centre and below the nekudot (.maamid::after left 22%, bottom -0.13em).
+- Aliyah buttons scroll to the START of the aliyah, just under the sticky bars (TorahText pick()).

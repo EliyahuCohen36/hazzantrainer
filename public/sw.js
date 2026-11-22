@@ -3,12 +3,13 @@
  * - Pages: from the network when online (so every update shows at once, nothing to reinstall),
  *   from the cache when offline.
  * - The site's files (scripts, styles, fonts, pictures, data): from the cache, refreshed in the background.
- * - Recordings that were played once: kept, so they play offline too (the link's token is ignored).
+ * - Recordings: from the network when online (so a recording the admin replaced is heard at once); a copy of each
+ *   recording played is kept for offline (the link's token is ignored).
  * - Accounts and progress (Supabase): never cached; the app keeps unsent progress and sends it later.
  *
  * Bump VERSION only when this file's own rules change.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const PAGES = `kt-pages-${VERSION}`;
 const FILES = `kt-files-${VERSION}`;
 const AUDIO = `kt-audio-${VERSION}`;
@@ -87,20 +88,33 @@ self.addEventListener("fetch", (e) => {
 async function audio(req, url) {
   const c = await caches.open(AUDIO);
   const key = audioKey(url);
-  const hit = await c.match(key);
-  if (hit) return ranged(req, hit);
   try {
     const res = await fetch(req);
-    // Keep a whole copy for next time (players ask for parts of the file).
-    if (navigator.onLine !== false)
-      fetch(url.href)
-        .then((full) => full.ok && full.status === 200 && c.put(key, full))
-        .catch(() => {});
-    return res;
+    if (res.ok || res.status === 206) {
+      // Keep a whole, fresh copy for offline (players ask for parts of the file), unless the kept one is the same file.
+      c.match(key).then((old) => {
+        const tag = res.headers.get("etag") || res.headers.get("last-modified");
+        const oldTag = old && (old.headers.get("etag") || old.headers.get("last-modified"));
+        if (old && tag && tag === oldTag) return;
+        return fetch(url.href).then((full) => full.ok && full.status === 200 && c.put(key, full));
+      }).catch(() => {});
+      return res;
+    }
+    throw new Error(String(res.status));
   } catch (err) {
-    return new Response("", { status: 504 });
+    const hit = await c.match(key);
+    return hit ? ranged(req, hit) : new Response("", { status: 504 });
   }
 }
+
+// The admin replaced or removed a recording: forget this device's copy.
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.type === "forget-audio" && e.data.path) {
+    caches.open(AUDIO).then((c) =>
+      c.keys().then((ks) => ks.forEach((k) => new URL(k.url).pathname.endsWith("/" + e.data.path) && c.delete(k))),
+    );
+  }
+});
 
 /** Answer a Range request from a whole cached file (Safari needs this to play audio). */
 async function ranged(req, res) {

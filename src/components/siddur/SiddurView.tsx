@@ -183,7 +183,7 @@ function Paragraph({
             <Recording key={src} src={src} className="h-8 w-full max-w-xs" />
           )}
           {admin && (
-            <AdminDrop path={src} compact label={exists ? "Replace recording" : maqam ? `Drop ${maqam} tune ${tune} here` : "Drop a recording here"} />
+            <AdminDrop path={src} exists={exists} compact label={exists ? "Replace recording" : maqam ? `Drop ${maqam} tune ${tune} here` : "Drop a recording here"} />
           )}
         </div>
       )}

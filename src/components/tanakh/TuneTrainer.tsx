@@ -118,7 +118,7 @@ export function TuneTrainer({ tune }: { tune: TuneSet }) {
               </div>
             </div>
             <div className="space-y-2">
-              {admin && <AdminDrop path={src(t)} compact label={recorded(t) ? "Replace this recording" : "Drop the recording here"} />}
+              {admin && <AdminDrop path={src(t)} exists={recorded(t)} compact label={recorded(t) ? "Replace this recording" : "Drop the recording here"} />}
               {recorded(t) ? (
                 <>
                   <Recording src={src(t)} />
