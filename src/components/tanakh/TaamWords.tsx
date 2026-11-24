@@ -12,6 +12,22 @@ import type { TaamReference } from "@/data/teamim-reference";
 import { Recording } from "@/components/audio/Recording";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { WithMaamid } from "@/components/reader/Maamid";
+import TORAH_WORDS from "@/data/taam-words.json";
+import { TaamSubmit } from "./TaamSubmit";
+
+/**
+ * The words of a ta'am: for the Torah, 15 ready-made words from the Torah (src/data/taam-words.json,
+ * scripts/taam-words/build.ts; ids g0…g14), plus any the owner added; minus the ones he took off.
+ */
+export function wordsOf(tune: string, taam: string, saved: Record<string, Record<string, TaamWord[]>> | undefined): TaamWord[] {
+  const own = saved?.[tune]?.[taam] ?? [];
+  const hidden = new Set(own.filter((w) => w.hidden).map((w) => w.id));
+  const ready =
+    tune === "torah"
+      ? ((TORAH_WORDS as Record<string, { word: string; ref: string }[]>)[taam] ?? []).map((w, k) => ({ id: `g${k}`, word: w.word, ref: w.ref }))
+      : [];
+  return [...ready.filter((w) => !hidden.has(w.id)), ...own.filter((w) => !w.hidden && !w.id.startsWith("g"))];
+}
 
 /**
  * Word examples for each ta'am (owner, Nov 21): the Hazzan records words from the Torah (or another book) sung with
@@ -84,12 +100,15 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
   const admin = profile?.role === "admin";
   const edits = useSiteEdits();
   const have = useFolder(wordFolder(tune));
-  const words = edits.taamWords?.[tune]?.[taam] ?? [];
+  const words = wordsOf(tune, taam, edits.taamWords);
+  const own = edits.taamWords?.[tune]?.[taam] ?? [];
   const recorded = words.filter((w) => have?.has(wordPath(tune, taam, w.id)));
   const [adding, setAdding] = useState("");
+  const [all, setAll] = useState(false);
   const [msg, setMsg] = useState("");
   if (!admin && !recorded.length) return null;
 
+  /** Save the owner's own list (added words, and ready-made words taken off). */
   async function setWords(list: TaamWord[]) {
     const all = getEdits();
     const byTune = { ...(all.taamWords ?? {}) };
@@ -102,7 +121,7 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
     <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50/60 p-3">
       <p className="text-sm font-semibold text-sky-900">Hear it in words from the text</p>
       <ul className="mt-2 space-y-2">
-        {(admin ? words : recorded).map((w) => {
+        {(admin ? words : recorded).slice(0, all ? undefined : 3).map((w) => {
           const p = wordPath(tune, taam, w.id);
           const has = have?.has(p);
           return (
@@ -110,7 +129,13 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
               <span dir="rtl" lang="he" className="hebrew-text min-w-24 font-hebrew text-2xl leading-[1.8] text-stone-900">
                 <WithMaamid text={w.word} />
               </span>
+              {w.ref && <span className="text-xs text-stone-400">{w.ref}</span>}
               {has ? <Recording src={p} className="h-8 w-full max-w-[14rem]" /> : <span className="text-xs text-stone-500">No recording yet</span>}
+              {has && !admin && (
+                <span className="w-full">
+                  <TaamSubmit src={p} label="this word" tune={`${tune}-words`} studentsOnly compact />
+                </span>
+              )}
               {admin && (
                 <span data-no-translate className="flex flex-wrap items-center gap-2">
                   <RecordButton path={p} onSaved={() => setMsg("✓ Saved")} />
@@ -119,7 +144,7 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
                     type="button"
                     onClick={() => {
                       if (has) supabase().storage.from("recordings").remove([p.replace(/^\/audio\//, "")]).then(() => recordingsChanged(p));
-                      setWords(words.filter((x) => x.id !== w.id));
+                      setWords(w.id.startsWith("g") ? [...own, { id: w.id, word: w.word, hidden: true }] : own.filter((x) => x.id !== w.id));
                     }}
                     className="text-xs text-red-700"
                   >
@@ -131,6 +156,11 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
           );
         })}
       </ul>
+      {(admin ? words : recorded).length > 3 && (
+        <button type="button" onClick={() => setAll((x) => !x)} className="mt-1 text-sm text-sky-800 underline">
+          {all ? "Show fewer" : `Show all ${(admin ? words : recorded).length} words`}
+        </button>
+      )}
       {admin && (
         <div data-no-translate dir="ltr" className="mt-2 flex flex-wrap items-center gap-2 text-sm">
           <input
@@ -144,7 +174,7 @@ export function TaamWords({ tune, taam }: { tune: string; taam: string }) {
             type="button"
             disabled={!adding.trim()}
             onClick={() => {
-              setWords([...words, { id: Date.now().toString(36), word: adding.trim() }]);
+              setWords([...own, { id: Date.now().toString(36), word: adding.trim() }]);
               setAdding("");
             }}
             className="rounded-full bg-violet-700 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
@@ -175,7 +205,7 @@ export function TaamWordsQuiz({ tune, pool, title = "Which ta'am? Words from the
   const items = useMemo(() => {
     const out: { taam: TaamReference; word: TaamWord }[] = [];
     for (const t of pool)
-      for (const w of edits.taamWords?.[tune]?.[t.id ?? ""] ?? []) if (have?.has(wordPath(tune, t.id!, w.id))) out.push({ taam: t, word: w });
+      for (const w of wordsOf(tune, t.id ?? "", edits.taamWords)) if (have?.has(wordPath(tune, t.id!, w.id))) out.push({ taam: t, word: w });
     return out;
   }, [pool, edits, have, tune]);
   const withWords = new Set(items.map((x) => x.taam.id));

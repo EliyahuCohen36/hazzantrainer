@@ -438,3 +438,18 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   media answered by a service worker); it saves a copy in the background and serves it only offline (sw VERSION v3).
 - Shin/Sin dots: dotsFirst() in Maamid.tsx writes the dot (and dagesh) right after the letter before the vowel/ta'am for
   display (Safari didn't always place the dot otherwise). Tanakh font back to Noto Serif Hebrew; .maamid retuned for it.
+
+## Nov 24, 2026
+- No singing practice anywhere: the pasuk "Practice" buttons, the /practice/ links and the "Practice singing" card are gone
+  (/practice/<id>/ now says the page moved). Recording is for school students only, graded by the teacher 1–10 (7+ passes):
+  TaamSubmit `studentsOnly` on aliyah readings (tune "reading") and on each word (tune "<tune>-words"); everyone else
+  has no recorder.
+- 15 Torah words per ta'am (fewer for rare ones: Shalshelet 4, Karne Farah 1, Tere Ta'ame 5): src/data/taam-words.json
+  from scripts/taam-words/build.ts (ids g0–g14, shown on each ta'am's card with "Show all"; the owner records each,
+  can take a word off or add his own). Students answer "Which ta'am?" on them; a review every 2 levels (levels 1–n)
+  in TeamimLevels.
+- A ta'am written twice (Zarqa, Talsha, Tilsa, Kadma): the sound letter is bold and red (.taam-sound). Our texts
+  write Zarqa once, at the end of the word, so a double Zarqa doesn't occur in them.
+- Torah Scroll Mode: "Vowels beside (tikkun) / Tap to switch / Scroll only" (phones start on Tap to switch); in Tap
+  to switch a tap on the page flips between the scroll and the vowelled side (ScrollPages flip, megillot too). The
+  Hazzan's readings are in a side panel ("🔊 Hear the Hazzan", ScrollAudioPanel in TorahText.tsx).

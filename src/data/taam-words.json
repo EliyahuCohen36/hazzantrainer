@@ -1,0 +1,1412 @@
+{
+ "sof-pasuk": [
+  {
+   "word": "הָאָֽרֶץ",
+   "ref": "Bereshit 1:1"
+  },
+  {
+   "word": "בָּֽאוּ",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "לֵאמֹֽר",
+   "ref": "Vayikra 1:1"
+  },
+  {
+   "word": "וְאַהֲרֹֽן",
+   "ref": "Bamidbar 1:3"
+  },
+  {
+   "word": "זָהָֽב",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "לָמָֽיִם",
+   "ref": "Bereshit 1:6"
+  },
+  {
+   "word": "מִמֶּֽנּוּ",
+   "ref": "Shemot 1:9"
+  },
+  {
+   "word": "הַמִּזְבֵּֽחַ",
+   "ref": "Vayikra 1:15"
+  },
+  {
+   "word": "סִינָֽי",
+   "ref": "Bamidbar 1:19"
+  },
+  {
+   "word": "אֶתְכֶֽם",
+   "ref": "Devarim 1:9"
+  },
+  {
+   "word": "רְבִיעִֽי",
+   "ref": "Bereshit 1:19"
+  },
+  {
+   "word": "פּוּעָֽה",
+   "ref": "Shemot 1:15"
+  },
+  {
+   "word": "תִהְיֶֽה",
+   "ref": "Vayikra 2:5"
+  },
+  {
+   "word": "מֵאֽוֹת",
+   "ref": "Bamidbar 1:23"
+  },
+  {
+   "word": "גֵּרֽוֹ",
+   "ref": "Devarim 1:16"
+  }
+ ],
+ "atnah": [
+  {
+   "word": "תְה֑וֹם",
+   "ref": "Bereshit 1:2"
+  },
+  {
+   "word": "נָ֑פֶשׁ",
+   "ref": "Shemot 1:5"
+  },
+  {
+   "word": "הָעֹלָ֑ה",
+   "ref": "Vayikra 1:4"
+  },
+  {
+   "word": "מוֹעֵ֑ד",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "הַיַּרְדֵּ֑ן",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "לָרָקִ֑יעַ",
+   "ref": "Bereshit 1:7"
+  },
+  {
+   "word": "בַּשָּׂדֶ֑ה",
+   "ref": "Shemot 1:14"
+  },
+  {
+   "word": "בְּנֹצָתָ֑הּ",
+   "ref": "Vayikra 1:16"
+  },
+  {
+   "word": "אֲבוֹתָ֑ם",
+   "ref": "Bamidbar 1:16"
+  },
+  {
+   "word": "הַיָּ֑ם",
+   "ref": "Devarim 1:7"
+  },
+  {
+   "word": "הַלָּ֑יְלָה",
+   "ref": "Bereshit 1:14"
+  },
+  {
+   "word": "לֵוִ֑י",
+   "ref": "Shemot 2:1"
+  },
+  {
+   "word": "שָׁ֑מֶן",
+   "ref": "Vayikra 2:6"
+  },
+  {
+   "word": "רְאוּבֵ֑ן",
+   "ref": "Bamidbar 1:21"
+  },
+  {
+   "word": "לְבַדִּ֑י",
+   "ref": "Devarim 1:12"
+  }
+ ],
+ "segolta": [
+  {
+   "word": "הָֽאָדָם֒",
+   "ref": "Bereshit 2:23"
+  },
+  {
+   "word": "הַהִוא֒",
+   "ref": "Shemot 3:8"
+  },
+  {
+   "word": "יַבְדִּיל֒",
+   "ref": "Vayikra 1:17"
+  },
+  {
+   "word": "מְרָרִי֒",
+   "ref": "Bamidbar 3:36"
+  },
+  {
+   "word": "כֻּלְּכֶם֒",
+   "ref": "Devarim 1:22"
+  },
+  {
+   "word": "הַנִּיחֹ֒חַ֒",
+   "ref": "Bereshit 8:21"
+  },
+  {
+   "word": "לָֽאָדָם֒",
+   "ref": "Shemot 4:11"
+  },
+  {
+   "word": "שֶׂה֒",
+   "ref": "Vayikra 5:7"
+  },
+  {
+   "word": "עָשׂוּ֒",
+   "ref": "Bamidbar 5:7"
+  },
+  {
+   "word": "כָּכֶם֒",
+   "ref": "Devarim 3:20"
+  },
+  {
+   "word": "הַנַּ֒עַר֒",
+   "ref": "Bereshit 21:17"
+  },
+  {
+   "word": "מִצְרַ֒יִם֒",
+   "ref": "Shemot 11:5"
+  },
+  {
+   "word": "מוֹעֵד֒",
+   "ref": "Vayikra 8:31"
+  },
+  {
+   "word": "מִשְׁקָלָהּ֒",
+   "ref": "Bamidbar 7:13"
+  },
+  {
+   "word": "תׇעׇבְדֵם֒",
+   "ref": "Devarim 5:9"
+  }
+ ],
+ "shalshelet": [
+  {
+   "word": "וַיֹּאמַ֓ר",
+   "ref": "Bereshit 24:12"
+  },
+  {
+   "word": "וַיִּשְׁחָ֓ט",
+   "ref": "Vayikra 8:23"
+  },
+  {
+   "word": "וַֽיִּתְמַהְמָ֓הּ",
+   "ref": "Bereshit 19:16"
+  },
+  {
+   "word": "וַיְמָאֵ֓ן",
+   "ref": "Bereshit 39:8"
+  }
+ ],
+ "zakef-katon": [
+  {
+   "word": "וָבֹ֔הוּ",
+   "ref": "Bereshit 1:2"
+  },
+  {
+   "word": "יִשְׂרָאֵ֔ל",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "אֵלָ֔יו",
+   "ref": "Vayikra 1:1"
+  },
+  {
+   "word": "שֵׁמ֔וֹת",
+   "ref": "Bamidbar 1:2"
+  },
+  {
+   "word": "מֵֽחֹרֵ֔ב",
+   "ref": "Devarim 1:2"
+  },
+  {
+   "word": "הַמַּ֔יִם",
+   "ref": "Bereshit 1:7"
+  },
+  {
+   "word": "לְפַרְעֹ֔ה",
+   "ref": "Shemot 1:11"
+  },
+  {
+   "word": "סָבִ֔יב",
+   "ref": "Vayikra 1:5"
+  },
+  {
+   "word": "הָעֵדָ֔ה",
+   "ref": "Bamidbar 1:16"
+  },
+  {
+   "word": "מֹשֶׁ֔ה",
+   "ref": "Devarim 1:5"
+  },
+  {
+   "word": "לְמִינ֔וֹ",
+   "ref": "Bereshit 1:11"
+  },
+  {
+   "word": "אֹת֔וֹ",
+   "ref": "Shemot 1:16"
+  },
+  {
+   "word": "בַּשֶּׁ֔מֶן",
+   "ref": "Vayikra 2:4"
+  },
+  {
+   "word": "שִׁמְע֔וֹן",
+   "ref": "Bamidbar 1:22"
+  },
+  {
+   "word": "אֶתְכֶ֔ם",
+   "ref": "Devarim 1:11"
+  }
+ ],
+ "zakef-gadol": [
+  {
+   "word": "וְעֵ֕ץ",
+   "ref": "Bereshit 2:9"
+  },
+  {
+   "word": "וַיָּקֻ֕צוּ",
+   "ref": "Shemot 1:12"
+  },
+  {
+   "word": "תַּקְרִ֕יב",
+   "ref": "Vayikra 2:14"
+  },
+  {
+   "word": "לִמְנַשֶּׁ֕ה",
+   "ref": "Bamidbar 1:10"
+  },
+  {
+   "word": "וַנָּבֹ֕א",
+   "ref": "Devarim 1:19"
+  },
+  {
+   "word": "לִשְׁמֹ֕ר",
+   "ref": "Bereshit 3:24"
+  },
+  {
+   "word": "וַתֹּ֕אמֶר",
+   "ref": "Shemot 2:10"
+  },
+  {
+   "word": "וְנָתַ֕ן",
+   "ref": "Vayikra 4:30"
+  },
+  {
+   "word": "מִנֶּ֕גֶד",
+   "ref": "Bamidbar 2:2"
+  },
+  {
+   "word": "נָתַ֕תִּי",
+   "ref": "Devarim 3:12"
+  },
+  {
+   "word": "אֲבִ֕י",
+   "ref": "Bereshit 4:21"
+  },
+  {
+   "word": "וְאֵ֕יךְ",
+   "ref": "Shemot 6:30"
+  },
+  {
+   "word": "וַיַּקְרֵ֕ב",
+   "ref": "Vayikra 8:18"
+  },
+  {
+   "word": "פְּקֻדַּ֕ת",
+   "ref": "Bamidbar 3:32"
+  },
+  {
+   "word": "תַּבְנִ֕ית",
+   "ref": "Devarim 4:18"
+  }
+ ],
+ "tarha": [
+  {
+   "word": "הַשָּׁמַ֖יִם",
+   "ref": "Bereshit 1:1"
+  },
+  {
+   "word": "הַבָּאִ֖ים",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "מוֹעֵ֖ד",
+   "ref": "Vayikra 1:1"
+  },
+  {
+   "word": "סִינַ֖י",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "בְּעֵ֖בֶר",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "וְלַחֹ֖שֶׁךְ",
+   "ref": "Bereshit 1:5"
+  },
+  {
+   "word": "וְיוֹסֵ֖ף",
+   "ref": "Shemot 1:5"
+  },
+  {
+   "word": "עַ֖ל",
+   "ref": "Vayikra 1:4"
+  },
+  {
+   "word": "יַֽעַמְד֖וּ",
+   "ref": "Bamidbar 1:5"
+  },
+  {
+   "word": "חֹ֖דֶשׁ",
+   "ref": "Devarim 1:3"
+  },
+  {
+   "word": "לָֽרָקִ֖יעַ",
+   "ref": "Bereshit 1:8"
+  },
+  {
+   "word": "וְעָצ֖וּם",
+   "ref": "Shemot 1:9"
+  },
+  {
+   "word": "אֵ֖שׁ",
+   "ref": "Vayikra 1:7"
+  },
+  {
+   "word": "אֲבִידָ֖ן",
+   "ref": "Bamidbar 1:11"
+  },
+  {
+   "word": "הַזֹּ֖את",
+   "ref": "Devarim 1:5"
+  }
+ ],
+ "rebia": [
+  {
+   "word": "וְהָאָ֗רֶץ",
+   "ref": "Bereshit 1:2"
+  },
+  {
+   "word": "וְאֵ֗לֶּה",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "אָדָ֗ם",
+   "ref": "Vayikra 1:2"
+  },
+  {
+   "word": "הַשֵּׁנִ֗ית",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "הַכֹּת֗וֹ",
+   "ref": "Devarim 1:4"
+  },
+  {
+   "word": "לְמִינָ֗הּ",
+   "ref": "Bereshit 1:25"
+  },
+  {
+   "word": "קָשָׁ֗ה",
+   "ref": "Shemot 1:14"
+  },
+  {
+   "word": "וְנֶ֗פֶשׁ",
+   "ref": "Vayikra 2:1"
+  },
+  {
+   "word": "שֵׁמ֗וֹת",
+   "ref": "Bamidbar 1:24"
+  },
+  {
+   "word": "בַּמִּשְׁפָּ֗ט",
+   "ref": "Devarim 1:17"
+  },
+  {
+   "word": "הַשָּׂדֶ֗ה",
+   "ref": "Bereshit 2:5"
+  },
+  {
+   "word": "הַיֶּ֗לֶד",
+   "ref": "Shemot 2:10"
+  },
+  {
+   "word": "הַפָּ֗ר",
+   "ref": "Vayikra 4:7"
+  },
+  {
+   "word": "שֵׁמֹ֗ת",
+   "ref": "Bamidbar 1:36"
+  },
+  {
+   "word": "עֹלִ֗ים",
+   "ref": "Devarim 1:28"
+  }
+ ],
+ "zarka": [
+  {
+   "word": "אֹתָם֮",
+   "ref": "Bereshit 1:28"
+  },
+  {
+   "word": "עוֹד֮",
+   "ref": "Shemot 2:3"
+  },
+  {
+   "word": "אַהֲרֹן֮",
+   "ref": "Vayikra 2:2"
+  },
+  {
+   "word": "לִי֮",
+   "ref": "Bamidbar 3:13"
+  },
+  {
+   "word": "הָֽאֱמֹרִי֮",
+   "ref": "Devarim 1:7"
+  },
+  {
+   "word": "טֶ֘רֶם֮",
+   "ref": "Bereshit 19:4"
+  },
+  {
+   "word": "פֶּה֮",
+   "ref": "Shemot 4:11"
+  },
+  {
+   "word": "תִּגַּע֮",
+   "ref": "Vayikra 5:2"
+  },
+  {
+   "word": "דַּבֵּר֮",
+   "ref": "Bamidbar 5:6"
+  },
+  {
+   "word": "וְעִבְרוּ֮",
+   "ref": "Devarim 2:24"
+  },
+  {
+   "word": "וָאֹמַר֮",
+   "ref": "Bereshit 24:47"
+  },
+  {
+   "word": "הַבַּ֘יִת֮",
+   "ref": "Shemot 12:4"
+  },
+  {
+   "word": "עָלָיו֮",
+   "ref": "Vayikra 5:24"
+  },
+  {
+   "word": "הַנָּזִיר֮",
+   "ref": "Bamidbar 6:21"
+  },
+  {
+   "word": "וַהֲשֵׁבֹתָ֮",
+   "ref": "Devarim 4:39"
+  }
+ ],
+ "kadma": [
+  {
+   "word": "לָאוֹר֙",
+   "ref": "Bereshit 1:5"
+  },
+  {
+   "word": "שְׁמוֹת֙",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "יִשְׂרָאֵל֙",
+   "ref": "Vayikra 1:2"
+  },
+  {
+   "word": "שָׁנָה֙",
+   "ref": "Bamidbar 1:3"
+  },
+  {
+   "word": "מֹשֶׁה֙",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "מְאֹרֹת֙",
+   "ref": "Bereshit 1:14"
+  },
+  {
+   "word": "וְכַאֲשֶׁר֙",
+   "ref": "Shemot 1:12"
+  },
+  {
+   "word": "אֹתוֹ֙",
+   "ref": "Vayikra 1:12"
+  },
+  {
+   "word": "וַיִּֽהְיוּ֙",
+   "ref": "Bamidbar 1:46"
+  },
+  {
+   "word": "חֲכָמִים֙",
+   "ref": "Devarim 1:15"
+  },
+  {
+   "word": "וְלִמְשֹׁל֙",
+   "ref": "Bereshit 1:18"
+  },
+  {
+   "word": "וַתִּפְתַּח֙",
+   "ref": "Shemot 2:6"
+  },
+  {
+   "word": "הַכֹּהֵן֙",
+   "ref": "Vayikra 1:17"
+  },
+  {
+   "word": "וְשָׁמְרוּ֙",
+   "ref": "Bamidbar 1:53"
+  },
+  {
+   "word": "וְהַדָּבָר֙",
+   "ref": "Devarim 1:17"
+  }
+ ],
+ "tere-kadmin": [
+  {
+   "word": "תֹ֙הוּ֙",
+   "ref": "Bereshit 1:2"
+  },
+  {
+   "word": "בְּחֹ֙מֶר֙",
+   "ref": "Shemot 1:14"
+  },
+  {
+   "word": "הַמִּזְבֵּ֙חַ֙",
+   "ref": "Vayikra 1:16"
+  },
+  {
+   "word": "וְאֵ֙לֶּה֙",
+   "ref": "Bamidbar 1:5"
+  },
+  {
+   "word": "תָג֙וּרוּ֙",
+   "ref": "Devarim 1:17"
+  },
+  {
+   "word": "זֶ֙רַע֙",
+   "ref": "Bereshit 1:12"
+  },
+  {
+   "word": "וַיֹּ֙אמֶר֙",
+   "ref": "Shemot 2:13"
+  },
+  {
+   "word": "עָלֶ֙יהָ֙",
+   "ref": "Vayikra 5:11"
+  },
+  {
+   "word": "מִשְׁפַּ֙חַת֙",
+   "ref": "Bamidbar 3:33"
+  },
+  {
+   "word": "מִדֶּ֙רֶךְ֙",
+   "ref": "Devarim 2:8"
+  },
+  {
+   "word": "אַפֶּ֙יךָ֙",
+   "ref": "Bereshit 3:19"
+  },
+  {
+   "word": "אָחִ֙יךָ֙",
+   "ref": "Shemot 4:14"
+  },
+  {
+   "word": "וָלַ֙יְלָה֙",
+   "ref": "Vayikra 8:35"
+  },
+  {
+   "word": "תַ֙עַר֙",
+   "ref": "Bamidbar 8:7"
+  },
+  {
+   "word": "בַּנַּ֙חַל֙",
+   "ref": "Devarim 2:36"
+  }
+ ],
+ "yetib": [
+  {
+   "word": "עֵ֚שֶׂב",
+   "ref": "Bereshit 1:11"
+  },
+  {
+   "word": "עַ֚ם",
+   "ref": "Shemot 1:9"
+  },
+  {
+   "word": "אֵ֚ת",
+   "ref": "Vayikra 1:8"
+  },
+  {
+   "word": "אֵ֚לֶּה",
+   "ref": "Bamidbar 1:16"
+  },
+  {
+   "word": "ע֚וֹג",
+   "ref": "Devarim 1:4"
+  },
+  {
+   "word": "כִּ֚י",
+   "ref": "Bereshit 3:5"
+  },
+  {
+   "word": "בָּ֚אוּ",
+   "ref": "Shemot 5:1"
+  },
+  {
+   "word": "נֶ֚פֶשׁ",
+   "ref": "Vayikra 5:15"
+  },
+  {
+   "word": "עַ֚ל",
+   "ref": "Bamidbar 6:20"
+  },
+  {
+   "word": "אִ֚ישׁ",
+   "ref": "Devarim 3:20"
+  },
+  {
+   "word": "לָ֚מָּה",
+   "ref": "Bereshit 4:6"
+  },
+  {
+   "word": "כֹּ֚ה",
+   "ref": "Shemot 7:26"
+  },
+  {
+   "word": "א֚וֹ",
+   "ref": "Vayikra 7:21"
+  },
+  {
+   "word": "זֹ֚את",
+   "ref": "Bamidbar 7:88"
+  },
+  {
+   "word": "אֶ֚רֶץ",
+   "ref": "Devarim 8:7"
+  }
+ ],
+ "tebir": [
+  {
+   "word": "אֹתָ֛ם",
+   "ref": "Bereshit 1:17"
+  },
+  {
+   "word": "מִצְרַ֛יִם",
+   "ref": "Shemot 1:13"
+  },
+  {
+   "word": "מִכֶּ֛ם",
+   "ref": "Vayikra 1:2"
+  },
+  {
+   "word": "לְצֵאתָ֛ם",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "בֵּאֵ֛ר",
+   "ref": "Devarim 1:5"
+  },
+  {
+   "word": "וּרְב֛וּ",
+   "ref": "Bereshit 1:28"
+  },
+  {
+   "word": "הָעָ֛ם",
+   "ref": "Shemot 1:20"
+  },
+  {
+   "word": "הַמִּזְבֵּ֛חַ",
+   "ref": "Vayikra 1:11"
+  },
+  {
+   "word": "כַּאֲשֶׁ֛ר",
+   "ref": "Bamidbar 1:19"
+  },
+  {
+   "word": "אוֹתָ֛ם",
+   "ref": "Devarim 1:15"
+  },
+  {
+   "word": "וּֽזְהַ֛ב",
+   "ref": "Bereshit 2:12"
+  },
+  {
+   "word": "שַׁוְעָתָ֛ם",
+   "ref": "Shemot 2:23"
+  },
+  {
+   "word": "אִשֵּׁ֛ה",
+   "ref": "Vayikra 2:2"
+  },
+  {
+   "word": "אֶ֛לֶף",
+   "ref": "Bamidbar 2:9"
+  },
+  {
+   "word": "אִתְּכֶ֛ם",
+   "ref": "Devarim 1:30"
+  }
+ ],
+ "pazer-gadol": [
+  {
+   "word": "הָֽרֹמֶ֡שֶׂת",
+   "ref": "Bereshit 1:21"
+  },
+  {
+   "word": "וּבָאתָ֡",
+   "ref": "Shemot 3:18"
+  },
+  {
+   "word": "וְזָרְק֡וּ",
+   "ref": "Vayikra 1:11"
+  },
+  {
+   "word": "וְאַתָּ֡ה",
+   "ref": "Bamidbar 1:50"
+  },
+  {
+   "word": "בַּמִּדְבָּ֡ר",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "בַּבֹּ֡קֶר",
+   "ref": "Bereshit 21:14"
+  },
+  {
+   "word": "וּלְמַ֡עַן",
+   "ref": "Shemot 10:2"
+  },
+  {
+   "word": "זֶ֡ה",
+   "ref": "Vayikra 6:13"
+  },
+  {
+   "word": "כִּ֡י",
+   "ref": "Bamidbar 11:18"
+  },
+  {
+   "word": "מִמַּ֡עַל",
+   "ref": "Devarim 5:8"
+  },
+  {
+   "word": "וַיֹּ֡אמֶר",
+   "ref": "Bereshit 27:36"
+  },
+  {
+   "word": "אֹתָ֡ם",
+   "ref": "Shemot 28:27"
+  },
+  {
+   "word": "וְאִ֡ם",
+   "ref": "Vayikra 15:24"
+  },
+  {
+   "word": "וַיֵּלְכ֡וּ",
+   "ref": "Bamidbar 13:26"
+  },
+  {
+   "word": "יְסִֽיתְךָ֡",
+   "ref": "Devarim 13:7"
+  }
+ ],
+ "karne-farah": [
+  {
+   "word": "בָּֽאַמָּ֟ה",
+   "ref": "Bamidbar 35:5"
+  }
+ ],
+ "talsha": [
+  {
+   "word": "דֶּ֠שֶׁא",
+   "ref": "Bereshit 1:12"
+  },
+  {
+   "word": "וַ֠יֹּ֠אמֶר",
+   "ref": "Shemot 2:14"
+  },
+  {
+   "word": "וְ֠נָתְנ֠וּ",
+   "ref": "Vayikra 1:7"
+  },
+  {
+   "word": "כְּ֠כֹ֠ל",
+   "ref": "Bamidbar 1:54"
+  },
+  {
+   "word": "לָ֠כֶ֠ם",
+   "ref": "Devarim 1:13"
+  },
+  {
+   "word": "וַ֠יְהִ֠י",
+   "ref": "Bereshit 8:13"
+  },
+  {
+   "word": "לְ֠פָנָ֠יו",
+   "ref": "Shemot 10:14"
+  },
+  {
+   "word": "וְ֠סָמְכ֠וּ",
+   "ref": "Vayikra 4:15"
+  },
+  {
+   "word": "וְ֠כָתַ֠ב",
+   "ref": "Bamidbar 5:23"
+  },
+  {
+   "word": "בְ֠יָדְךָ֠",
+   "ref": "Devarim 2:24"
+  },
+  {
+   "word": "ה֠וּא",
+   "ref": "Bereshit 13:1"
+  },
+  {
+   "word": "וַ֠יִּסְע֠וּ",
+   "ref": "Shemot 17:1"
+  },
+  {
+   "word": "וְ֠הֵבִ֠יא",
+   "ref": "Vayikra 5:18"
+  },
+  {
+   "word": "וְ֠גַ֠ם",
+   "ref": "Bamidbar 13:27"
+  },
+  {
+   "word": "לָ֠ב֠וֹא",
+   "ref": "Devarim 4:34"
+  }
+ ],
+ "gerish": [
+  {
+   "word": "הַמַּ֜יִם",
+   "ref": "Bereshit 1:9"
+  },
+  {
+   "word": "וַיִּ֜בֶן",
+   "ref": "Shemot 1:11"
+  },
+  {
+   "word": "אֹת֜וֹ",
+   "ref": "Vayikra 1:11"
+  },
+  {
+   "word": "הַשֵּׁנִ֜י",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "ס֜וּף",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "הַיָּ֜ם",
+   "ref": "Bereshit 1:26"
+  },
+  {
+   "word": "יִשְׂרָאֵ֜ל",
+   "ref": "Shemot 3:18"
+  },
+  {
+   "word": "הַכֹּהֵ֜ן",
+   "ref": "Vayikra 2:16"
+  },
+  {
+   "word": "אֶ֜לֶף",
+   "ref": "Bamidbar 2:16"
+  },
+  {
+   "word": "אֲמַרְתֶּ֜ם",
+   "ref": "Devarim 1:39"
+  },
+  {
+   "word": "הִמְטִ֜יר",
+   "ref": "Bereshit 2:5"
+  },
+  {
+   "word": "מֹשֶׁ֜ה",
+   "ref": "Shemot 4:18"
+  },
+  {
+   "word": "חַיָּ֜ה",
+   "ref": "Vayikra 5:2"
+  },
+  {
+   "word": "וְשִׁשִּׁ֜ים",
+   "ref": "Bamidbar 3:50"
+  },
+  {
+   "word": "וְלַגָּדִ֜י",
+   "ref": "Devarim 3:16"
+  }
+ ],
+ "shene-gerishin": [
+  {
+   "word": "פְּרִ֞י",
+   "ref": "Bereshit 1:11"
+  },
+  {
+   "word": "וְהָיָ֞ה",
+   "ref": "Shemot 1:10"
+  },
+  {
+   "word": "דַּבֵּ֞ר",
+   "ref": "Vayikra 1:2"
+  },
+  {
+   "word": "וַאֲנִ֞י",
+   "ref": "Bamidbar 3:12"
+  },
+  {
+   "word": "וָאֶקַּ֞ח",
+   "ref": "Devarim 1:15"
+  },
+  {
+   "word": "וַיִּֽהְי֞וּ",
+   "ref": "Bereshit 5:5"
+  },
+  {
+   "word": "וַיִּרְא֞וּ",
+   "ref": "Shemot 5:19"
+  },
+  {
+   "word": "מִכֹּ֞ל",
+   "ref": "Vayikra 5:24"
+  },
+  {
+   "word": "אֶחָ֞ד",
+   "ref": "Bamidbar 7:21"
+  },
+  {
+   "word": "וַנִּקַּ֞ח",
+   "ref": "Devarim 3:8"
+  },
+  {
+   "word": "נִפְרְד֞וּ",
+   "ref": "Bereshit 10:5"
+  },
+  {
+   "word": "אָנֹכִ֞י",
+   "ref": "Shemot 8:24"
+  },
+  {
+   "word": "וַעֲשֵׂ֞ה",
+   "ref": "Vayikra 9:7"
+  },
+  {
+   "word": "קׇרְבָּנ֞וֹ",
+   "ref": "Bamidbar 7:49"
+  },
+  {
+   "word": "וְשָׁמַרְתָּ֞",
+   "ref": "Devarim 4:40"
+  }
+ ],
+ "shofar-holekh-pesik": [
+  {
+   "word": "הַֽחַיָּ֣ה",
+   "ref": "Bereshit 1:21"
+  },
+  {
+   "word": "וַיְהִ֣י",
+   "ref": "Shemot 2:11"
+  },
+  {
+   "word": "וְאֵ֣ת",
+   "ref": "Vayikra 4:7"
+  },
+  {
+   "word": "הַבְּכֹ֣ר",
+   "ref": "Bamidbar 3:2"
+  },
+  {
+   "word": "פְּנ֣וּ",
+   "ref": "Devarim 1:7"
+  },
+  {
+   "word": "וַיֹּ֣אמֶר",
+   "ref": "Bereshit 3:22"
+  },
+  {
+   "word": "כַּאֲשֶׁ֣ר",
+   "ref": "Shemot 7:20"
+  },
+  {
+   "word": "א֣וֹ",
+   "ref": "Vayikra 7:21"
+  },
+  {
+   "word": "וְעַ֣ל",
+   "ref": "Bamidbar 4:11"
+  },
+  {
+   "word": "זֶ֣ה",
+   "ref": "Devarim 2:7"
+  },
+  {
+   "word": "אֲשֶׁ֣ר",
+   "ref": "Bereshit 7:23"
+  },
+  {
+   "word": "אִ֣ישׁ",
+   "ref": "Shemot 11:2"
+  },
+  {
+   "word": "וְשֶׁ֣סַע",
+   "ref": "Vayikra 11:26"
+  },
+  {
+   "word": "שְׁנֵיהֶ֣ם",
+   "ref": "Bamidbar 7:13"
+  },
+  {
+   "word": "פָּנִ֣ים",
+   "ref": "Devarim 5:4"
+  }
+ ],
+ "maarikh": [
+  {
+   "word": "אֵ֥ת",
+   "ref": "Bereshit 1:1"
+  },
+  {
+   "word": "אִ֥ישׁ",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "מֵאֹ֥הֶל",
+   "ref": "Vayikra 1:1"
+  },
+  {
+   "word": "בְּמִדְבַּ֥ר",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "וְלָבָ֥ן",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "בֵּ֥ין",
+   "ref": "Bereshit 1:4"
+  },
+  {
+   "word": "יֹצְאֵ֥י",
+   "ref": "Shemot 1:5"
+  },
+  {
+   "word": "לְכַפֵּ֥ר",
+   "ref": "Vayikra 1:4"
+  },
+  {
+   "word": "רֹ֥אשׁ",
+   "ref": "Bamidbar 1:4"
+  },
+  {
+   "word": "אֲשֶׁ֥ר",
+   "ref": "Devarim 1:4"
+  },
+  {
+   "word": "י֥וֹם",
+   "ref": "Bereshit 1:8"
+  },
+  {
+   "word": "וַתִּמָּלֵ֥א",
+   "ref": "Shemot 1:7"
+  },
+  {
+   "word": "וְקִרְבּ֥וֹ",
+   "ref": "Vayikra 1:9"
+  },
+  {
+   "word": "צִוָּ֥ה",
+   "ref": "Bamidbar 1:19"
+  },
+  {
+   "word": "הַ֥ר",
+   "ref": "Devarim 1:7"
+  }
+ ],
+ "shofar-holekh": [
+  {
+   "word": "בָּרָ֣א",
+   "ref": "Bereshit 1:1"
+  },
+  {
+   "word": "בְּנֵ֣י",
+   "ref": "Shemot 1:1"
+  },
+  {
+   "word": "וְאָמַרְתָּ֣",
+   "ref": "Vayikra 1:2"
+  },
+  {
+   "word": "בְּאֹ֣הֶל",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "אֵ֣לֶּה",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "קָ֣רָא",
+   "ref": "Bereshit 1:5"
+  },
+  {
+   "word": "וּבְנֵ֣י",
+   "ref": "Shemot 1:7"
+  },
+  {
+   "word": "לִפְנֵ֣י",
+   "ref": "Vayikra 1:5"
+  },
+  {
+   "word": "וְאִתְּכֶ֣ם",
+   "ref": "Bamidbar 1:4"
+  },
+  {
+   "word": "מֶ֣לֶךְ",
+   "ref": "Devarim 1:4"
+  },
+  {
+   "word": "וַיַּ֣עַשׂ",
+   "ref": "Bereshit 1:7"
+  },
+  {
+   "word": "וְכֵ֣ן",
+   "ref": "Shemot 1:12"
+  },
+  {
+   "word": "אֲשֶׁ֣ר",
+   "ref": "Vayikra 1:12"
+  },
+  {
+   "word": "לַחֹ֣דֶשׁ",
+   "ref": "Bamidbar 1:18"
+  },
+  {
+   "word": "וּבְח֣וֹף",
+   "ref": "Devarim 1:7"
+  }
+ ],
+ "shofar-mehuppakh": [
+  {
+   "word": "בֵּ֤ין",
+   "ref": "Bereshit 1:7"
+  },
+  {
+   "word": "וַיָּ֤מׇת",
+   "ref": "Shemot 1:6"
+  },
+  {
+   "word": "וַיְדַבֵּ֤ר",
+   "ref": "Vayikra 1:1"
+  },
+  {
+   "word": "עֶשְׂרִ֤ים",
+   "ref": "Bamidbar 1:3"
+  },
+  {
+   "word": "דִּבֶּ֤ר",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "מַזְרִ֤יעַ",
+   "ref": "Bereshit 1:12"
+  },
+  {
+   "word": "וַיִּקְרָ֤א",
+   "ref": "Shemot 1:18"
+  },
+  {
+   "word": "הַכֹּהֵ֤ן",
+   "ref": "Vayikra 1:9"
+  },
+  {
+   "word": "חֲמִשָּׁ֤ה",
+   "ref": "Bamidbar 1:25"
+  },
+  {
+   "word": "וְשָׂרֵ֤י",
+   "ref": "Devarim 1:15"
+  },
+  {
+   "word": "וּמִלְא֤וּ",
+   "ref": "Bereshit 1:22"
+  },
+  {
+   "word": "וַתֵּ֤רֶא",
+   "ref": "Shemot 2:5"
+  },
+  {
+   "word": "אֹת֤וֹ",
+   "ref": "Vayikra 1:17"
+  },
+  {
+   "word": "יַחֲנ֤וּ",
+   "ref": "Bamidbar 1:53"
+  },
+  {
+   "word": "נִשְׁלְחָ֤ה",
+   "ref": "Devarim 1:22"
+  }
+ ],
+ "darga": [
+  {
+   "word": "וַיַּ֧רְא",
+   "ref": "Bereshit 1:4"
+  },
+  {
+   "word": "פָּר֧וּ",
+   "ref": "Shemot 1:7"
+  },
+  {
+   "word": "אַהֲרֹ֧ן",
+   "ref": "Vayikra 1:7"
+  },
+  {
+   "word": "שִׁשָּׁ֧ה",
+   "ref": "Bamidbar 1:21"
+  },
+  {
+   "word": "צִוָּ֧ה",
+   "ref": "Devarim 1:3"
+  },
+  {
+   "word": "וְכִ֧י",
+   "ref": "Bereshit 3:6"
+  },
+  {
+   "word": "וַתֹּ֧אמֶר",
+   "ref": "Shemot 2:9"
+  },
+  {
+   "word": "אֲשֶׁ֧ר",
+   "ref": "Vayikra 2:8"
+  },
+  {
+   "word": "שִׁבְעָ֧ה",
+   "ref": "Bamidbar 1:31"
+  },
+  {
+   "word": "תִּשְׁבְּר֧וּ",
+   "ref": "Devarim 2:6"
+  },
+  {
+   "word": "מִפְּרִ֧י",
+   "ref": "Bereshit 4:3"
+  },
+  {
+   "word": "כִּ֧י",
+   "ref": "Shemot 4:10"
+  },
+  {
+   "word": "וְטָבַ֧ל",
+   "ref": "Vayikra 4:17"
+  },
+  {
+   "word": "אֶחָ֧ד",
+   "ref": "Bamidbar 1:41"
+  },
+  {
+   "word": "כַּאֲשֶׁ֧ר",
+   "ref": "Devarim 2:12"
+  }
+ ],
+ "tilsa": [
+  {
+   "word": "אֲשֶׁר֩",
+   "ref": "Bereshit 1:21"
+  },
+  {
+   "word": "וַיְהִי֩",
+   "ref": "Shemot 2:23"
+  },
+  {
+   "word": "בְּנֵי֩",
+   "ref": "Vayikra 1:11"
+  },
+  {
+   "word": "בְּאֶחָד֩",
+   "ref": "Bamidbar 1:1"
+  },
+  {
+   "word": "בָּֽעֲרָבָה֩",
+   "ref": "Devarim 1:1"
+  },
+  {
+   "word": "וַיִּ֩יצֶר֩",
+   "ref": "Bereshit 2:7"
+  },
+  {
+   "word": "וַיֹּ֩אמֶר֩",
+   "ref": "Shemot 4:6"
+  },
+  {
+   "word": "תִשָּׁבַע֩",
+   "ref": "Vayikra 5:4"
+  },
+  {
+   "word": "מִבֶּן֩",
+   "ref": "Bamidbar 4:23"
+  },
+  {
+   "word": "וְטַפְּכֶם֩",
+   "ref": "Devarim 1:39"
+  },
+  {
+   "word": "וַיִּ֩בֶן֩",
+   "ref": "Bereshit 2:22"
+  },
+  {
+   "word": "לֹא֩",
+   "ref": "Shemot 5:14"
+  },
+  {
+   "word": "וְכִפֶּר֩",
+   "ref": "Vayikra 5:18"
+  },
+  {
+   "word": "וְהֵנִיף֩",
+   "ref": "Bamidbar 6:20"
+  },
+  {
+   "word": "וַיִּתֵּן֩",
+   "ref": "Devarim 3:3"
+  }
+ ],
+ "tere-taame": [
+  {
+   "word": "ל֦וֹ",
+   "ref": "Bereshit 27:25"
+  },
+  {
+   "word": "תַעֲשֶׂ֦ה",
+   "ref": "Shemot 5:15"
+  },
+  {
+   "word": "לֹ֦א",
+   "ref": "Vayikra 10:1"
+  },
+  {
+   "word": "ט֦וֹב",
+   "ref": "Bamidbar 14:3"
+  },
+  {
+   "word": "לָ֦הֿ",
+   "ref": "Bamidbar 32:42"
+  }
+ ]
+}

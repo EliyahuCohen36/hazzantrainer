@@ -161,9 +161,12 @@ export function ScrollPages({
   marks = [],
   focus = null,
   tikkun = true,
+  flip = false,
 }: {
   /** Vowels beside (the switch is next to the Torah Scroll Mode switch). */
   tikkun?: boolean;
+  /** One side at a time: tapping the page switches between the scroll and the vowelled side (owner, Nov 24). */
+  flip?: boolean;
   columns: ScrollColumn[];
   zoom?: number;
   /** Where each aliyah starts: [pasuk (c × 1000 + v), name]. */
@@ -171,7 +174,9 @@ export function ScrollPages({
   /** The aliyah picked: only its words are shown clearly. */
   focus?: [number, number] | null;
 }) {
+  const [vowelSide, setVowelSide] = useState(false);
   if (!columns.length) return null;
+  const both = tikkun && !flip;
   // Only the columns that hold the aliyah picked.
   const shown = focus
     ? columns.filter((c) =>
@@ -190,6 +195,11 @@ export function ScrollPages({
             Columns {columns[0].n}–{columns[columns.length - 1].n} of 245, line
             for line as in the Sefer Torah (42 lines a column).
           </p>
+          {flip && (
+            <p className="font-medium text-amber-800">
+              {vowelSide ? "Showing the nekudot and te'amim: tap the page to see the scroll." : "Tap the page to see the nekudot and te'amim."}
+            </p>
+          )}
         </div>
         {shown.map((c) => (
           <section key={c.n} aria-label={`Column ${c.n}`}>
@@ -197,15 +207,17 @@ export function ScrollPages({
               Column {c.n}
             </div>
             {/* Zoom makes the whole page bigger, exactly as it is (scroll sideways if it gets wider than the screen). */}
-            <div className={tikkun && zoom !== 1 ? "pt-3" : "overflow-x-auto pt-3"}>
+            <div className={both && zoom !== 1 ? "pt-3" : "overflow-x-auto pt-3"}>
               {/* Sized by width, not CSS zoom: the letters are measured in container units (cqw),
                   so a wider column makes everything bigger exactly as it is, in every browser. */}
               <div
-                className={tikkun ? "mx-auto grid gap-3 md:grid-cols-2" : "mx-auto max-w-xl"}
+                className={both ? "mx-auto grid gap-3 md:grid-cols-2" : `mx-auto max-w-xl ${flip ? "cursor-pointer select-none" : ""}`}
+                onClick={flip ? () => setVowelSide((v) => !v) : undefined}
+                title={flip ? (vowelSide ? "Tap to see the scroll" : "Tap to see the nekudot and te'amim") : undefined}
                 style={
                   zoom === 1
                     ? undefined
-                    : tikkun
+                    : both
                       ? // Both sides grow together, centred on the screen (up to the screen's width).
                         {
                           width: `min(calc(100vw - 2rem), ${zoom * 100}%)`,
@@ -215,14 +227,20 @@ export function ScrollPages({
                       : { maxWidth: `${36 * zoom}rem` }
                 }
               >
-                {tikkun && (
-                  <div className="md:order-2">
-                    <Column col={c} vowels />
-                  </div>
+                {flip ? (
+                  <Column col={c} vowels={vowelSide} />
+                ) : (
+                  <>
+                    {tikkun && (
+                      <div className="md:order-2">
+                        <Column col={c} vowels />
+                      </div>
+                    )}
+                    <div className="md:order-1">
+                      <Column col={c} vowels={false} />
+                    </div>
+                  </>
                 )}
-                <div className="md:order-1">
-                  <Column col={c} vowels={false} />
-                </div>
               </div>
             </div>
           </section>

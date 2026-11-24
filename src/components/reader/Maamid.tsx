@@ -62,7 +62,7 @@ function YetibFirst({ text, source }: { text: string; source?: string }) {
 
 // Te'amim written twice on one word (Talsha ֠, Tilsa ֩, Zarqa ֮, Teri Kadma ֙): the sign at the
 // word's edge only shows which ta'am it is; the other one is on the letter that takes the sound.
-const DOUBLED = ["\u05A0", "\u05A9", "\u05AE", "\u0599"];
+const DOUBLED = ["\u05A0", "\u05A9", "\u05AE", "\u0598", "\u0599"];
 const PREPOSITIVE = "\u05A0";
 function doubledOf(word: string) {
   return DOUBLED.find((m) => word.split(m).length > 2);

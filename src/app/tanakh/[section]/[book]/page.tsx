@@ -161,15 +161,6 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
                           {a.alt && <div className="text-xs text-stone-400">{a.alt}</div>}
                         </td>
                         <td className="py-2 text-end">
-                          {here.map((l) => (
-                            <Link
-                              key={l.id}
-                              href={`/practice/${l.id}/`}
-                              className="ms-1 inline-block rounded-md bg-amber-700 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-800"
-                            >
-                              Practice {l.citation.ref.split(" ").pop()}
-                            </Link>
-                          ))}
                         </td>
                       </tr>
                     );

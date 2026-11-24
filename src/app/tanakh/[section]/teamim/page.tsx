@@ -40,12 +40,7 @@ export default function TorahTeamimPage() {
           <span className="block text-lg font-semibold text-stone-900">🎧 Listening quiz →</span>
           <span className="block text-sm text-stone-600">Hear the Hazzan sing a ta&apos;am and pick its sign (te&apos;amim from your open levels).</span>
         </Link>
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
-          <span className="block text-lg font-semibold text-stone-900">🎤 Practice singing</span>
-          <span className="block text-sm text-stone-600">
-            Press <b>Practice</b> under a recording, sing it, and get stars. Get 2 stars on every ta&apos;am to finish a level.
-          </span>
-        </div>
+
       </div>
       <div className="sticky top-0 z-10 mb-4 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur">
         <SpeedControl />

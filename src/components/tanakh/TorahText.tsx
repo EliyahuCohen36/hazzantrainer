@@ -14,7 +14,7 @@ import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/Disp
 import { ScrollPages } from "./ScrollPages";
 import { Recording } from "@/components/audio/Recording";
 import { SpeedControl } from "@/components/audio/SpeedControl";
-import { TaamPractice } from "./TaamPractice";
+import { TaamSubmit } from "./TaamSubmit";
 import { useExistingRecordings } from "@/lib/recordings";
 import { AdminDrop } from "@/components/admin/AdminDrop";
 import { BookmarkButton } from "@/lib/bookmarks";
@@ -239,15 +239,7 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
           {verse.v === 1 ? `${verse.c}:${verse.v}` : verse.v}
         </sup>
       )}
-      {practiceHref && !scroll && (
-        <Link
-          href={practiceHref}
-          className="mx-1 inline-block rounded bg-amber-700 px-1.5 py-0.5 align-middle font-sans text-[0.32em] font-medium text-white hover:bg-amber-800"
-          dir="ltr"
-        >
-          Practice
-        </Link>
-      )}
+      {/* No "Practice" (singing) button by the pasuk any more (owner, Nov 24). */}
       {verse.t.map((tok, i) => {
         // The pesik is a reading mark: not written in a Sefer Torah.
         if (tok === "|") return scroll ? null : <span key={i} className="font-bold text-stone-900"> ׀ </span>;
@@ -307,11 +299,15 @@ export function TorahText({
   const sections =
     division === "weekday" && weekdaySections ? weekdaySections : haftarah ? [...shabbatSections, haftarah] : shabbatSections;
   const { lang } = useLang();
-  // Scroll mode: the vowelled text beside the scroll, like a tikkun (off on phones at first).
-  const [tikkun, setTikkun] = useState(true);
+  // Scroll mode: the vowelled text beside the scroll, like a tikkun (off on phones at first), or one side at a
+  // time where a tap on the page switches sides (owner, Nov 24).
+  const [scrollView, setScrollView] = useState<"beside" | "tap" | "off">("beside");
   useEffect(() => {
-    if (window.matchMedia("(max-width: 767px)").matches) setTikkun(false);
+    if (window.matchMedia("(max-width: 767px)").matches) setScrollView("tap");
   }, []);
+  const tikkun = scrollView === "beside";
+  const tap = scrollView === "tap";
+  const [vowelSide, setVowelSide] = useState(false);
   const [showTr, setShowTr] = useShowTr();
   const trBooks = Array.from(new Set([book, haftarah?.book].filter((b): b is string => !!b)));
   const trOf = useTanakhTranslation(lang, trBooks, showTr);
@@ -363,10 +359,25 @@ export function TorahText({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
           {scroll && (
-            <label className="flex cursor-pointer items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-medium text-stone-800 ring-1 ring-amber-300">
-              <input type="checkbox" checked={tikkun} onChange={(e) => setTikkun(e.target.checked)} className="size-4 accent-amber-700" />
-              Vowels beside (tikkun)
-            </label>
+            <div className="flex overflow-hidden rounded-full text-sm ring-1 ring-amber-300" role="group" aria-label="Nekudot and te'amim">
+              {(
+                [
+                  ["beside", "Vowels beside (tikkun)"],
+                  ["tap", "Tap to switch"],
+                  ["off", "Scroll only"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={scrollView === id}
+                  onClick={() => setScrollView(id)}
+                  className={`px-3 py-1 ${scrollView === id ? "bg-amber-700 text-white" : "bg-white text-amber-900"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           )}
           <ZoomControl zoom={zoom} onChange={setZoom} />
           {trLang && !scroll && book && (
@@ -434,8 +445,19 @@ export function TorahText({
         )}
       </div>
 
+      {scroll && have && (
+        <ScrollAudioPanel
+          items={sections.flatMap((x) =>
+            [
+              { src: x.recording, label: x.en, he: x.he },
+              { src: x.maftirRecording, label: "Maftir", he: "מפטיר" },
+            ].filter((y): y is { src: string; label: string; he: string } => !!y.src && have.has(y.src)),
+          )}
+        />
+      )}
+
       {scroll && scrollColumns?.length && focus !== "haftarah" ? (
-        <ScrollPages columns={scrollColumns} zoom={zoom} marks={marks} focus={scrollFocus} tikkun={tikkun} />
+        <ScrollPages columns={scrollColumns} zoom={zoom} marks={marks} focus={scrollFocus} tikkun={tikkun} flip={tap} />
       ) : null}
 
       {/* In scroll mode the haftarah (not in the Sefer Torah) is shown as text when it's picked. */}
@@ -492,12 +514,18 @@ export function TorahText({
           <div
             dir="rtl"
             lang="he"
-            className={`hebrew-text text-right sm:text-justify md:order-1 ${
-              scroll
+            onClick={scroll && tap ? () => setVowelSide((x) => !x) : undefined}
+            title={scroll && tap ? (vowelSide ? "Tap to see the scroll" : "Tap to see the nekudot and te'amim") : undefined}
+            className={`hebrew-text text-right sm:text-justify md:order-1 ${scroll && tap ? "cursor-pointer select-none" : ""} ${
+              scroll && !(tap && vowelSide)
                 ? "rounded-xl bg-[#f6eedd] px-4 py-5 font-scroll text-[1.9rem] leading-[1.9] text-stone-900 sm:text-[2.1rem]"
                 : `font-hebrew text-[1.55rem] text-stone-900 sm:text-[1.9rem] ${settings.showTaamNames ? "leading-[2.6]" : "leading-[2.1]"}`
             }`}
-            style={zoom !== 1 ? { fontSize: `calc(${zoom} * ${scroll ? "clamp(1.9rem, 4vw, 2.1rem)" : "clamp(1.55rem, 4vw, 1.9rem)"})` } : undefined}
+            style={
+              zoom !== 1
+                ? { fontSize: `calc(${zoom} * ${scroll && !(tap && vowelSide) ? "clamp(1.9rem, 4vw, 2.1rem)" : "clamp(1.55rem, 4vw, 1.9rem)"})` }
+                : undefined
+            }
           >
             {s.verses.map((v) => {
               const key = `${v.c}:${v.v}`;
@@ -514,6 +542,7 @@ export function TorahText({
                   )}
                   {(() => {
                     const tr = !scroll ? trOf(s.book ?? book, v) : undefined;
+                    if (scroll && tap && vowelSide) return <Verse verse={v} settings={{ ...settings, scrollMode: false, showTaamNames: false }} />;
                     if (!tr) return <Verse verse={v} settings={settings} practiceHref={practice[key]} />;
                     return (
                       <span className="mb-3 block">
@@ -542,7 +571,55 @@ export function TorahText({
   );
 }
 
-/** The Hazzan reading this section: listen (at any speed), then read it yourself and get a score. */
+/**
+ * In Torah Scroll Mode the aliyot are not shown one by one, so the Hazzan's readings sit in a panel at the side
+ * of the screen (owner, Nov 24): listen to an aliyah while looking at the tikkun.
+ */
+function ScrollAudioPanel({ items }: { items: { src: string; label: string; he: string }[] }) {
+  const [open, setOpen] = useState(false);
+  if (!items.length) return null;
+  return (
+    <div className="fixed right-0 top-1/3 z-30 flex items-start" dir="ltr">
+      {open && (
+        <div className="max-h-[60vh] w-72 max-w-[85vw] overflow-y-auto rounded-l-2xl border border-r-0 border-amber-200 bg-white/95 p-3 shadow-xl backdrop-blur">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-semibold text-stone-900">🔊 The Hazzan reads</span>
+            <button type="button" onClick={() => setOpen(false)} className="px-1 text-stone-500" aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <ul className="space-y-2">
+            {items.map((it) => (
+              <li key={it.src}>
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="font-medium text-stone-800">{it.label}</span>
+                  <span dir="rtl" lang="he" className="font-hebrew text-amber-800">
+                    {it.he}
+                  </span>
+                </div>
+                <Recording src={it.src} className="h-8 w-full" />
+              </li>
+            ))}
+          </ul>
+          <div className="mt-2">
+            <SpeedControl compact />
+          </div>
+        </div>
+      )}
+      {!open && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="rounded-l-xl bg-amber-700 px-2 py-3 text-sm font-semibold text-white shadow-lg [writing-mode:vertical-rl]"
+        >
+          🔊 Hear the Hazzan
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** The Hazzan reading this section: listen (at any speed). School students can record it for their teacher to grade. */
 function SectionAudio({ items }: { items: { src: string; label: string }[] }) {
   if (!items.length) return null;
   return (
@@ -551,7 +628,7 @@ function SectionAudio({ items }: { items: { src: string; label: string }[] }) {
         <div key={it.src} className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium text-stone-800">🔊 {it.label}: the Hazzan</span>
           <Recording src={it.src} className="h-9 w-full max-w-md" />
-          <TaamPractice src={it.src} label={it.label} long buttonLabel={`Read ${it.label} yourself`} />
+          <TaamSubmit src={it.src} label={it.label} tune="reading" studentsOnly compact />
         </div>
       ))}
       <SpeedControl />

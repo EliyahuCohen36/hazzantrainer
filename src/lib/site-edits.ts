@@ -72,6 +72,10 @@ export interface TunesEdits {
 export interface TaamWord {
   id: string;
   word: string;
+  /** Where it's from ("Bereshit 1:2"). */
+  ref?: string;
+  /** One of the 15 ready-made words that the owner took off the list. */
+  hidden?: boolean;
 }
 
 export interface SiteEdits {

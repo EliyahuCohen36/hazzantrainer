@@ -108,9 +108,10 @@ html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
 }
 
 /* Doubled ta'am (Talsha, Tilsa, Zarqa, Teri Kadma): the letter that takes the sound, in bold. */
+/* A ta'am written twice on one word (two Zarqas, two Talshas…): the letter that takes the sound, in its own colour. */
 .taam-sound {
   font-weight: 800;
-  color: #92400e;
+  color: #dc2626;
 }
 
 /* Beginner Keriah: how to write a letter, one stroke after another. */

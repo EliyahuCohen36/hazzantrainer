@@ -206,10 +206,19 @@ export function TeamimLevels() {
               return t ? <TaamCard key={id} t={t} open={open} lv={{ n: lvl.n, srcs: levelSrcs(lvl.n) }} /> : null;
             })}
           </ul>
+          {/* A review every 2 levels (owner, Nov 24): the Hazzan's words for every ta'am learned up to here. */}
+          {lvl.n % 2 === 0 && (
+            <TaamWordsQuiz
+              key={`review-${lvl.n}`}
+              tune="torah"
+              title={`🔁 Review of levels 1–${lvl.n}: which ta'am?`}
+              pool={PROSE_TEAMIM.filter((t) => t.id && !t.hidden && openTeamim(lvl.n).has(t.id))}
+            />
+          )}
         </>
       )}
 
-      <TaamWordsQuiz tune="torah" pool={PROSE_TEAMIM.filter((t) => t.id && open.has(t.id) && !t.hidden)} />
+      {lvl.n % 2 !== 0 && <TaamWordsQuiz tune="torah" pool={PROSE_TEAMIM.filter((t) => t.id && open.has(t.id) && !t.hidden)} />}
 
       <p className="mt-4 text-xs text-stone-400">
         Names follow the Sephardic Pizmonim Project (pizmonim.org). Examples are from the Westminster Leningrad Codex.

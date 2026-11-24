@@ -102,7 +102,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
             <span>
               <span className="block text-lg font-semibold text-stone-900">Te&apos;amim trainer →</span>
               <span className="block text-sm text-stone-600">
-                Learn the names and sounds of every ta&apos;am, practice singing them, and take the listening quiz.
+                Learn the names and sounds of every ta&apos;am, and take the listening quiz.
               </span>
             </span>
             <span dir="rtl" lang="he" className="font-hebrew text-2xl text-amber-800">
@@ -145,15 +145,6 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
                   <Link href={`/tanakh/torah/${book.id}/`} className="text-amber-800 hover:underline">
                     Aliyot of each parasha →
                   </Link>
-                  {lessons.map((l) => (
-                    <Link
-                      key={l.id}
-                      href={`/practice/${l.id}/`}
-                      className="rounded-lg bg-amber-700 px-3 py-1 text-xs font-medium text-white hover:bg-amber-800"
-                    >
-                      Practice {l.title.en}
-                    </Link>
-                  ))}
                 </div>
               </section>
             );
@@ -180,15 +171,6 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
                   <div className="text-xs text-stone-400">{book.melody}</div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {lessons.map((l) => (
-                    <Link
-                      key={l.id}
-                      href={`/practice/${l.id}/`}
-                      className="rounded-lg bg-amber-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800"
-                    >
-                      {l.title.en}
-                    </Link>
-                  ))}
                   <Link
                     href={`/tanakh/${s}/${book.id}/`}
                     className="rounded-lg bg-amber-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800"

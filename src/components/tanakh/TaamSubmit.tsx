@@ -78,7 +78,13 @@ export function TaamSubmit({
   tune = "torah",
   level,
   needed,
+  studentsOnly = false,
+  compact = false,
 }: {
+  /** Show nothing to anyone but school students (no "I've learned it" button). */
+  studentsOnly?: boolean;
+  /** A smaller box (e.g. beside a word). */
+  compact?: boolean;
   /** The Hazzan's recording the child sings after. */
   src: string;
   label: string;
@@ -109,6 +115,7 @@ export function TaamSubmit({
 
   if (role === "teacher" || role === "admin") return null;
 
+  if (!student && studentsOnly) return null;
   // Not a school student: no recording; they mark the ta'am as learned themselves.
   if (!student) {
     const done = isLearned(learned, src, false);
@@ -180,7 +187,7 @@ export function TaamSubmit({
     return <p className="text-xs text-stone-500">Recording for your teacher opens soon.</p>;
 
   return (
-    <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm">
+    <div className={`rounded-xl border border-sky-200 bg-sky-50 text-sm ${compact ? "p-2" : "p-3"}`}>
       {best >= PASS_GRADE ? (
         <p className="font-medium text-emerald-700">
           ✓ Passed! Your teacher gave you {best}/10.
