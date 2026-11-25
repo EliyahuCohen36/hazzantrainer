@@ -234,6 +234,7 @@ function Verse({ verse, settings, practiceHref }: { verse: TorahVerse; settings:
   }
   return (
     <>
+      {!scroll && <span id={`v-${verse.c}-${verse.v}`} className="pasuk-anchor" />}
       {!scroll && (
         <sup className="mx-1 select-none font-sans text-[0.38em] text-stone-400" dir="ltr">
           {verse.v === 1 ? `${verse.c}:${verse.v}` : verse.v}
@@ -324,6 +325,7 @@ export function TorahText({
   const scrollFocus: [number, number] | null =
     focusItem?.from && focusItem.to ? [posOf(focusItem.from), posOf(focusItem.to)] : weekdayAll;
   const pick = (id: string | null) => {
+    setBarOpen(false); // fold the bar away so the text has the room
     setFocus(id);
     const it = items.find((x) => x.id === id);
     if (id)
@@ -342,20 +344,73 @@ export function TorahText({
         window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
       }, 80);
   };
-  const [settings, setSettings] = useState<ReaderSettings>({
+  const [settings, setSettingsState] = useState<ReaderSettings>({
     scrollMode: false,
     showNikkud: true,
     showTeamim: true,
     showTaamNames: false,
   });
+  // Remembered per browser (owner, Nov 25): Torah Scroll Mode stays on when going to another parasha.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("torah-reader-settings") ?? "null") as Partial<ReaderSettings> | null;
+      if (saved) setSettingsState((s0) => ({ ...s0, ...saved, scrollMode: !!saved.scrollMode && allowScroll }));
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const setSettings = (s1: ReaderSettings) => {
+    setSettingsState(s1);
+    try {
+      localStorage.setItem("torah-reader-settings", JSON.stringify(s1));
+    } catch {}
+  };
   const scroll = settings.scrollMode;
+  // The bar with the aliyot and the display switches folds away into a small button (owner, Nov 25).
+  const [barOpen, setBarOpen] = useState(false);
+  // "Find a pasuk" links (#v-<perek>-<pasuk>): go to that pasuk once the page is drawn, and mark it for a moment.
+  useEffect(() => {
+    const go = () => {
+      const m = /^#v-(\d+)-(\d+)$/.exec(location.hash);
+      if (!m) return;
+      const jump = () => {
+        const el = (settings.scrollMode && document.querySelector(`[data-pos="${Number(m[1]) * 1000 + Number(m[2])}"]`)) || document.getElementById(`v-${m[1]}-${m[2]}`);
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 110;
+        window.scrollTo({ top: Math.max(0, top) });
+        el.classList.add("pasuk-flash");
+        setTimeout(() => el.classList.remove("pasuk-flash"), 3500);
+      };
+      setTimeout(jump, 150);
+      setTimeout(jump, 900);
+    };
+    go();
+    window.addEventListener("hashchange", go);
+    return () => window.removeEventListener("hashchange", go);
+  }, [settings.scrollMode]);
   const [zoom, setZoom] = useZoom();
   const wanted = [...shabbatSections, ...(weekdaySections ?? []), ...(haftarah ? [haftarah] : [])].flatMap((x) => [x.recording, x.maftirRecording]).filter((p): p is string => !!p);
   const have = useExistingRecordings(wanted);
 
   return (
     <div className="space-y-4" style={scroll && scrollColumns?.length ? undefined : zoomWidth(zoom)}>
-      <div className="sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+      {!barOpen && (
+        <div className="sticky top-0 z-10 flex justify-end sm:top-[3.4rem]">
+          <button
+            type="button"
+            onClick={() => setBarOpen(true)}
+            className="rounded-full border border-amber-300 bg-white/95 px-4 py-1.5 text-sm font-semibold text-amber-900 shadow-sm backdrop-blur hover:bg-amber-50"
+          >
+            {allowScroll ? "☰ Aliyot, scroll mode & settings" : "☰ Aliyot & settings"}
+            {focusItem ? <span className="ms-1 font-normal text-stone-600">· {focusItem.label}</span> : null}
+          </button>
+        </div>
+      )}
+      <div className={barOpen ? "sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur" : "hidden"}>
+        <div className="mb-2 flex justify-end">
+          <button type="button" onClick={() => setBarOpen(false)} className="rounded-full px-3 py-0.5 text-sm text-stone-500 ring-1 ring-stone-200 hover:bg-stone-50">
+            ▲ Hide
+          </button>
+        </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
           {scroll && (

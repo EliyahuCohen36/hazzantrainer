@@ -607,6 +607,14 @@ export const PHRASES: [string, string, string][] = [
   // ── Added Nov 17: Siddur, bookmarks, Sheva steps, Tanakh pages ─────
   ["🔖 Tap “Bookmark” beside any part of the Tanakh or the Siddur to keep it here (up to 3 of each).", "🔖 לחצו על “סימנייה” ליד כל חלק בתנ״ך או בסידור כדי לשמור אותו כאן (עד 3 מכל אחד).", "🔖 اضغط على «إشارة مرجعية» بجانب أي جزء من التناخ أو السدّور لتحفظه هنا (حتى 3 من كل واحد)."],
   ["Bookmark", "סימנייה", "إشارة مرجعية"],
+  // ── Added Nov 25: pasuk finder, reader bar ─────
+  ["🔎 Find a pasuk", "🔎 חיפוש פסוק", "🔎 ابحث عن آية"],
+  ["Perek", "פרק", "الإصحاح"],
+  ["Pasuk", "פסוק", "الآية"],
+  ["Go →", "← מעבר", "اذهب ←"],
+  ["☰ Aliyot, scroll mode & settings", "☰ עליות, מצב ספר תורה והגדרות", "☰ العليوت ووضع اللفيفة والإعدادات"],
+  ["☰ Aliyot & settings", "☰ עליות והגדרות", "☰ العليوت والإعدادات"],
+  ["▲ Hide", "▲ הסתרה", "▲ إخفاء"],
   ["Bookmark this", "הוסיפו סימנייה", "أضف إشارة مرجعية"],
   ["Bookmarked", "נשמר בסימניות", "محفوظ"],
   ["My bookmarks", "הסימניות שלי", "إشاراتي المرجعية"],

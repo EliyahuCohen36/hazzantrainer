@@ -70,7 +70,9 @@ function doubledOf(word: string) {
 
 // Tevir under a letter that also has a vowel underneath: the vowel hides it, so the Tevir is drawn
 // a little to the left of the letter instead (owner's request).
-const TEVIR_CLASH = /\u059B[^\s]*[\u05B0-\u05B8\u05BB]|[\u05B0-\u05B8\u05BB][^\s]*\u059B/;
+// Every Tevir is drawn in its own colour and a little bigger (owner, Nov 25: it looked like a Ma'arikh); with a vowel
+// under the same letter it also moves a little to the left.
+const TEVIR_CLASH = /\u059B/;
 
 function Hints({ text, source }: { text: string; source?: string }) {
   if (!HINT_MARKS.test(text) && !DOUBLED.some((m) => text.split(m).length > 2) && !TEVIR_CLASH.test(text)) return <>{text}</>;
@@ -104,7 +106,8 @@ function Hints({ text, source }: { text: string; source?: string }) {
             {lead}
             {clusters.map((c, ci) => {
               const sound = ci === soundAt;
-              const tevir = c.text.includes("\u059B") && /[\u05B0-\u05B8\u05BB]/.test(c.text);
+              const tevir = c.text.includes("\u059B");
+              const tevirBeside = tevir && /[\u05B0-\u05B8\u05BB]/.test(c.text);
               if (!c.meteg && !c.qamatsKatan && !c.shevaNa && !sound && !tevir) return <Fragment key={ci}>{c.text}</Fragment>;
               let t = c.text;
               const cls: string[] = [];
@@ -131,11 +134,10 @@ function Hints({ text, source }: { text: string; source?: string }) {
                 title.push("Sheva na: say a short \"e\"");
               }
               if (tevir) {
-                const base = t.replace(/[\u0591-\u05C7]/g, "");
                 return (
-                  <span key={ci} className={`tevir-shift ${cls.join(" ")}`} title={title.join(" · ") || undefined}>
+                  <span key={ci} className={`tevir-shift ${tevirBeside ? "" : "tevir-here"} ${cls.join(" ")}`} title={title.join(" · ") || undefined}>
                     {t.replace("\u059B", "")}
-                    <span aria-hidden className="tevir-mark" data-l={`${base}\u059B`} />
+                    <span aria-hidden className="tevir-mark" data-l={"\u00A0\u059B"} />
                   </span>
                 );
               }

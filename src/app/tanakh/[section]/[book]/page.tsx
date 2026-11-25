@@ -7,6 +7,8 @@ import { curriculum } from "@/lib/curriculum/repository";
 import { ALIYAH_NAMES } from "@/data/aliyah-names";
 import type { Lesson } from "@/types/curriculum";
 import { BookChapters } from "@/components/tanakh/BookChapters";
+import { PasukFinder } from "@/components/tanakh/PasukFinder";
+import { TORAH_TEXT } from "@/data/torah";
 
 
 
@@ -42,6 +44,10 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
   if (!book) notFound();
   if (section !== "torah") return <BookChapters book={book} />;
   const parashot = PARASHOT.filter((p) => p.book === book.id);
+  // Perakim and how many pesukim each has, for "Find a pasuk".
+  const counts = new Map<number, number>();
+  for (const v of TORAH_TEXT[book.id] ?? []) counts.set(v.c, Math.max(counts.get(v.c) ?? 0, v.v));
+  const finderChapters = [...counts.entries()].map(([c, verses]) => ({ href: null, c, verses }));
 
   let lessons: Lesson[] = [];
   if (book.courseId) {
@@ -75,6 +81,15 @@ export default async function BookPage({ params }: { params: Promise<{ section: 
       <p className="mt-1 text-sm text-stone-600">
         {parashot.length} parashiyot, each divided into its 7 aliyot and Maftir.
       </p>
+      <PasukFinder
+        base={`/tanakh/torah/${book.id}/`}
+        chapters={finderChapters}
+        parashot={parashot.map((p) => {
+          const shab = p.aliyot.filter((a) => a.n !== "M");
+          const cv = (s: string) => s.split(":").map(Number) as [number, number];
+          return { id: p.id, from: cv(shab[0].from), to: cv(shab[shab.length - 1].to) };
+        })}
+      />
 
       <nav aria-label="Parashiyot">
         <ol className="mt-4 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">

@@ -129,15 +129,24 @@ html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
 .tevir-mark {
   position: absolute;
   top: 0;
-  right: 0.16em;
+  color: #c2410c; /* the Tevir in its own colour, a little bigger, so it isn't taken for a Ma'arikh */
+  transform: scale(1.5);
+  transform-origin: 50% 88%;
   line-height: normal; /* same box as the letter itself, not the tall line */
   white-space: nowrap;
-  clip-path: inset(72% 0 0 0);
   pointer-events: none;
   user-select: none;
 }
 .tevir-mark::before {
   content: attr(data-l);
+}
+.tevir-shift .tevir-mark {
+  right: 100%; /* beside the vowel: just left of the letter */
+  margin-right: -0.12em;
+}
+.tevir-here .tevir-mark {
+  right: 50%; /* no vowel under the letter: right under it */
+  margin-right: -0.13em;
 }
 
 /* The owner's page editor (SiteEditor.tsx): show what can be tapped. */
@@ -151,4 +160,41 @@ html[dir="rtl"] :is(p, li, h1, h2, h3, h4, td, th, label, figcaption, option) {
 .site-editing main [data-no-translate]:hover {
   outline: none;
   cursor: not-allowed;
+}
+
+/* "Find a pasuk": the pasuk found is marked for a moment. */
+.pasuk-anchor.pasuk-flash::before,
+[data-pos].pasuk-flash {
+  background: #fde68a;
+  border-radius: 0.25rem;
+}
+.pasuk-anchor.pasuk-flash::before {
+  content: "◀";
+  color: #b45309;
+  font-size: 0.6em;
+  padding: 0 0.15em;
+}
+
+/* Pictures the owner added: while editing, drag to move, corner handle to resize (SitePictures.tsx). */
+.site-pic-handle {
+  display: none;
+}
+.pics-editing [data-site-pic-wrap] {
+  cursor: grab;
+  touch-action: none;
+  outline: 2px dashed #8b5cf6;
+  outline-offset: 4px;
+}
+.pics-editing .site-pic-handle {
+  display: block;
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #7c3aed;
+  border: 3px solid #fff;
+  cursor: nwse-resize;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
 }

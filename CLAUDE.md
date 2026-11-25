@@ -453,3 +453,16 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
 - Torah Scroll Mode: "Vowels beside (tikkun) / Tap to switch / Scroll only" (phones start on Tap to switch); in Tap
   to switch a tap on the page flips between the scroll and the vowelled side (ScrollPages flip, megillot too). The
   Hazzan's readings are in a side panel ("🔊 Hear the Hazzan", ScrollAudioPanel in TorahText.tsx).
+
+## Nov 25, 2026
+- Tevir: drawn as its own orange mark, 1.5× bigger, on a no-break space (no copy of the letter any more):
+  under the letter, or just left of it when a vowel is below (.tevir-mark in globals.css, Maamid.tsx).
+- "🔎 Find a pasuk" (PasukFinder.tsx) at the top of every book page: pick perek + pasuk → goes to the chapter page
+  (Nevi'im/Ketuvim) or the parasha containing it (Torah) at #v-<perek>-<pasuk>; TorahText scrolls there and lights it up.
+- Parasha pages: the aliyot / scroll mode / settings bar is hidden behind a small "☰ Aliyot, scroll mode & settings"
+  button (opens it; "▲ Hide" closes it; picking an aliyah closes it). Reader settings, including Torah Scroll Mode, are
+  remembered across parashiyot (localStorage "torah-reader-settings").
+- Admin can drag pictures (SitePictures.tsx) to move them next to other text and drag the purple corner to resize
+  them, while "Edit this page" is on (home and About pages, wherever pictures were added).
+- Recorder with automatic te'amim grading NOT re-added (owner said: only if reliable; it isn't). School students
+  still record aliyot for the teacher to grade.

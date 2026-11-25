@@ -61,6 +61,12 @@ export function SiteEditor() {
     const click = (e: MouseEvent) => {
       const target = e.target as Element | null;
       if (!target || target.closest("[data-site-editor]")) return;
+      // A picture was just dragged or resized: that wasn't a tap.
+      if (((window as Window & { __kriahNoClick?: number }).__kriahNoClick ?? 0) > Date.now()) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
       const img = target.closest("img[data-site-pic]") as HTMLImageElement | null;

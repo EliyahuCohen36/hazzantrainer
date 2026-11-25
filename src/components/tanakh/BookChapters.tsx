@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PasukFinder } from "./PasukFinder";
 import { SECTION_TITLES, type TanakhBook } from "@/data/teamim-reference";
 import { bookParts, MEGILLOT } from "@/data/tanakh";
 import { TUNE_SETS } from "@/data/tanakh-recordings";
@@ -38,6 +39,11 @@ export function BookChapters({ book }: { book: TanakhBook }) {
           see each one.
         </p>
       )}
+      <PasukFinder
+        chapters={parts.flatMap((pt) =>
+          pt.chapters.map((c) => ({ href: `/tanakh/${book.section}/${book.id}/${c.slug}/`, c: c.c, verses: c.verses, part: pt.en })),
+        )}
+      />
       {MEGILLOT.has(book.id) && (
         <p className="mt-2 text-sm text-stone-600">Each chapter can also be shown in Scroll Mode, as it&apos;s written in the megillah.</p>
       )}
