@@ -1,5 +1,6 @@
 "use client";
 
+import { TopBar } from "@/components/reader/TopBar";
 import { Fragment, useState, useEffect } from "react";
 import { useZoom, ZoomControl, zoomWidth } from "@/components/reader/Zoom";
 import Link from "next/link";
@@ -11,7 +12,7 @@ const heb = (t: string, o: DisplayOptions) => <WithMaamid text={renderHebrew(t, 
 import { emetTeamim, taamOfWord } from "@/lib/hebrew/taam-of-word";
 import type { TaamReference } from "@/data/teamim-reference";
 import { DisplayModeToggle, type ReaderSettings } from "@/components/reader/DisplayModeToggle";
-import { ScrollPages } from "./ScrollPages";
+import { ScrollPages, keepPlace } from "./ScrollPages";
 import { Recording } from "@/components/audio/Recording";
 import { SpeedControl } from "@/components/audio/SpeedControl";
 import { TaamSubmit } from "./TaamSubmit";
@@ -393,24 +394,13 @@ export function TorahText({
 
   return (
     <div className="space-y-4" style={scroll && scrollColumns?.length ? undefined : zoomWidth(zoom)}>
-      {!barOpen && (
-        <div className="sticky top-0 z-10 flex justify-end sm:top-[3.4rem]">
-          <button
-            type="button"
-            onClick={() => setBarOpen(true)}
-            className="rounded-full border border-amber-300 bg-white/95 px-4 py-1.5 text-sm font-semibold text-amber-900 shadow-sm backdrop-blur hover:bg-amber-50"
-          >
-            {allowScroll ? "☰ Aliyot, scroll mode & settings" : "☰ Aliyot & settings"}
-            {focusItem ? <span className="ms-1 font-normal text-stone-600">· {focusItem.label}</span> : null}
-          </button>
-        </div>
-      )}
-      <div className={barOpen ? "sticky top-0 z-10 -mx-1 sm:top-[3.4rem] rounded-xl border border-stone-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur" : "hidden"}>
-        <div className="mb-2 flex justify-end">
-          <button type="button" onClick={() => setBarOpen(false)} className="rounded-full px-3 py-0.5 text-sm text-stone-500 ring-1 ring-stone-200 hover:bg-stone-50">
-            ▲ Hide
-          </button>
-        </div>
+      <TopBar
+        label={allowScroll ? "Aliyot, scroll mode & settings" : "Aliyot & settings"}
+        extra={focusItem ? <span className="font-normal text-stone-600">· {focusItem.label}</span> : null}
+        open={barOpen}
+        onOpenChange={setBarOpen}
+        barClass="-mx-1 rounded-xl border border-stone-200 bg-white/95 px-4 py-3 pb-4 shadow-sm backdrop-blur"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <DisplayModeToggle value={settings} onChange={setSettings} noScroll={!allowScroll} scrollLabel={scrollLabel} />
           {scroll && (
@@ -426,7 +416,7 @@ export function TorahText({
                   key={id}
                   type="button"
                   aria-pressed={scrollView === id}
-                  onClick={() => setScrollView(id)}
+                  onClick={() => keepPlace(() => setScrollView(id))}
                   className={`px-3 py-1 ${scrollView === id ? "bg-amber-700 text-white" : "bg-white text-amber-900"}`}
                 >
                   {label}
@@ -498,7 +488,7 @@ export function TorahText({
             it (highlighted).
           </p>
         )}
-      </div>
+      </TopBar>
 
       {scroll && have && (
         <ScrollAudioPanel

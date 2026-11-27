@@ -466,3 +466,10 @@ Before pushing: `npx tsc --noEmit` and `npm run build` must pass.
   them, while "Edit this page" is on (home and About pages, wherever pictures were added).
 - Recorder with automatic te'amim grading NOT re-added (owner said: only if reliable; it isn't). School students
   still record aliyot for the teacher to grade.
+
+## Nov 27, 2026
+- Top bars of Tanakh and Siddur pages (TorahText, ChapterView via TorahText, SiddurView, ShnayimText) are hidden behind a
+  small "▼ …" button at the top of the screen (TopBar.tsx); "▲" at the bar's bottom hides it; picking a section/aliyah link
+  closes it.
+- Torah Scroll Mode: tapping in "Tap to switch", and changing between Vowels beside / Tap to switch / Scroll only, keep the
+  reader's place (keepPlace() in ScrollPages.tsx: the line at the top of the screen, data-line="<column>-<line>", stays put).

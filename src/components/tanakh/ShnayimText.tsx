@@ -1,5 +1,6 @@
 "use client";
 
+import { TopBar } from "@/components/reader/TopBar";
 import { useZoom, ZoomControl, zoomWidth } from "@/components/reader/Zoom";
 import { WithMaamid } from "@/components/reader/Maamid";
 
@@ -25,7 +26,7 @@ export function ShnayimText({ sections }: { sections: ShnayimSection[] }) {
   const [zoom, setZoom] = useZoom();
   return (
     <div className="space-y-4" style={zoomWidth(zoom)}>
-      <div className="sticky top-0 z-10 sm:top-[5rem] flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+      <TopBar label="Aliyot & text size" top="sm:top-[5rem]" barClass="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white/95 px-4 py-2 pb-3 shadow-sm backdrop-blur">
         <nav aria-label="Aliyot" className="flex flex-wrap gap-1.5 text-sm">
           {sections.map((s) => (
             <a key={s.id} href={`#${s.id}`} className="rounded-full bg-white px-3 py-1 text-stone-700 shadow-sm ring-1 ring-stone-200 hover:bg-amber-50">
@@ -34,7 +35,7 @@ export function ShnayimText({ sections }: { sections: ShnayimSection[] }) {
           ))}
         </nav>
         <ZoomControl zoom={zoom} onChange={setZoom} />
-      </div>
+      </TopBar>
       {sections.map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-36 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-baseline justify-between border-b border-stone-100 pb-2">

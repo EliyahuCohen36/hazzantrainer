@@ -1,5 +1,6 @@
 "use client";
 
+import { TopBar } from "@/components/reader/TopBar";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { WithMaamid } from "@/components/reader/Maamid";
@@ -296,7 +297,7 @@ export function SiddurView({ part }: { part: SiddurPart }) {
   );
   return (
     <div className="space-y-4" style={zoomWidth(zoom)}>
-      <div className="sticky top-0 z-10 sm:top-[5rem] space-y-2 rounded-xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+      <TopBar label="Sections & settings" top="sm:top-[5rem]" barClass="space-y-2 rounded-xl border border-stone-200 bg-white/95 px-4 py-2 pb-3 shadow-sm backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <nav aria-label="Sections" className="flex flex-wrap gap-1.5" dir="rtl">
             {part.sections.map((sec, s) => (
@@ -341,7 +342,7 @@ export function SiddurView({ part }: { part: SiddurPart }) {
         {trLang && showTr && tr && Object.keys(tr).length < paraCount / 3 && (
           <p className="text-xs text-stone-500">Much of this part is still being translated. The pesukim and the main prayers are done.</p>
         )}
-      </div>
+      </TopBar>
       {admin && <LongRecordingsAdmin part={part.slug} have={have} paras={spoken} />}
       {part.sections.map((sec, s) => (
         <section key={s} id={`s-${s + 1}`} className="scroll-mt-40 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">

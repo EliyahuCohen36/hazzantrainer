@@ -143,11 +143,34 @@ function Column({ col, vowels }: { col: ScrollColumn; vowels: boolean }) {
         style={{ lineHeight: LINE }}
       >
         {col.lines.map((l, i) => (
-          <Line key={i} line={l} vowels={vowels} />
+          <div key={i} data-line={`${col.n}-${i}`}>
+            <Line line={l} vowels={vowels} />
+          </div>
         ))}
       </div>
     </div>
   );
+}
+
+/**
+ * Change how the scroll is shown without losing the reader's place (owner, Nov 27): note the line at the top of
+ * the screen, make the change, then scroll so that same line is back where it was (Safari doesn't do this itself).
+ */
+export function keepPlace(change: () => void) {
+  if (typeof window === "undefined") return change();
+  const lines = [...document.querySelectorAll<HTMLElement>("[data-line]")];
+  const seen = (el: HTMLElement) => el.getBoundingClientRect().height > 0;
+  const line = lines.find((el) => seen(el) && el.getBoundingClientRect().top >= 110) ?? null;
+  const key = line?.dataset.line;
+  const was = line?.getBoundingClientRect().top ?? 0;
+  change();
+  if (!key) return;
+  const fix = () => {
+    const now = [...document.querySelectorAll<HTMLElement>(`[data-line="${key}"]`)].find(seen);
+    if (now) window.scrollBy(0, now.getBoundingClientRect().top - was);
+  };
+  requestAnimationFrame(() => requestAnimationFrame(fix));
+  setTimeout(fix, 250);
 }
 
 /**
@@ -212,7 +235,7 @@ export function ScrollPages({
                   so a wider column makes everything bigger exactly as it is, in every browser. */}
               <div
                 className={both ? "mx-auto grid gap-3 md:grid-cols-2" : `mx-auto max-w-xl ${flip ? "cursor-pointer select-none" : ""}`}
-                onClick={flip ? () => setVowelSide((v) => !v) : undefined}
+                onClick={flip ? () => keepPlace(() => setVowelSide((v) => !v)) : undefined}
                 title={flip ? (vowelSide ? "Tap to see the scroll" : "Tap to see the nekudot and te'amim") : undefined}
                 style={
                   zoom === 1
